@@ -27,6 +27,11 @@
   }
 }
 
+.gpterm-terms-container {
+  flex: 1;
+  display: flex;
+}
+
 /* https://stackoverflow.com/questions/826782/how-to-disable-text-selection-highlighting */
 .gpterm-noselect {
   -webkit-touch-callout: none; /* iOS Safari */

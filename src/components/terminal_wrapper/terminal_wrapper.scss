@@ -1,5 +1,8 @@
 
 .gpterm-instance-container {
+  display: flex;
+  flex-grow: 1;
+  position: relative;
 
   &.unactive {
     position: fixed;
@@ -7,4 +10,15 @@
     left: -1000px;
   }
 
+  .gpterm-main {
+    flex-grow: 1;
+  }
+
+  .xterm {
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    height: 100%;
+    width: 100%;
+  }
 }

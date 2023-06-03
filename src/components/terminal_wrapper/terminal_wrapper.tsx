@@ -3,10 +3,12 @@ import { listen, UnlistenFn } from "@tauri-apps/api/event";
 import { Terminal } from "xterm";
 import { WebglAddon } from "xterm-addon-webgl";
 import { WebLinksAddon } from "xterm-addon-web-links";
+import { FitAddon } from 'xterm-addon-fit';
 import { invoke } from "@tauri-apps/api/tauri";
 import { Session } from "@pkg/models/session";
 import { AppTheme } from "@pkg/models/app_theme";
 import { runInAction } from "mobx";
+import { debounce } from "lodash-es";
 import "./terminal_wrapper.scss";
 import "xterm/css/xterm.css";
 
@@ -33,6 +35,8 @@ export class TerminalWrapper extends Component<
   private termId: string | undefined;
   private unlistenFn?: UnlistenFn;
   private terminal?: Terminal;
+  private fitAddon?: FitAddon;
+  private resizeObserver?: ResizeObserver;
 
   override componentDidMount(): void {
     this.initTerminal();
@@ -59,9 +63,13 @@ export class TerminalWrapper extends Component<
       }
     });
     this.terminal = terminal;
-    terminal.open(this.containerRef.current!);
+    const fitAddon = new FitAddon();
+    this.fitAddon = fitAddon;
+    terminal.loadAddon(fitAddon);
     terminal.loadAddon(new WebglAddon());
     terminal.loadAddon(new WebLinksAddon());
+    terminal.open(this.containerRef.current!);
+    this.fitAddon.fit();
 
     terminal.onData((data) => {
       this.sendTerminalData(id, data);
@@ -74,13 +82,34 @@ export class TerminalWrapper extends Component<
       });
     });
 
+    terminal.onResize((size) => {
+      invoke('resize_pty', {
+        id,
+        cols: size.cols,
+        rows: size.rows,
+      })
+    });
+
     this.unlistenFn = await listen("pty-output", (event) => {
       const resp = event.payload as PtyResponse;
       if (resp.id === id) {
         terminal.write(resp.data);
       }
     });
+
+    this.resizeObserver = new ResizeObserver(() => {
+      this.fitSize();
+    })
+    this.resizeObserver.observe(this.containerRef.current!);
+
+    window.requestAnimationFrame(() => {
+      terminal.focus();
+    })
   }
+
+  fitSize = debounce(() => {
+    this.fitAddon?.fit();
+  }, 100);
 
   async sendTerminalData(id: string, data: string) {
     await invoke("send_terminal_data", {
@@ -90,6 +119,8 @@ export class TerminalWrapper extends Component<
   }
 
   override componentWillUnmount(): void {
+    this.resizeObserver?.disconnect();
+    this.resizeObserver = undefined;
     this.removeTerminal();
     this.unlistenFn?.();
   }

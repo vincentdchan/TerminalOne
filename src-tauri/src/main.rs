@@ -42,6 +42,15 @@ fn new_terminal(window: tauri::Window, state: State<AppState>) -> Result<String>
 }
 
 #[tauri::command]
+fn resize_pty(state: State<AppState>, id: &str, rows: u16, cols: u16) -> Result<()> {
+    let oid = ObjectId::from_str(id)?;
+
+    let delegate = state.inner().get_terminal_by_id(oid);
+
+    delegate.resize(rows, cols)
+}
+
+#[tauri::command]
 fn send_terminal_data(state: State<AppState>, id: &str, data: &str) -> Result<()> {
     let oid = ObjectId::from_str(id)?;
 
@@ -108,6 +117,7 @@ fn main() {
             send_terminal_data,
             remove_terminal,
             get_a_theme,
+            resize_pty,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
