@@ -57,7 +57,7 @@ fn main() {
 
     tauri::Builder::default()
         .manage(AppState::new())
-        .setup(|app| {
+        .setup(|_app| {
             println!("app started");
             // // Use the native pty implementation for the system
             // let pty_system = native_pty_system();

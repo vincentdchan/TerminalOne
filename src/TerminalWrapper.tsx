@@ -1,6 +1,8 @@
 import { createRef, Component } from "react";
 import { listen, UnlistenFn } from "@tauri-apps/api/event";
 import { Terminal } from "xterm";
+import { WebglAddon } from 'xterm-addon-webgl';
+import { WebLinksAddon } from 'xterm-addon-web-links';
 import { invoke } from "@tauri-apps/api/tauri";
 import "xterm/css/xterm.css";
 
@@ -38,6 +40,8 @@ export class TerminalWrapper extends Component<{}, TerminalWrapperState> {
     }, () => {
       const terminal = new Terminal();
       terminal.open(this.containerRef.current!);
+      terminal.loadAddon(new WebglAddon());
+      terminal.loadAddon(new WebLinksAddon());
 
       terminal.onData((data) => {
         this.sendTerminalData(id, data);
