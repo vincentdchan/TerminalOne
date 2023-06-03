@@ -2,6 +2,7 @@
 use std::sync::{Arc, Mutex};
 use bson::oid::ObjectId;
 use portable_pty::{MasterPty, CommandBuilder, PtySize, native_pty_system};
+use log::info;
 use crate::Result;
 
 #[derive(Clone)]
@@ -22,7 +23,7 @@ impl TerminalDelegate {
     let delegate_clone = delegate.clone();
     let mut reader = delegate_clone.try_clone_reader()?;
     std::thread::spawn(move || {
-      println!("begin reader thread");
+      info!("begin reader thread");
       loop {
         // Consume the output from the child
         let mut buffer: Vec<u8> = vec![0; 4096];
