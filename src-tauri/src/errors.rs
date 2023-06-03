@@ -11,6 +11,10 @@ pub enum Error {
   TauriError(#[from] tauri::Error),
   #[error("no themes found")]
   NoThemesFound,
+  #[error(transparent)]
+  TomlError(#[from] toml::de::Error),
+  #[error(transparent)]
+  JsonError(#[from] serde_json::Error),
 }
 
 impl serde::Serialize for Error {

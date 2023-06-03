@@ -5,7 +5,8 @@ import { TerminalWrapper } from "@pkg/components/terminal_wrapper";
 import { SessionManager } from "@pkg/models/session_manager";
 import { Tabs } from "@pkg/components/tabs";
 import { invoke } from "@tauri-apps/api";
-import { load } from "js-toml";
+import { isString } from "lodash-es";
+import type { AppTheme } from "@pkg/models/app_theme";
 import type { ThemeResponse } from "@pkg/messages";
 import "./App.scss";
 
@@ -28,15 +29,16 @@ const TerminalsContainer = observer((props: TerminalsContainerProps) => {
 });
 
 function App() {
-  const [theme, setTheme] = useState<{} | undefined>(undefined);
+  const [theme, setTheme] = useState<AppTheme | undefined>(undefined);
   const sessionManager = useMemo(() => new SessionManager(), []);
 
   const loadTheme = useCallback(async () => {
     const themeResp: ThemeResponse = await invoke("get_a_theme");
-    if (themeResp.tomlContent) {
-      const theme = load(themeResp.tomlContent);
-      console.log("theme:", theme);
-      setTheme(theme);
+    if (isString(themeResp.jsonContent)) {
+      let themeContent = JSON.parse(themeResp.jsonContent) as AppTheme;
+      themeContent = objectToCamlCaseDeep(themeContent);
+      console.log("theme:", themeContent);
+      setTheme(themeContent);
     }
   }, [setTheme]);
 
@@ -58,6 +60,22 @@ function App() {
       )}
     </div>
   );
+}
+
+function objectToCamlCaseDeep(obj: any) {
+  const newObj: any = {};
+  for (const key in obj) {
+    if (Object.prototype.hasOwnProperty.call(obj, key)) {
+      const value = obj[key];
+      const newKey = key.replace(/_([a-z])/g, (g) => g[1].toUpperCase());
+      if (typeof value === "object") {
+        newObj[newKey] = objectToCamlCaseDeep(value);
+      } else {
+        newObj[newKey] = value;
+      }
+    }
+  }
+  return newObj;
 }
 
 export default App;

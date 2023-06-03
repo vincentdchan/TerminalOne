@@ -11,5 +11,5 @@ pub(crate) struct PtyResponse {
 #[serde(rename_all = "camelCase")]
 pub(crate) struct ThemeResponse {
   pub(crate) name: String,
-  pub(crate) toml_content: Option<String>,
+  pub(crate) json_content: Option<String>,
 }

@@ -113,7 +113,13 @@ impl AppStateInner {
 
         Ok(ThemeResponse {
             name: first.name.clone(),
-            toml_content: Some(content),
+            json_content: Some(toml_str_to_json_str(&content)?),
         })
     }
+}
+
+fn toml_str_to_json_str(toml: &str) -> Result<String> {
+    let value = toml::from_str::<toml::Value>(toml)?;
+    let json = serde_json::to_string(&value)?;
+    Ok(json)
 }

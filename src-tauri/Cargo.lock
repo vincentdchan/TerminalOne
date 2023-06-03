@@ -1137,6 +1137,7 @@ dependencies = [
  "tauri",
  "tauri-build",
  "thiserror",
+ "toml 0.5.11",
 ]
 
 [[package]]
