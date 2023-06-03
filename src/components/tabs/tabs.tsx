@@ -22,6 +22,7 @@ export const Tabs = observer((props: TabsProps) => {
           const active = sessionManager.activeSessionIndex === index;
           return (
             <Tab
+              key={`${index}`}
               session={session}
               showCloseBtn={showCloseBtn}
               active={active}

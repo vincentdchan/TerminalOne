@@ -5,15 +5,16 @@ mod app_state;
 pub mod errors;
 mod messages;
 mod terminal_delegate;
+mod theme_context;
 
 use app_state::AppState;
 use bson::oid::ObjectId;
 pub use errors::Error;
 use log::{debug, info};
-use messages::PtyResponse;
+use messages::{PtyResponse, ThemeResponse};
 use std::{env, io::Write, str::FromStr, vec};
 use sysinfo::{System, SystemExt};
-use tauri::State;
+use tauri::{State, Manager};
 // use portable_pty
 
 pub type Result<T> = std::result::Result<T, errors::Error>;
@@ -60,6 +61,11 @@ fn remove_terminal(state: State<AppState>, id: &str) -> Result<()> {
     Ok(())
 }
 
+#[tauri::command]
+fn get_a_theme(state: State<AppState>) -> Result<ThemeResponse> {
+    state.inner().get_a_theme()
+}
+
 fn main() {
     let filter_level = if cfg!(dev) {
         log::LevelFilter::max()
@@ -74,7 +80,7 @@ fn main() {
 
     tauri::Builder::default()
         .manage(AppState::new())
-        .setup(|_app| {
+        .setup(|app| {
             let cargo_path = env!("CARGO_MANIFEST_DIR");
             let current_dir = env::current_dir()?;
             let mut sys = System::new_all();
@@ -92,12 +98,16 @@ fn main() {
             // Number of CPUs:
             info!("NB CPUs: {}", sys.cpus().len());
 
+            let state = app.state::<AppState>();
+            state.inner().load_themes(&current_dir)?;
+
             return Ok(());
         })
         .invoke_handler(tauri::generate_handler![
             new_terminal,
             send_terminal_data,
             remove_terminal,
+            get_a_theme,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

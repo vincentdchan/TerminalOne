@@ -9,6 +9,8 @@ pub enum Error {
   OidError(#[from] bson::oid::Error),
   #[error(transparent)]
   TauriError(#[from] tauri::Error),
+  #[error("no themes found")]
+  NoThemesFound,
 }
 
 impl serde::Serialize for Error {
