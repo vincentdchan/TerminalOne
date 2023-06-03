@@ -1,4 +1,18 @@
 
 .gpterm-tabs {
   display: flex;
+
+  .gpterm-content {
+    display: flex;
+    flex-grow: 1;
+
+    .gpterm-tab {
+      flex-grow: 1;
+    }
+  }
+
+  .gpterm-right {
+    flex-shrink: 0;
+    flex-grow: 0;
+  }
 }

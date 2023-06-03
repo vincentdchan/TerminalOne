@@ -1,0 +1,20 @@
+
+.gpterm-tab {
+  display: flex;
+  cursor: default;
+
+  &.active {
+    background-color: coral;
+  }
+
+  .main {
+    flex-grow: 1;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .right {
+    flex-grow: 0;
+    flex-shrink: 0;
+  }
+}

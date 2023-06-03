@@ -11,6 +11,8 @@
   },
   "dependencies": {
     "@tauri-apps/api": "^1.3.0",
+    "mobx": "^6.9.0",
+    "mobx-react": "^7.6.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "xterm": "^5.1.0",
