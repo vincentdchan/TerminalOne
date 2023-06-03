@@ -6,6 +6,7 @@ import "./tab.scss";
 
 export interface TabProps {
   session: Session;
+  last?: boolean;
   active?: boolean;
   showCloseBtn?: boolean;
   onClick?: () => void;
@@ -13,7 +14,7 @@ export interface TabProps {
 }
 
 export const Tab = observer((props: TabProps) => {
-  const { session, showCloseBtn, active, onClick, onClose } = props;
+  const { session, showCloseBtn, last, active, onClick, onClose } = props;
 
   const handleClose = useCallback(
     (e: React.MouseEvent) => {
@@ -31,16 +32,20 @@ export const Tab = observer((props: TabProps) => {
     className += " active";
   }
 
+  if (last) {
+    className += " last";
+  }
+
   return (
     <div className={className} onClick={onClick}>
-      <div className="main">{session.title ?? "Untitled"}</div>
-      <div className="right">
+      <div className="left">
         {showCloseBtn && (
           <button onClick={handleClose}>
             <MdClose />
           </button>
         )}
       </div>
+      <div className="main">{session.title ?? "Untitled"}</div>
     </div>
   );
 });

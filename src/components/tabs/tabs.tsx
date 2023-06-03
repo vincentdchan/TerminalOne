@@ -20,12 +20,14 @@ export const Tabs = observer((props: TabsProps) => {
       <div className="gpterm-content">
         {sessionManager.sessions.map((session, index) => {
           const active = sessionManager.activeSessionIndex === index;
+          const last = index === sessionManager.sessions.length - 1;
           return (
             <Tab
               key={`${index}`}
               session={session}
               showCloseBtn={showCloseBtn}
               active={active}
+              last={last}
               onClick={() => {
                 if (sessionManager.activeSessionIndex !== index) {  
                   runInAction(() => {

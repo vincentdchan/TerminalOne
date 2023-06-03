@@ -114,7 +114,10 @@ impl TerminalDelegateInner {
         })?;
 
         // Spawn a shell into the pty
-        let cmd = CommandBuilder::new("zsh");
+        // add params to cmd
+        let mut cmd = CommandBuilder::new("zsh");
+        cmd.arg("-il");
+        cmd.env("TERM_PROGRAM", "GPTerminal.app");
         let child = pair.slave.spawn_command(cmd)?;
 
         drop(pair.slave);

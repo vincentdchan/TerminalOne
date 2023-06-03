@@ -4,9 +4,17 @@
   cursor: default;
 
   color: grey;
+  // add border to left righ
+  border-right: solid 1px var(--gpterm-border-color);
+  border-bottom: solid 1px var(--gpterm-border-color);
+
+  &.last {
+    border-right: none;
+  }
 
   &.active {
     color: var(--gpterm-bright-7);
+    border-bottom: none;
   }
 
   .main {
@@ -16,7 +24,7 @@
     align-items: center;
   }
 
-  .right {
+  .left {
     flex-grow: 0;
     flex-shrink: 0;
 
@@ -32,7 +40,7 @@
 
   &:hover {
 
-    .right {
+    .left {
       button {
         color: grey;
       }

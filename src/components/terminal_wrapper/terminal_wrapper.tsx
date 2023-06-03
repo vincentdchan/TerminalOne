@@ -44,9 +44,8 @@ export class TerminalWrapper extends Component<
 
   override componentDidUpdate(prevProps: Readonly<TerminalWrapperProps>): void {
     if (!prevProps.active && this.props.active) {
-      setTimeout(() => {
-        this.terminal?.focus();
-      });
+      this.terminal?.focus();
+      this.fitAddon?.fit();
     }
   }
 
@@ -82,6 +81,10 @@ export class TerminalWrapper extends Component<
       });
     });
 
+    terminal.onCurrentDirectoryChange((dir) => {
+      console.log("dir changed:", dir);
+    });
+
     terminal.onResize((size) => {
       invoke('resize_pty', {
         id,
@@ -98,6 +101,9 @@ export class TerminalWrapper extends Component<
     });
 
     this.resizeObserver = new ResizeObserver(() => {
+      if (!this.props.active) {
+        return;
+      }
       this.fitSize();
     })
     this.resizeObserver.observe(this.containerRef.current!);
