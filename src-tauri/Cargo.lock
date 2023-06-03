@@ -1128,8 +1128,10 @@ version = "0.0.0"
 dependencies = [
  "anyhow",
  "bson",
+ "cocoa",
  "env_logger",
  "log",
+ "objc",
  "portable-pty",
  "serde",
  "serde_json",

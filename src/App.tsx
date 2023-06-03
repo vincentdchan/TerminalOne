@@ -4,7 +4,6 @@ import {
   useState,
   useEffect,
   useCallback,
-  CSSProperties,
 } from "react";
 import { observer } from "mobx-react";
 import { TerminalWrapper } from "@pkg/components/terminal_wrapper";

@@ -9,12 +9,13 @@ export interface TabProps {
   last?: boolean;
   active?: boolean;
   showCloseBtn?: boolean;
+  hintText?: string;
   onClick?: () => void;
   onClose?: () => void;
 }
 
 export const Tab = observer((props: TabProps) => {
-  const { session, showCloseBtn, last, active, onClick, onClose } = props;
+  const { session, showCloseBtn, last, active, hintText, onClick, onClose } = props;
 
   const handleClose = useCallback(
     (e: React.MouseEvent) => {
@@ -46,6 +47,7 @@ export const Tab = observer((props: TabProps) => {
         )}
       </div>
       <div className="main">{session.title ?? "Untitled"}</div>
+      {hintText && <div className="right">{hintText}</div>}
     </div>
   );
 });
