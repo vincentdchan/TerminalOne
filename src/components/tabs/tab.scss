@@ -3,11 +3,14 @@
   display: flex;
   cursor: default;
 
+  color: grey;
+
   &.active {
-    background-color: coral;
+    color: var(--gpterm-bright-7);
   }
 
   .main {
+    display: flex;
     flex-grow: 1;
     justify-content: center;
     align-items: center;
@@ -16,5 +19,24 @@
   .right {
     flex-grow: 0;
     flex-shrink: 0;
+
+    display: flex;
+
+    button {
+      height: 100%;
+      line-height: 48px;
+      font-size: 18px;
+      color: transparent;
+    }
+  }
+
+  &:hover {
+
+    .right {
+      button {
+        color: grey;
+      }
+    }
+
   }
 }

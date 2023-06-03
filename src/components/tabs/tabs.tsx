@@ -3,8 +3,8 @@ import { Tab } from "./tab";
 import { SessionManager } from "@pkg/models/session_manager";
 import { observer } from "mobx-react";
 import { runInAction } from "mobx";
+import { MdAdd } from "react-icons/md";
 import "./tabs.scss";
-
 export interface TabsProps {
   sessionManager: SessionManager;
 }
@@ -16,7 +16,7 @@ export const Tabs = observer((props: TabsProps) => {
   }, [sessionManager]);
   const showCloseBtn = sessionManager.sessions.length > 1;
   return (
-    <div className="gpterm-tabs">
+    <div className="gpterm-tabs gpterm-noselect">
       <div className="gpterm-content">
         {sessionManager.sessions.map((session, index) => {
           const active = sessionManager.activeSessionIndex === index;
@@ -43,7 +43,9 @@ export const Tabs = observer((props: TabsProps) => {
         })}
       </div>
       <div className="gpterm-right">
-        <button onClick={handleAddSession}>Add</button>
+        <button onClick={handleAddSession}>
+          <MdAdd />
+        </button>
       </div>
     </div>
   );

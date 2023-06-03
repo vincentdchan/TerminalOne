@@ -1,6 +1,9 @@
 
 .gpterm-tabs {
   display: flex;
+  min-height: 48px;
+  max-height: 48px;
+  border-bottom: 1px solid rgb(93, 93, 93);
 
   .gpterm-content {
     display: flex;
@@ -14,5 +17,12 @@
   .gpterm-right {
     flex-shrink: 0;
     flex-grow: 0;
+
+    button {
+      height: 100%;
+      width: 48px;
+      font-size: 18px;
+      line-height: 48px;
+    }
   }
 }

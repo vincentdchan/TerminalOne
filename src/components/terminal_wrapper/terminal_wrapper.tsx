@@ -5,12 +5,14 @@ import { WebglAddon } from "xterm-addon-webgl";
 import { WebLinksAddon } from "xterm-addon-web-links";
 import { invoke } from "@tauri-apps/api/tauri";
 import { Session } from "@pkg/models/session";
+import { AppTheme } from "@pkg/models/app_theme";
 import { runInAction } from "mobx";
 import "./terminal_wrapper.scss";
 import "xterm/css/xterm.css";
 
 export interface TerminalWrapperProps {
   session: Session;
+  theme: AppTheme,
   active?: boolean;
 }
 
@@ -45,10 +47,17 @@ export class TerminalWrapper extends Component<
   }
 
   async initTerminal() {
+    const { theme } = this.props;
     const id: string = await invoke("new_terminal");
     console.log("new term id:", id);
     this.termId = id;
-    const terminal = new Terminal();
+    const terminal = new Terminal({
+      theme: {
+        foreground: theme.colors.foreground,
+        background: theme.colors.background,
+        extendedAnsi: theme.colors.ansi,
+      }
+    });
     this.terminal = terminal;
     terminal.open(this.containerRef.current!);
     terminal.loadAddon(new WebglAddon());

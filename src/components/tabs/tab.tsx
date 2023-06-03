@@ -1,6 +1,7 @@
 import { Session } from "@pkg/models/session";
 import { useCallback } from "react";
 import { observer } from "mobx-react";
+import { MdClose } from "react-icons/md";
 import "./tab.scss";
 
 export interface TabProps {
@@ -14,12 +15,15 @@ export interface TabProps {
 export const Tab = observer((props: TabProps) => {
   const { session, showCloseBtn, active, onClick, onClose } = props;
 
-  const handleClose = useCallback((e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
+  const handleClose = useCallback(
+    (e: React.MouseEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
 
-    onClose?.();
-  }, [onClose]);
+      onClose?.();
+    },
+    [onClose]
+  );
 
   let className = "gpterm-tab";
 
@@ -29,11 +33,13 @@ export const Tab = observer((props: TabProps) => {
 
   return (
     <div className={className} onClick={onClick}>
-      <div className="main">
-        {session.title ?? "Untitled"}
-      </div>
+      <div className="main">{session.title ?? "Untitled"}</div>
       <div className="right">
-        {showCloseBtn && <button onClick={handleClose}>Close</button>}
+        {showCloseBtn && (
+          <button onClick={handleClose}>
+            <MdClose />
+          </button>
+        )}
       </div>
     </div>
   );

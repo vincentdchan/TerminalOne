@@ -16,6 +16,7 @@
     "mobx-react": "^7.6.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-icons": "^4.9.0",
     "xterm": "^5.1.0",
     "xterm-addon-web-links": "^0.8.0",
     "xterm-addon-webgl": "^0.14.0"

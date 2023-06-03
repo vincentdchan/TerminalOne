@@ -1,4 +1,8 @@
 
 export interface AppTheme {
-  colors: Record<string, string>,
+  colors: Partial<{
+    ansi: string[],
+    foreground: string,
+    background: string
+  }>,
 }
