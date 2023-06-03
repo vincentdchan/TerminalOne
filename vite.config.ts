@@ -1,8 +1,21 @@
 import { defineConfig } from "vite";
+import * as path from "path";
 import react from "@vitejs/plugin-react";
+
+export const projectRootDir = process.cwd();
+
+export const resolveByProjectRootDir = (...pathSegments: string[]) => {
+  return path.resolve(projectRootDir, ...pathSegments);
+};
 
 // https://vitejs.dev/config/
 export default defineConfig(async () => ({
+  resolve: {
+    alias: {
+      "@pkg": resolveByProjectRootDir("src"),
+    },
+  },
+
   plugins: [react()],
 
   // Vite options tailored for Tauri development and only applied in `tauri dev` or `tauri build`
