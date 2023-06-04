@@ -69,7 +69,10 @@ export class TerminalWrapper extends Component<
     terminal.loadAddon(new WebglAddon());
     terminal.loadAddon(new WebLinksAddon());
     terminal.open(this.containerRef.current!);
-    this.fitAddon.fit();
+
+    window.requestAnimationFrame(() => {
+      this.fitAddon?.fit();
+    });
 
     terminal.onData((data) => {
       this.sendTerminalData(id, data);
@@ -87,6 +90,7 @@ export class TerminalWrapper extends Component<
     });
 
     terminal.onResize((size) => {
+      console.log("terminal resize:", size);
       invoke('resize_pty', {
         id,
         cols: size.cols,
