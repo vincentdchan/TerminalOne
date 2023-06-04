@@ -90,7 +90,10 @@ export class TerminalWrapper extends Component<
     });
 
     terminal.onCurrentDirectoryChange((dir) => {
-      console.log("dir changed:", dir);
+      const session = this.props.session;
+      runInAction(() => {
+        session.cwd = dir;
+      });
     });
 
     terminal.onResize((size) => {

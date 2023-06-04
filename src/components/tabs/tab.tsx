@@ -1,7 +1,7 @@
 import { Session } from "@pkg/models/session";
 import { useCallback } from "react";
 import { observer } from "mobx-react";
-import { MdClose } from "react-icons/md";
+import { MdClose, MdFolder } from "react-icons/md";
 import "./tab.scss";
 
 export interface TabProps {
@@ -15,7 +15,8 @@ export interface TabProps {
 }
 
 export const Tab = observer((props: TabProps) => {
-  const { session, showCloseBtn, last, active, hintText, onClick, onClose } = props;
+  const { session, showCloseBtn, last, active, hintText, onClick, onClose } =
+    props;
 
   const handleClose = useCallback(
     (e: React.MouseEvent) => {
@@ -48,10 +49,28 @@ export const Tab = observer((props: TabProps) => {
       </div>
       <div className="main">
         <div className="inner">
-          {session.title ?? "Untitled"}
+          {session.cwd ? (
+            <>
+              <span className="icon">
+                <MdFolder />
+              </span>
+              {prettyCwd(session.cwd)}
+            </>
+          ) : (
+            session.title ?? "Untitled"
+          )}
         </div>
       </div>
       {hintText && <div className="right">{hintText}</div>}
     </div>
   );
 });
+
+const PREFIX = "file://";
+
+function prettyCwd(cwd: string): string {
+  if (cwd.startsWith(cwd)) {
+    return cwd.slice(PREFIX.length);
+  }
+  return cwd;
+}

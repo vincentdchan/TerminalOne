@@ -34,6 +34,7 @@
     position: relative;
 
     margin-right: 8px;
+    vertical-align: top;
 
     .inner {
       position: absolute;
@@ -51,6 +52,15 @@
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
+    }
+
+    .icon {
+      font-size: 18px;
+      margin-right: 6px;
+
+      svg {
+        transform: translateY(3px);
+      }
     }
   }
 

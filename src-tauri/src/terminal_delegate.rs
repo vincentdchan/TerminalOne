@@ -2,6 +2,7 @@ use crate::Result;
 use log::{error, info, warn};
 use portable_pty::{native_pty_system, Child, CommandBuilder, ExitStatus, MasterPty, PtySize};
 use std::sync::{Arc, Mutex};
+use std::env;
 
 pub(crate) trait TerminalDelegateEventHandler {
     fn handle_data(&self, terminal: &TerminalDelegate, data: &[u8]) -> Result<()>;
@@ -12,6 +13,16 @@ pub(crate) trait TerminalDelegateEventHandler {
 pub(crate) struct TerminalDelegate {
     inner: Arc<Mutex<TerminalDelegateInner>>,
     _event_handler: Arc<Mutex<Box<dyn TerminalDelegateEventHandler + Send>>>,
+}
+
+fn make_precommit_dir() -> Result<String> {
+    let mut current_dir = env::current_dir()?;
+
+    current_dir.pop();
+    current_dir.push("shell_integration");
+    current_dir.push("gpterm.sh");
+
+    Ok(current_dir.to_str().unwrap().to_string())
 }
 
 impl TerminalDelegate {
@@ -179,7 +190,16 @@ impl TerminalDelegateInner {
 
         drop(pair.slave);
 
-        let writer = pair.master.take_writer()?;
+        let mut writer = pair.master.take_writer()?;
+
+        let precommit_str = {
+            let mut result = "source ".to_string();
+            let precommit_dir = make_precommit_dir()?;
+            result += precommit_dir.as_str();
+            result
+        };
+        writer.write(precommit_str.as_bytes())?;
+        writer.write("\r".as_bytes())?;
 
         let inner = TerminalDelegateInner {
             id: id.clone(),
