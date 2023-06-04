@@ -17,10 +17,10 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-icons": "^4.9.0",
-    "xterm": "^5.1.0",
-    "xterm-addon-fit": "^0.7.0",
-    "xterm-addon-web-links": "^0.8.0",
-    "xterm-addon-webgl": "^0.14.0"
+    "xterm-addon-fit.es": "^0.6.0",
+    "xterm-addon-web-links.es": "^0.8.0",
+    "xterm-addon-webgl.es": "^0.14.0",
+    "xterm.es": "^5.1.1"
   },
   "devDependencies": {
     "@tauri-apps/cli": "^1.3.1",

@@ -1,9 +1,9 @@
 import { createRef, Component } from "react";
 import { listen, UnlistenFn } from "@tauri-apps/api/event";
-import { Terminal } from "xterm";
-import { WebglAddon } from "xterm-addon-webgl";
-import { WebLinksAddon } from "xterm-addon-web-links";
-import { FitAddon } from 'xterm-addon-fit';
+import { Terminal } from "xterm.es";
+import { WebglAddon } from "xterm-addon-webgl.es";
+import { WebLinksAddon } from "xterm-addon-web-links.es";
+import { FitAddon } from 'xterm-addon-fit.es';
 import { invoke } from "@tauri-apps/api/tauri";
 import { Session } from "@pkg/models/session";
 import { AppTheme } from "@pkg/models/app_theme";
@@ -11,7 +11,7 @@ import { runInAction } from "mobx";
 import { debounce } from "lodash-es";
 import { PushMessages } from "@pkg/constants";
 import "./terminal_wrapper.scss";
-import "xterm/css/xterm.css";
+import "xterm.es/css/xterm.css";
 
 export interface TerminalWrapperProps {
   session: Session;

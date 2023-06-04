@@ -17,10 +17,10 @@ specifiers:
   sass: ^1.62.1
   typescript: ^4.9.5
   vite: ^4.2.1
-  xterm: ^5.1.0
-  xterm-addon-fit: ^0.7.0
-  xterm-addon-web-links: ^0.8.0
-  xterm-addon-webgl: ^0.14.0
+  xterm-addon-fit.es: ^0.6.0
+  xterm-addon-web-links.es: ^0.8.0
+  xterm-addon-webgl.es: ^0.14.0
+  xterm.es: ^5.1.1
 
 dependencies:
   '@tauri-apps/api': 1.3.0
@@ -30,10 +30,10 @@ dependencies:
   react: 18.2.0
   react-dom: 18.2.0_react@18.2.0
   react-icons: 4.9.0_react@18.2.0
-  xterm: 5.1.0
-  xterm-addon-fit: 0.7.0
-  xterm-addon-web-links: 0.8.0
-  xterm-addon-webgl: 0.14.0
+  xterm-addon-fit.es: 0.6.0_xterm.es@5.1.1
+  xterm-addon-web-links.es: 0.8.0_xterm.es@5.1.1
+  xterm-addon-webgl.es: 0.14.0_xterm.es@5.1.1
+  xterm.es: 5.1.1
 
 devDependencies:
   '@tauri-apps/cli': 1.3.1
@@ -1125,26 +1125,32 @@ packages:
       fsevents: 2.3.2
     dev: true
 
-  /xterm-addon-fit/0.7.0:
-    resolution: {integrity: sha512-tQgHGoHqRTgeROPnvmtEJywLKoC/V9eNs4bLLz7iyJr1aW/QFzRwfd3MGiJ6odJd9xEfxcW36/xRU47JkD5NKQ==}
+  /xterm-addon-fit.es/0.6.0_xterm.es@5.1.1:
+    resolution: {integrity: sha512-P6St+IXuFNcfdYKat05fJU5tQTfjqyxuqjef1oCfaDSZpokrE+OXgWz8+FYEl8RCtpjSLY1I5eByT+i27xNGvg==}
     peerDependencies:
-      xterm: ^5.0.0
+      xterm.es: ^5.0.0
+    dependencies:
+      xterm.es: 5.1.1
     dev: false
 
-  /xterm-addon-web-links/0.8.0:
-    resolution: {integrity: sha512-J4tKngmIu20ytX9SEJjAP3UGksah7iALqBtfTwT9ZnmFHVplCumYQsUJfKuS+JwMhjsjH61YXfndenLNvjRrEw==}
+  /xterm-addon-web-links.es/0.8.0_xterm.es@5.1.1:
+    resolution: {integrity: sha512-zR85e5YhP7+pvmFeCmyY/c0yOUMgbuSutHGRHii/rhqdWqmN57HItRXzFFDceM5273/7KCMnu8EdqQH25h27FA==}
     peerDependencies:
-      xterm: ^5.0.0
+      xterm.es: ^5.0.0
+    dependencies:
+      xterm.es: 5.1.1
     dev: false
 
-  /xterm-addon-webgl/0.14.0:
-    resolution: {integrity: sha512-zcxL4RVVjeS7NNFeKe5HHQI8OUEx3wZpE4EqLoTVipa2UrTR+qLsigo16UEp/yVcYBMhK7tsJ/AJokoEe/f0mw==}
+  /xterm-addon-webgl.es/0.14.0_xterm.es@5.1.1:
+    resolution: {integrity: sha512-wu6rl3r1QveEOat/v2FCMJHtDDaaLgMA6uRQ0wKl1naHitKYwD6JRv9ZJuuqhTlkbMUUTxfbJPmufqMOFb5wvQ==}
     peerDependencies:
-      xterm: ^5.0.0
+      xterm.es: ^5.0.0
+    dependencies:
+      xterm.es: 5.1.1
     dev: false
 
-  /xterm/5.1.0:
-    resolution: {integrity: sha512-LovENH4WDzpwynj+OTkLyZgJPeDom9Gra4DMlGAgz6pZhIDCQ+YuO7yfwanY+gVbn/mmZIStNOnVRU/ikQuAEQ==}
+  /xterm.es/5.1.1:
+    resolution: {integrity: sha512-pXhXdS9AtATI2465YVwWx78U0qbYLb+ech/YCO4l4jBf1QvWHbTxbU3BsvAIGC2jsDaNwNBqhOkY+WXUczLnug==}
     dev: false
 
   /yallist/3.1.1:
