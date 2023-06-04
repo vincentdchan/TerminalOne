@@ -46,7 +46,11 @@ export const Tab = observer((props: TabProps) => {
           </button>
         )}
       </div>
-      <div className="main">{session.title ?? "Untitled"}</div>
+      <div className="main">
+        <div className="inner">
+          {session.title ?? "Untitled"}
+        </div>
+      </div>
       {hintText && <div className="right">{hintText}</div>}
     </div>
   );

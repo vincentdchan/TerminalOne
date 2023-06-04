@@ -14,6 +14,16 @@
   -webkit-text-size-adjust: 100%;
 }
 
+html {
+  overscroll-behavior-x: none;
+  overscroll-behavior-y: none;
+} 
+
+body {
+  overscroll-behavior-x: none;
+  overscroll-behavior-y: none;
+}
+
 a {
   font-weight: 500;
   color: #646cff;

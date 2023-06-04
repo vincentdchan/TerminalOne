@@ -99,7 +99,7 @@ export const Tabs = observer((props: TabsProps) => {
               showCloseBtn={sessionsMoreThanOne}
               active={active}
               last={last}
-              hintText={`${CMD_CHAR}${index}`}
+              hintText={index <= 9 ? `${CMD_CHAR}${index}` : undefined}
               onClick={() => {
                 if (sessionManager.activeSessionIndex !== index) {
                   runInAction(() => {

@@ -13,6 +13,7 @@ import { invoke } from "@tauri-apps/api";
 import { isString, isObject } from "lodash-es";
 import type { AppTheme } from "@pkg/models/app_theme";
 import type { ThemeResponse } from "@pkg/messages";
+import { useTabSwitcher } from "./hooks/tabSwitcher";
 import "./App.scss";
 
 interface TerminalsContainerProps {
@@ -53,6 +54,7 @@ function App() {
     }
   }, [setTheme]);
 
+
   useEffect(() => {
     loadTheme();
   }, [loadTheme]);
@@ -60,6 +62,8 @@ function App() {
   useEffect(() => {
     sessionManager.newTab();
   }, []);
+
+  useTabSwitcher(sessionManager);
 
   const styles: any = useMemo(() => {
     if (!theme) {
