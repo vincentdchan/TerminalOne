@@ -1,8 +1,7 @@
 use crate::messages::ThemeResponse;
-use crate::terminal_delegate::TerminalDelegate;
+use crate::terminal_delegate::{TerminalDelegate, TerminalDelegateEventHandler};
 use crate::theme_context::{ThemeContext, ThemeItem};
 use crate::{Error, Result};
-use bson::oid::ObjectId;
 use log::debug;
 use std::collections::HashMap;
 use std::path::Path;
@@ -21,9 +20,10 @@ impl AppState {
 
     pub(crate) fn new_terminal(
         &self,
-        buffer_callback: Box<dyn Fn(&TerminalDelegate, &[u8]) -> Result<()> + Send>,
+        id: String,
+        event_handler: Box<dyn TerminalDelegateEventHandler + Send>,
     ) -> Result<TerminalDelegate> {
-        let delegate: TerminalDelegate = TerminalDelegate::new(buffer_callback)?;
+        let delegate: TerminalDelegate = TerminalDelegate::new(id, event_handler)?;
         {
             let mut inner = self.inner.lock().unwrap();
             inner.insert_terminal(delegate.clone());
@@ -31,14 +31,18 @@ impl AppState {
         Ok(delegate)
     }
 
-    pub(crate) fn get_terminal_by_id(&self, id: ObjectId) -> TerminalDelegate {
+    pub(crate) fn get_terminal_by_id(&self, id: &str) -> TerminalDelegate {
         let inner = self.inner.lock().unwrap();
-        inner.terminals.get(&id).unwrap().clone()
+        inner.terminals.get(id).unwrap().clone()
     }
 
-    pub(crate) fn remove_terminal_by_id(&self, id: ObjectId) {
+    pub(crate) fn remove_terminal_by_id(&self, id: &str) {
         let mut inner = self.inner.lock().unwrap();
-        inner.terminals.remove(&id);
+        {
+            let terminal = inner.terminals.get(id).unwrap().clone();
+            terminal.close();
+        }
+        inner.terminals.remove(id);
     }
 
     pub(crate) fn load_themes(&self, dir: &Path) -> Result<()> {
@@ -53,7 +57,7 @@ impl AppState {
 }
 
 struct AppStateInner {
-    terminals: HashMap<ObjectId, TerminalDelegate>,
+    terminals: HashMap<String, TerminalDelegate>,
     theme_context: Option<ThemeContext>,
 }
 

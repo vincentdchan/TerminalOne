@@ -6,8 +6,6 @@ pub enum Error {
   #[error(transparent)]
   AnyHowError(#[from] anyhow::Error),
   #[error(transparent)]
-  OidError(#[from] bson::oid::Error),
-  #[error(transparent)]
   TauriError(#[from] tauri::Error),
   #[error("no themes found")]
   NoThemesFound,

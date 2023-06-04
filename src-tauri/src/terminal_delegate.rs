@@ -1,38 +1,83 @@
 use crate::Result;
-use bson::oid::ObjectId;
-use log::info;
-use portable_pty::{native_pty_system, CommandBuilder, MasterPty, PtySize};
+use log::{error, info, warn};
+use portable_pty::{native_pty_system, Child, CommandBuilder, ExitStatus, MasterPty, PtySize};
 use std::sync::{Arc, Mutex};
+
+pub(crate) trait TerminalDelegateEventHandler {
+    fn handle_data(&self, terminal: &TerminalDelegate, data: &[u8]) -> Result<()>;
+    fn handle_exit(&self, id: String, exit_statue: ExitStatus) -> Result<()>;
+}
 
 #[derive(Clone)]
 pub(crate) struct TerminalDelegate {
     inner: Arc<Mutex<TerminalDelegateInner>>,
-    buffer_callback: Arc<Mutex<Box<dyn Fn(&TerminalDelegate, &[u8]) -> Result<()> + Send>>>,
+    _event_handler: Arc<Mutex<Box<dyn TerminalDelegateEventHandler + Send>>>,
 }
 
 impl TerminalDelegate {
     pub(crate) fn new(
-        buffer_callback: Box<dyn Fn(&TerminalDelegate, &[u8]) -> Result<()> + Send>,
+        id: String,
+        event_handler: Box<dyn TerminalDelegateEventHandler + Send>,
     ) -> Result<TerminalDelegate> {
-        let inner = TerminalDelegateInner::new()?;
+        let (inner, mut child) = TerminalDelegateInner::new(id.clone())?;
+
+        let event_handler = Arc::new(Mutex::new(event_handler));
         let delegate = TerminalDelegate {
             inner: Arc::new(Mutex::new(inner)),
-            buffer_callback: Arc::new(Mutex::new(buffer_callback)),
+            _event_handler: event_handler.clone(),
         };
 
         let delegate_clone = delegate.clone();
         let mut reader = delegate_clone.try_clone_reader()?;
+        let reader_id = id.clone();
+        let reader_event_handler = event_handler.clone();
         std::thread::spawn(move || {
-            info!("begin reader thread");
+            info!("begin reader thread: {}", reader_id);
             loop {
                 // Consume the output from the child
                 let mut buffer: Vec<u8> = vec![0; 4096];
                 // let mut s = String::new();
                 // reader.read_to_string(&mut s).unwrap();
 
-                let size = reader.read(&mut buffer).unwrap();
-                delegate_clone
-                    .emit_callback(buffer[0..size].as_ref())
+                let test_size = reader.read(&mut buffer);
+
+                if test_size.is_err() {
+                    let err = test_size.unwrap_err();
+                    error!("reader thread error: {}, id: {}", err, reader_id);
+                    break;
+                }
+
+                let size = test_size.unwrap();
+
+                if size == 0 {
+                    info!("reader thread EOF, id: {}", reader_id);
+                    break;
+                }
+
+                {
+                    let event_handler_lock = reader_event_handler.lock().unwrap();
+                    event_handler_lock
+                        .handle_data(&delegate_clone, buffer[0..size].as_ref())
+                        .unwrap();
+                }
+            }
+            info!("end reader thread: {}", reader_id);
+        });
+
+        let monitor_id = id.clone();
+        let monitor_event_handler = event_handler.clone();
+        std::thread::spawn(move || {
+            let test_wait = child.wait();
+            if test_wait.is_err() {
+                error!("wait error: {}, id: {}", test_wait.unwrap_err(), id);
+                return;
+            }
+            let wait_result = test_wait.unwrap();
+            info!("wait result: {}, id: {}", wait_result, id);
+            {
+                let event_handler_lock = monitor_event_handler.lock().unwrap();
+                event_handler_lock
+                    .handle_exit(monitor_id, wait_result)
                     .unwrap();
             }
         });
@@ -53,18 +98,17 @@ impl TerminalDelegate {
         Ok(delegate)
     }
 
-    fn emit_callback(&self, buffer: &[u8]) -> Result<()> {
-        let callback = self.buffer_callback.lock().unwrap();
-        callback(self, buffer)
-    }
-
     fn try_clone_reader(&self) -> Result<Box<dyn std::io::Read + Send>> {
         let inner = self.inner.lock().unwrap();
-        let reader = inner.master.try_clone_reader()?;
+        let reader = inner
+            .master
+            .as_ref()
+            .expect("terminal is closed")
+            .try_clone_reader()?;
         Ok(reader)
     }
 
-    pub(crate) fn id(&self) -> ObjectId {
+    pub(crate) fn id(&self) -> String {
         self.inner.lock().unwrap().id.clone()
     }
 
@@ -72,31 +116,44 @@ impl TerminalDelegate {
         let mut inner = self.inner.lock().unwrap();
         inner.resize(rows, cols)
     }
+
+    pub(crate) fn close(&self) {
+        let mut inner = self.inner.lock().unwrap();
+        inner.close();
+    }
 }
 
 impl std::io::Write for TerminalDelegate {
     fn write(&mut self, buf: &[u8]) -> std::io::Result<usize> {
         let mut inner = self.inner.lock().unwrap();
-        inner.writer.write(buf)
+        let size = if let Some(writer) = inner.writer.as_mut() {
+            writer.write(buf)?
+        } else {
+            warn!("writing {} bytes to closed terminal", buf.len());
+            0
+        };
+        Ok(size)
     }
 
     fn flush(&mut self) -> std::io::Result<()> {
         let mut inner = self.inner.lock().unwrap();
-        inner.writer.flush()
+        if let Some(writer) = inner.writer.as_mut() {
+            writer.flush()?;
+        } else {
+            warn!("flushing bytes to closed terminal");
+        }
+        Ok(())
     }
 }
 
 struct TerminalDelegateInner {
-    id: ObjectId,
-    master: Box<dyn MasterPty + Send>,
-    _child: Box<dyn portable_pty::Child + Send + Sync>,
-    writer: Box<dyn std::io::Write + Send>,
+    id: String,
+    master: Option<Box<dyn MasterPty + Send>>,
+    writer: Option<Box<dyn std::io::Write + Send>>,
 }
 
 impl TerminalDelegateInner {
-    fn new() -> Result<TerminalDelegateInner> {
-        let oid = ObjectId::new();
-
+    fn new(id: String) -> Result<(TerminalDelegateInner, Box<dyn Child + Send + Sync>)> {
         // Use the native pty implementation for the system
         let pty_system = native_pty_system();
 
@@ -125,21 +182,28 @@ impl TerminalDelegateInner {
         let writer = pair.master.take_writer()?;
 
         let inner = TerminalDelegateInner {
-            id: oid,
-            master: pair.master,
-            _child: child,
-            writer,
+            id: id.clone(),
+            master: Some(pair.master),
+            writer: Some(writer),
         };
-        Ok(inner)
+
+        Ok((inner, child))
     }
 
     fn resize(&mut self, rows: u16, cols: u16) -> Result<()> {
-        self.master.resize(PtySize {
-            rows,
-            cols,
-            pixel_width: 0,
-            pixel_height: 0,
-        })?;
+        if let Some(master) = self.master.as_mut() {
+            master.resize(PtySize {
+                rows,
+                cols,
+                pixel_width: 0,
+                pixel_height: 0,
+            })?;
+        }
         Ok(())
+    }
+
+    fn close(&mut self) {
+        self.writer = None;
+        self.master = None;
     }
 }

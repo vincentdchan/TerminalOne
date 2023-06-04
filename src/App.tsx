@@ -10,10 +10,13 @@ import { TerminalWrapper } from "@pkg/components/terminal_wrapper";
 import { SessionManager } from "@pkg/models/session_manager";
 import { Tabs } from "@pkg/components/tabs";
 import { invoke } from "@tauri-apps/api";
-import { isString, isObject } from "lodash-es";
+import { isString } from "lodash-es";
+import { objectToCamlCaseDeep } from "@pkg/utils/objects";
 import type { AppTheme } from "@pkg/models/app_theme";
 import type { ThemeResponse } from "@pkg/messages";
-import { useTabSwitcher } from "./hooks/tabSwitcher";
+import { useTabSwitcher } from "@pkg/hooks/tab_switcher";
+import { usePtyExit } from "@pkg/hooks/pty_exit";
+import { exit } from '@tauri-apps/api/process';
 import "./App.scss";
 
 interface TerminalsContainerProps {
@@ -54,6 +57,12 @@ function App() {
     }
   }, [setTheme]);
 
+  const handlePtyExit = useCallback(async (id: string) => {
+    sessionManager.removeTabById(id);
+    if (sessionManager.sessions.length === 0) {
+      await exit(0);
+    }
+  }, [sessionManager]);
 
   useEffect(() => {
     loadTheme();
@@ -63,6 +72,7 @@ function App() {
     sessionManager.newTab();
   }, []);
 
+  usePtyExit(handlePtyExit);
   useTabSwitcher(sessionManager);
 
   const styles: any = useMemo(() => {
@@ -100,27 +110,6 @@ function App() {
       )}
     </div>
   );
-}
-
-function objectToCamlCaseDeep(obj: any): any {
-  if (Array.isArray(obj)) {
-    return obj.map((item) => objectToCamlCaseDeep(item));
-  } else if (isObject(obj)) {
-    const newObj: any = {};
-    for (const key in obj) {
-      if (Object.prototype.hasOwnProperty.call(obj, key)) {
-        const value = (obj as any)[key];
-        const newKey = key.replace(/_([a-z])/g, (g) => g[1].toUpperCase());
-        if (typeof value === "object") {
-          newObj[newKey] = objectToCamlCaseDeep(value);
-        } else {
-          newObj[newKey] = value;
-        }
-      }
-    }
-    return newObj;
-  }
-  return obj;
 }
 
 export default App;

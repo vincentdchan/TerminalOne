@@ -9,6 +9,7 @@ import { Session } from "@pkg/models/session";
 import { AppTheme } from "@pkg/models/app_theme";
 import { runInAction } from "mobx";
 import { debounce } from "lodash-es";
+import { PushMessages } from "@pkg/constants";
 import "./terminal_wrapper.scss";
 import "xterm/css/xterm.css";
 
@@ -32,7 +33,6 @@ export class TerminalWrapper extends Component<
   TerminalWrapperState
 > {
   private containerRef = createRef<HTMLDivElement>();
-  private termId: string | undefined;
   private unlistenFn?: UnlistenFn;
   private terminal?: Terminal;
   private fitAddon?: FitAddon;
@@ -50,10 +50,11 @@ export class TerminalWrapper extends Component<
   }
 
   async initTerminal() {
-    const { theme } = this.props;
-    const id: string = await invoke("new_terminal");
-    console.log("new term id:", id);
-    this.termId = id;
+    const { session, theme } = this.props;
+    const { id } = session;
+    await invoke("new_terminal", {
+      id,
+    });
     const terminal = new Terminal({
       theme: {
         foreground: theme.colors.foreground,
@@ -93,7 +94,7 @@ export class TerminalWrapper extends Component<
       })
     });
 
-    this.unlistenFn = await listen("pty-output", (event) => {
+    this.unlistenFn = await listen(PushMessages.PTY_OUTPUT, (event) => {
       const resp = event.payload as PtyResponse;
       if (resp.id === id) {
         terminal.write(resp.data);
@@ -132,11 +133,9 @@ export class TerminalWrapper extends Component<
   }
 
   async removeTerminal() {
-    if (!this.termId) {
-      return;
-    }
-    await invoke("remove_terminal", { id: this.termId });
-    console.log("terminal removed:", this.termId);
+    const termId = this.props.session.id;
+    await invoke("remove_terminal", { id: termId });
+    console.log("terminal removed:", termId);
     this.terminal = undefined;
   }
 

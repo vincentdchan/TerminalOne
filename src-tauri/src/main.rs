@@ -12,14 +12,15 @@ mod terminal_delegate;
 mod theme_context;
 
 use app_state::AppState;
-use bson::oid::ObjectId;
 use cocoa::appkit::{NSWindow, NSWindowStyleMask};
 pub use errors::Error;
 use log::{debug, info};
-use messages::{PtyResponse, ThemeResponse};
-use std::{env, io::Write, str::FromStr, vec};
+use messages::{PtyExitMessage, PtyResponse, ThemeResponse};
+use portable_pty::ExitStatus;
+use std::{env, io::Write, vec};
 use sysinfo::{System, SystemExt};
 use tauri::{Manager, Runtime, State, Window};
+use terminal_delegate::TerminalDelegateEventHandler;
 // use portable_pty
 
 pub type Result<T> = std::result::Result<T, errors::Error>;
@@ -60,7 +61,7 @@ impl<R: Runtime> WindowExt for Window<R> {
     }
     #[cfg(target_os = "macos")]
     fn position_traffic_lights(&self, x: f64, y: f64) {
-        use cocoa::appkit::{NSView, NSWindow, NSWindowButton};
+        use cocoa::appkit::{NSView, NSWindowButton};
         use cocoa::foundation::NSRect;
 
         let window = self.ns_window().unwrap() as cocoa::base::id;
@@ -94,42 +95,57 @@ impl<R: Runtime> WindowExt for Window<R> {
     }
 }
 
+struct MainTerminalEventHandler {
+    window: tauri::Window,
+}
+
+impl TerminalDelegateEventHandler for MainTerminalEventHandler {
+    fn handle_data(
+        &self,
+        terminal_delegate: &terminal_delegate::TerminalDelegate,
+        data: &[u8],
+    ) -> Result<()> {
+        let id_str = terminal_delegate.id();
+        self.window.emit(
+            messages::push_event::PTY_OUTPUT,
+            PtyResponse {
+                id: id_str,
+                data: data.to_vec(),
+            },
+        )?;
+        Ok(())
+    }
+
+    fn handle_exit(&self, id: String, _exit_code: ExitStatus) -> Result<()> {
+        self.window.emit(
+            messages::push_event::PTY_EXIT,
+            PtyExitMessage { id },
+        )?;
+        Ok(())
+    }
+}
+
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 #[tauri::command]
-fn new_terminal(window: tauri::Window, state: State<AppState>) -> Result<String> {
-    let win_cloned = window.clone();
-    let delegate = state
-        .inner()
-        .new_terminal(Box::new(move |delegate, buffer| {
-            let id_str = delegate.id().to_hex();
-            win_cloned.emit(
-                "pty-output",
-                PtyResponse {
-                    id: id_str,
-                    data: buffer.to_vec(),
-                },
-            )?;
-            Ok(())
-        }))?;
-    let id = delegate.id();
-    let id_str = id.to_hex();
-    Ok(id_str)
+fn new_terminal(window: tauri::Window, state: State<AppState>, id: String) -> Result<()> {
+    let events_handler: Box<dyn TerminalDelegateEventHandler + Send + Sync> =
+        Box::new(MainTerminalEventHandler {
+            window: window.clone(),
+        });
+    let _delegate = state.inner().new_terminal(id, events_handler)?;
+    Ok(())
 }
 
 #[tauri::command]
 fn resize_pty(state: State<AppState>, id: &str, rows: u16, cols: u16) -> Result<()> {
-    let oid = ObjectId::from_str(id)?;
-
-    let delegate = state.inner().get_terminal_by_id(oid);
+    let delegate = state.inner().get_terminal_by_id(id);
 
     delegate.resize(rows, cols)
 }
 
 #[tauri::command]
 fn send_terminal_data(state: State<AppState>, id: &str, data: &str) -> Result<()> {
-    let oid = ObjectId::from_str(id)?;
-
-    let mut delegate = state.inner().get_terminal_by_id(oid);
+    let mut delegate = state.inner().get_terminal_by_id(id);
 
     delegate.write(data.as_bytes())?;
 
@@ -138,9 +154,7 @@ fn send_terminal_data(state: State<AppState>, id: &str, data: &str) -> Result<()
 
 #[tauri::command]
 fn remove_terminal(state: State<AppState>, id: &str) -> Result<()> {
-    let oid = ObjectId::from_str(id)?;
-
-    state.inner().remove_terminal_by_id(oid);
+    state.inner().remove_terminal_by_id(id);
 
     Ok(())
 }

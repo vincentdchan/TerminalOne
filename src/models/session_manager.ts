@@ -29,4 +29,11 @@ export class SessionManager {
     }
   }
 
+  removeTabById(id: string) {
+    const index = this.sessions.findIndex((s) => s.id === id);
+    if (index >= 0) {
+      this.removeTab(index);
+    }
+  }
+
 }
