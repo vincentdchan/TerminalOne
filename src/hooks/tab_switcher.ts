@@ -8,7 +8,6 @@ const keyT = 84;
 
 export function useTabSwitcher(sessionManager: SessionManager) {
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
-    console.log(e.which, e.metaKey);
     if (e.metaKey && e.which >= key1 && e.which <= key9) {
       const index = e.which - key1;
       const session = sessionManager.sessions[index];

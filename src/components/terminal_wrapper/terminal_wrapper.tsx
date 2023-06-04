@@ -67,7 +67,11 @@ export class TerminalWrapper extends Component<
     this.fitAddon = fitAddon;
     terminal.loadAddon(fitAddon);
     terminal.loadAddon(new WebglAddon());
-    terminal.loadAddon(new WebLinksAddon());
+    terminal.loadAddon(new WebLinksAddon(async (_event, link) => {
+      await invoke('launch_url', {
+        url: link
+      });
+    }));
     terminal.open(this.containerRef.current!);
 
     window.requestAnimationFrame(() => {

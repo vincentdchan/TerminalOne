@@ -25,6 +25,7 @@ sysinfo = "0.29.0"
 toml = "*"
 cocoa = "*"
 objc = "*"
+open = "4.1.0"
 
 [features]
 # this feature is used for production builds or when `devPath` points to the filesystem
