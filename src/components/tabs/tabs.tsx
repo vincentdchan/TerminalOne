@@ -1,17 +1,19 @@
 import { useCallback, memo, CSSProperties } from "react";
 import { Tab } from "./tab";
-import { SessionManager } from "@pkg/models/session_manager";
+import { AppState } from "@pkg/models/app_state";
 import { observer } from "mobx-react";
 import { runInAction } from "mobx";
-import { MdAdd, MdAccountTree } from "react-icons/md";
+import { MdAdd } from "react-icons/md";
 import { window as tauriWindow } from "@tauri-apps/api";
+import { ExplorerBtn } from "./explorer_btn";
 import "./tabs.scss";
 
 export interface TabsProps {
-  sessionManager: SessionManager;
+  appState: AppState;
 }
 
 interface LeftPaddingProps {
+  appState: AppState;
   onMouseDown?: React.MouseEventHandler;
   bottomBorder?: boolean;
   rightBorder?: boolean;
@@ -35,9 +37,7 @@ const LeftPadding = memo((props: LeftPaddingProps) => {
   return (
     <div className="gpterm-left" style={style} onMouseDown={onMouseDown}>
       {/* <TrafficLight /> */}
-      <button>
-        <MdAccountTree />
-      </button>
+      <ExplorerBtn appState={props.appState} />
     </div>
   );
 });
@@ -71,7 +71,8 @@ const RightPart = memo((props: RightPartProps) => {
 const CMD_CHAR = '\u2318';
 
 export const Tabs = observer((props: TabsProps) => {
-  const { sessionManager } = props;
+  const { appState } = props;
+  const { sessionManager } = appState;
   const handleAddSession = useCallback(() => {
     sessionManager.newTab();
   }, [sessionManager]);
@@ -85,6 +86,7 @@ export const Tabs = observer((props: TabsProps) => {
       onMouseDown={sessionsMoreThanOne ? undefined : handleMouseDown}
     >
       <LeftPadding
+        appState={appState}
         bottomBorder={sessionsMoreThanOne}
         rightBorder={
           sessionsMoreThanOne && sessionManager.activeSessionIndex === 0

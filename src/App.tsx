@@ -5,9 +5,7 @@ import {
   useEffect,
   useCallback,
 } from "react";
-import { observer } from "mobx-react";
-import { TerminalWrapper } from "@pkg/components/terminal_wrapper";
-import { SessionManager } from "@pkg/models/session_manager";
+import { AppState } from "@pkg/models/app_state";
 import { Tabs } from "@pkg/components/tabs";
 import { invoke } from "@tauri-apps/api";
 import { isString } from "lodash-es";
@@ -16,36 +14,13 @@ import type { AppTheme } from "@pkg/models/app_theme";
 import type { ThemeResponse } from "@pkg/messages";
 import { useTabSwitcher } from "@pkg/hooks/tab_switcher";
 import { usePtyExit } from "@pkg/hooks/pty_exit";
+import { TerminalsContainer } from "@pkg/components/main_content_layout";
 import { exit } from '@tauri-apps/api/process';
 import "./App.scss";
 
-interface TerminalsContainerProps {
-  sessionManager: SessionManager;
-  theme: AppTheme;
-}
-
-const TerminalsContainer = observer((props: TerminalsContainerProps) => {
-  const { sessionManager, theme } = props;
-  return (
-    <div className="gpterm-terms-container">
-      {sessionManager.sessions.map((session, index) => {
-        const active = sessionManager.activeSessionIndex === index;
-        return (
-          <TerminalWrapper
-            key={`${index}`}
-            active={active}
-            session={session}
-            theme={theme}
-          />
-        );
-      })}
-    </div>
-  );
-});
-
 function App() {
   const [theme, setTheme] = useState<AppTheme | null>(null);
-  const sessionManager = useMemo(() => new SessionManager(), []);
+  const appState = useMemo(() => new AppState(), []);
 
   const loadTheme = useCallback(async () => {
     const themeResp: ThemeResponse = await invoke("get_a_theme");
@@ -58,22 +33,23 @@ function App() {
   }, [setTheme]);
 
   const handlePtyExit = useCallback(async (id: string) => {
+    const { sessionManager } = appState;
     sessionManager.removeTabById(id);
     if (sessionManager.sessions.length === 0) {
       await exit(0);
     }
-  }, [sessionManager]);
+  }, [appState]);
 
   useEffect(() => {
     loadTheme();
   }, [loadTheme]);
 
   useEffect(() => {
-    sessionManager.newTab();
-  }, []);
+    appState.sessionManager.newTab();
+  }, [appState]);
 
   usePtyExit(handlePtyExit);
-  useTabSwitcher(sessionManager);
+  useTabSwitcher(appState.sessionManager);
 
   const styles: any = useMemo(() => {
     if (!theme) {
@@ -104,8 +80,8 @@ function App() {
     <div className="gpterm-app-container" style={styles}>
       {theme && (
         <>
-          <Tabs sessionManager={sessionManager} />
-          <TerminalsContainer sessionManager={sessionManager} theme={theme} />
+          <Tabs appState={appState} />
+          <TerminalsContainer sessionManager={appState.sessionManager} theme={theme} />
         </>
       )}
     </div>
