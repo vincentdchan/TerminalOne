@@ -7,7 +7,24 @@
   .gpterm-left {
     flex-grow: 0;
     flex-shrink: 0;
-    min-width: 92px;
+    min-width: 128px;
+
+    display: flex;
+    justify-content: end;
+    align-items: center;
+
+    button {
+      height: 100%;
+      font-size: 18px;
+      width: 42px;
+      padding-top: 0px;
+      padding-bottom: 0px;
+
+      color: grey;
+      &.active {
+        color: var(--gpterm-bright-7);
+      }
+    }
   }
 
   .gpterm-content {

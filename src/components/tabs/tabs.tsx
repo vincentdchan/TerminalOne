@@ -3,7 +3,7 @@ import { Tab } from "./tab";
 import { SessionManager } from "@pkg/models/session_manager";
 import { observer } from "mobx-react";
 import { runInAction } from "mobx";
-import { MdAdd } from "react-icons/md";
+import { MdAdd, MdAccountTree } from "react-icons/md";
 import { window as tauriWindow } from "@tauri-apps/api";
 import "./tabs.scss";
 
@@ -35,6 +35,9 @@ const LeftPadding = memo((props: LeftPaddingProps) => {
   return (
     <div className="gpterm-left" style={style} onMouseDown={onMouseDown}>
       {/* <TrafficLight /> */}
+      <button>
+        <MdAccountTree />
+      </button>
     </div>
   );
 });
