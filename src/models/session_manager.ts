@@ -1,43 +1,40 @@
-import { makeObservable, observable, action } from "mobx"
+import { BehaviorSubject, Observable, combineLatestWith, map } from "rxjs";
 import { Session } from "./session";
 
 export class SessionManager {
-  sessions: Session[] = observable.array([]);
-  activeSessionIndex = -1;
-
-  constructor() {
-    makeObservable(this, {
-      sessions: observable,
-      activeSessionIndex: observable,
-      newTab: action,
-      removeTab: action,
-    });
-  }
+  sessions$ = new BehaviorSubject<Session[]>([]);
+  activeSessionIndex$ = new BehaviorSubject<number>(-1);
 
   newTab() {
-    const session = new Session;
-    const len = this.sessions.length;
-    this.sessions.push(session);
+    const session = new Session();
+    const len = this.sessions$.value.length;
+    this.sessions$.next([...this.sessions$.value, session]);
 
-    this.activeSessionIndex = len;
+    this.activeSessionIndex$.next(len);
   }
 
   removeTab(index: number) {
-    this.sessions.splice(index, 1);
-    if (this.activeSessionIndex >= this.sessions.length) {
-      this.activeSessionIndex -= 1;
+    const next = [...this.sessions$.value];
+    next.splice(index, 1);
+    this.sessions$.next(next);
+
+    const activeSessionIndex = this.activeSessionIndex$.value;
+    if (activeSessionIndex >= next.length) {
+      this.activeSessionIndex$.next(1);
     }
   }
 
   removeTabById(id: string) {
-    const index = this.sessions.findIndex((s) => s.id === id);
+    const index = this.sessions$.value.findIndex((s) => s.id === id);
     if (index >= 0) {
       this.removeTab(index);
     }
   }
 
-  get activeSection(): Session | undefined {
-    return this.sessions[this.activeSessionIndex];
-  }
-
+  activeSession$: Observable<Session | undefined> = this.sessions$.pipe(
+    combineLatestWith(this.activeSessionIndex$),
+    map(([sessions, activeSessionIndex]) => {
+      return sessions[activeSessionIndex];
+    })
+  );
 }

@@ -1,6 +1,6 @@
 import { useCallback, useEffect } from "react";
 import { SessionManager } from "@pkg/models/session_manager";
-import { runInAction } from "mobx";
+import { take } from "rxjs";
 
 const key1 = 49;
 const key9 = 57;
@@ -10,12 +10,11 @@ export function useTabSwitcher(sessionManager: SessionManager) {
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
     if (e.metaKey && e.which >= key1 && e.which <= key9) {
       const index = e.which - key1;
-      const session = sessionManager.sessions[index];
-      if (session) {
-        runInAction(() => {
-          sessionManager.activeSessionIndex = index;
-        });
-      }
+      sessionManager.activeSession$.pipe(take(1)).subscribe((activeSession) => {
+        if (activeSession && index < sessionManager.sessions$.value.length) {
+          sessionManager.activeSessionIndex$.next(index);
+        }
+      })
     } else if (e.metaKey && e.which === keyT) {
       sessionManager.newTab();
     }

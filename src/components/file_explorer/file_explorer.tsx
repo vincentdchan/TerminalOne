@@ -1,7 +1,6 @@
 import { AppState } from "@pkg/models/app_state";
 import { escapeShellPath } from "@pkg/utils/shell";
 import { useCallback, useEffect, useState } from "react";
-import { observer } from "mobx-react";
 import { invoke } from "@tauri-apps/api";
 import { isString } from "lodash-es";
 import { FileItem, LsFileResponse } from "@pkg/messages";
@@ -11,7 +10,9 @@ import {
   FixedSizeList as List,
   type ListChildComponentProps,
 } from "react-window";
+import { useObservable } from "@pkg/hooks/observable";
 import "./file_explorer.scss";
+import { take } from "rxjs";
 
 function EmptyPlaceholder() {
   return <div className="gpterm-file-explorer-empty">Not directory found</div>;
@@ -23,10 +24,10 @@ export interface FileExplorerProps {
 
 const FILE_PREFIX = "file://";
 
-export const FileExplorer = observer((props: FileExplorerProps) => {
+export function FileExplorer(props: FileExplorerProps) {
   const { appState } = props;
 
-  const currentDir = appState.currentDir;
+  const currentDir = useObservable(appState.currentDir$, undefined);
 
   const [files, setFiles] = useState<FileItem[]>([]);
 
@@ -66,16 +67,19 @@ export const FileExplorer = observer((props: FileExplorerProps) => {
     const item = files[index];
 
     const handleDblClick = useCallback(() => {
-      const { activeSection } = appState.sessionManager;
-      if (!activeSection) {
-        return;
-      }
-      let path = escapeShellPath(item.path);
-      if (item.isDir) {
-        activeSection.shellInput$.next(`cd ${path}\r`);
-      } else {
-        activeSection.shellInput$.next(`"${path}"`);
-      }
+      appState.sessionManager.activeSession$
+        .pipe(take(1))
+        .subscribe((activeSession) => {
+          if (!activeSession) {
+            return;
+          }
+          let path = escapeShellPath(item.path);
+          if (item.isDir) {
+            activeSession.shellInput$.next(`cd ${path}\r`);
+          } else {
+            activeSession.shellInput$.next(`"${path}"`);
+          }
+        });
     }, [item]);
 
     return (
@@ -114,4 +118,4 @@ export const FileExplorer = observer((props: FileExplorerProps) => {
       )}
     </div>
   );
-});
+};

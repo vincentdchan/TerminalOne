@@ -2,8 +2,8 @@ import { Suspense, lazy } from "react";
 import { TerminalsContainer } from "./terminal_container";
 import { AppState } from "@pkg/models/app_state";
 import { AppTheme } from "@pkg/models/app_theme";
-import { observer } from "mobx-react";
 import "./main_content_layout.scss";
+import { useBehaviorSubject } from "@pkg/hooks/observable";
 
 export interface MainContentLayoutProps {
   appState: AppState;
@@ -13,23 +13,26 @@ export interface MainContentLayoutProps {
 const FileExplorer = lazy(() => import("@pkg/components/file_explorer"));
 const GiftBox = lazy(() => import("@pkg/components/gift_box"));
 
-export const MainContentLayout = observer((props: MainContentLayoutProps) => {
+export function MainContentLayout(props: MainContentLayoutProps) {
   const { appState, theme } = props;
   let leftCls = "gpterm-layout-left";
 
-  if (appState.showFileExplorer) {
+  const showFileExplorer = useBehaviorSubject(appState.showFileExplorer$);
+  const showGiftBox = useBehaviorSubject(appState.showGiftBox$);
+
+  if (showFileExplorer) {
     leftCls += " expanded";
   }
 
   let rightCls = "gpterm-layout-right";
-  if (appState.showGiftBox) {
+  if (showGiftBox) {
     rightCls += " expanded";
   }
 
   return (
     <div className="gpterm-main-layout">
       <div className={leftCls}>
-        {appState.showFileExplorer && (
+        {showFileExplorer && (
           <Suspense>
             <FileExplorer appState={appState} />
           </Suspense>
@@ -40,7 +43,7 @@ export const MainContentLayout = observer((props: MainContentLayoutProps) => {
         theme={theme}
       />
       <div className={rightCls}>
-        {appState.showGiftBox && (
+        {showGiftBox && (
           <Suspense>
             <GiftBox />
           </Suspense>
@@ -48,4 +51,4 @@ export const MainContentLayout = observer((props: MainContentLayoutProps) => {
       </div>
     </div>
   );
-});
+}

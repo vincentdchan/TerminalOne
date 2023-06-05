@@ -7,7 +7,6 @@ import { FitAddon } from 'xterm-addon-fit.es';
 import { invoke } from "@tauri-apps/api/tauri";
 import { Session } from "@pkg/models/session";
 import { AppTheme } from "@pkg/models/app_theme";
-import { runInAction } from "mobx";
 import { debounce } from "lodash-es";
 import { PushMessages } from "@pkg/constants";
 import { type Subscription } from "rxjs";
@@ -86,16 +85,12 @@ export class TerminalWrapper extends Component<
 
     terminal.onTitleChange((title) => {
       const session = this.props.session;
-      runInAction(() => {
-        session.title = title;
-      });
+      session.title$.next(title);
     });
 
     terminal.onCurrentDirectoryChange((dir) => {
       const session = this.props.session;
-      runInAction(() => {
-        session.cwd = dir;
-      });
+      session.cwd$.next(dir);
     });
 
     terminal.onResize((size) => {

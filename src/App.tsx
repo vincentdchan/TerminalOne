@@ -35,8 +35,8 @@ function App() {
   const handlePtyExit = useCallback(async (id: string) => {
     const { sessionManager } = appState;
     sessionManager.removeTabById(id);
-    if (sessionManager.sessions.length === 0) {
-      // await exit(0);
+    if (sessionManager.sessions$.value.length === 0) {
+      await exit(0);
     }
   }, [appState]);
 

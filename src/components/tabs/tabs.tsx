@@ -1,12 +1,11 @@
 import { useCallback, memo, CSSProperties } from "react";
 import { Tab } from "./tab";
 import { AppState } from "@pkg/models/app_state";
-import { observer } from "mobx-react";
-import { runInAction } from "mobx";
 import { MdAdd, MdOutlineDashboard } from "react-icons/md";
 import { window as tauriWindow } from "@tauri-apps/api";
 import { ExplorerBtn } from "./explorer_btn";
 import TabBtn from "@pkg/components/tab_btn";
+import { useBehaviorSubject } from "@pkg/hooks/observable";
 import "./tabs.scss";
 
 interface LeftPaddingProps {
@@ -43,17 +42,18 @@ interface GiftBoxBtnProps {
   appState: AppState;
 }
 
-const GiftBoxBtn = observer((props: GiftBoxBtnProps) => {
+function GiftBoxBtn(props: GiftBoxBtnProps) {
   const { appState } = props;
+  const showGiftBox = useBehaviorSubject(appState.showGiftBox$)
   const handleClick = useCallback(() => {
     appState.toggleShowGiftBox();
   }, [appState]);
   return (
-    <TabBtn onClick={handleClick} unactive={!appState.showGiftBox}>
+    <TabBtn onClick={handleClick} unactive={!showGiftBox}>
       <MdOutlineDashboard />
     </TabBtn>
   );
-});
+}
 
 interface RightPartProps {
   appState: AppState;
@@ -89,7 +89,7 @@ export interface TabsProps {
   appState: AppState;
 }
 
-export const Tabs = observer((props: TabsProps) => {
+export function Tabs(props: TabsProps) {
   const { appState } = props;
   const { sessionManager } = appState;
   const handleAddSession = useCallback(() => {
@@ -98,7 +98,9 @@ export const Tabs = observer((props: TabsProps) => {
   const handleMouseDown = useCallback(async () => {
     await tauriWindow.appWindow.startDragging();
   }, []);
-  const sessionsMoreThanOne = sessionManager.sessions.length > 1;
+  const sessions = useBehaviorSubject(sessionManager.sessions$);
+  const activeSessionIndex = useBehaviorSubject(sessionManager.activeSessionIndex$);
+  const sessionsMoreThanOne = sessions.length > 1;
   return (
     <div
       className="gpterm-tabs gpterm-noselect"
@@ -108,14 +110,14 @@ export const Tabs = observer((props: TabsProps) => {
         appState={appState}
         bottomBorder={sessionsMoreThanOne}
         rightBorder={
-          sessionsMoreThanOne && sessionManager.activeSessionIndex === 0
+          sessionsMoreThanOne && activeSessionIndex === 0
         }
         onMouseDown={handleMouseDown}
       />
       <div className="gpterm-content">
-        {sessionManager.sessions.map((session, index) => {
-          const active = sessionManager.activeSessionIndex === index;
-          const last = index === sessionManager.sessions.length - 1;
+        {sessions.map((session, index) => {
+          const active = activeSessionIndex === index;
+          const last = index === sessions.length - 1;
           return (
             <Tab
               key={`${index}`}
@@ -125,16 +127,12 @@ export const Tabs = observer((props: TabsProps) => {
               last={last}
               hintText={index <= 9 ? `${CMD_CHAR}${index}` : undefined}
               onClick={() => {
-                if (sessionManager.activeSessionIndex !== index) {
-                  runInAction(() => {
-                    sessionManager.activeSessionIndex = index;
-                  });
+                if (activeSessionIndex !== index) {
+                  sessionManager.activeSessionIndex$.next(index);
                 }
               }}
               onClose={() => {
-                runInAction(() => {
-                  sessionManager.removeTab(index);
-                });
+                sessionManager.removeTab(index);
               }}
             />
           );
@@ -145,11 +143,11 @@ export const Tabs = observer((props: TabsProps) => {
         bottomBorder={sessionsMoreThanOne}
         leftBorder={
           sessionsMoreThanOne &&
-          sessionManager.activeSessionIndex ===
-            sessionManager.sessions.length - 1
+          activeSessionIndex ===
+            sessions.length - 1
         }
         onClick={handleAddSession}
       />
     </div>
   );
-});
+}

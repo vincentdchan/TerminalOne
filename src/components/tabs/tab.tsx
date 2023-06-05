@@ -1,7 +1,7 @@
+import { useCallback, } from "react";
 import { Session } from "@pkg/models/session";
-import { useCallback } from "react";
-import { observer } from "mobx-react";
 import { MdClose, MdFolder } from "react-icons/md";
+import { useBehaviorSubject } from "@pkg/hooks/observable";
 import "./tab.scss";
 
 export interface TabProps {
@@ -14,9 +14,12 @@ export interface TabProps {
   onClose?: () => void;
 }
 
-export const Tab = observer((props: TabProps) => {
+export function Tab(props: TabProps) {
   const { session, showCloseBtn, last, active, hintText, onClick, onClose } =
     props;
+
+  const title = useBehaviorSubject(session.title$);
+  const cwd = useBehaviorSubject(session.cwd$);
 
   const handleClose = useCallback(
     (e: React.MouseEvent) => {
@@ -49,22 +52,22 @@ export const Tab = observer((props: TabProps) => {
       </div>
       <div className="main">
         <div className="inner">
-          {session.cwd ? (
+          {cwd ? (
             <>
               <span className="icon">
                 <MdFolder />
               </span>
-              {prettyCwd(session.cwd)}
+              {prettyCwd(cwd)}
             </>
           ) : (
-            session.title ?? "Untitled"
+            title ?? "Untitled"
           )}
         </div>
       </div>
       {hintText && <div className="right">{hintText}</div>}
     </div>
   );
-});
+}
 
 const PREFIX = "file://";
 

@@ -1,20 +1,22 @@
 import { SessionManager } from "@pkg/models/session_manager";
-import { observer } from "mobx-react";
 import type { AppTheme } from "@pkg/models/app_theme";
 import { TerminalWrapper } from "@pkg/components/terminal_wrapper";
 import "./terminal_container.scss";
+import { useBehaviorSubject } from "@pkg/hooks/observable";
 
 export interface TerminalsContainerProps {
   sessionManager: SessionManager;
   theme: AppTheme;
 }
 
-export const TerminalsContainer = observer((props: TerminalsContainerProps) => {
+export function TerminalsContainer(props: TerminalsContainerProps) {
   const { sessionManager, theme } = props;
+  const sessions = useBehaviorSubject(sessionManager.sessions$);
+  const activeSessionIndex = useBehaviorSubject(sessionManager.activeSessionIndex$);
   return (
     <div className="gpterm-terms-container">
-      {sessionManager.sessions.map((session, index) => {
-        const active = sessionManager.activeSessionIndex === index;
+      {sessions.map((session, index) => {
+        const active = activeSessionIndex === index;
         return (
           <TerminalWrapper
             key={session.id}
@@ -26,4 +28,4 @@ export const TerminalsContainer = observer((props: TerminalsContainerProps) => {
       })}
     </div>
   );
-});
+}
