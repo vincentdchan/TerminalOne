@@ -1,0 +1,16 @@
+
+.gpterm-main-layout {
+  flex: 1;
+  display: flex;
+
+  .gpterm-layout-left {
+    flex-grow: 0;
+    flex-shrink: 0;
+    min-width: 280px;
+    height: 100%;
+
+    border-right: solid 1px var(--gpterm-border-color);
+
+    position: relative;
+  }
+}

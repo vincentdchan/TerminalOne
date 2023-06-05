@@ -14,7 +14,7 @@ import type { AppTheme } from "@pkg/models/app_theme";
 import type { ThemeResponse } from "@pkg/messages";
 import { useTabSwitcher } from "@pkg/hooks/tab_switcher";
 import { usePtyExit } from "@pkg/hooks/pty_exit";
-import { TerminalsContainer } from "@pkg/components/main_content_layout";
+import { MainContentLayout } from "@pkg/components/main_content_layout";
 import { exit } from '@tauri-apps/api/process';
 import "./App.scss";
 
@@ -81,7 +81,7 @@ function App() {
       {theme && (
         <>
           <Tabs appState={appState} />
-          <TerminalsContainer sessionManager={appState.sessionManager} theme={theme} />
+          <MainContentLayout appState={appState} theme={theme} />
         </>
       )}
     </div>
