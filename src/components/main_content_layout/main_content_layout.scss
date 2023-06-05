@@ -18,4 +18,20 @@
       min-width: 280px;
     }
   }
+
+  .gpterm-layout-right {
+    flex-grow: 0;
+    flex-shrink: 0;
+    width: 0px;
+    height: 100%;
+
+    border-right: solid 1px var(--gpterm-border-color);
+
+    position: relative;
+
+    &.expanded {
+      width: 280px;
+      min-width: 280px;
+    }
+  }
 }

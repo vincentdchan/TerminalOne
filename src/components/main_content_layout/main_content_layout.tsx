@@ -11,6 +11,7 @@ export interface MainContentLayoutProps {
 }
 
 const FileExplorer = lazy(() => import("@pkg/components/file_explorer"));
+const GiftBox = lazy(() => import("@pkg/components/gift_box"));
 
 export const MainContentLayout = observer((props: MainContentLayoutProps) => {
   const { appState, theme } = props;
@@ -20,17 +21,31 @@ export const MainContentLayout = observer((props: MainContentLayoutProps) => {
     leftCls += " expanded";
   }
 
+  let rightCls = "gpterm-layout-right";
+  if (appState.showGiftBox) {
+    rightCls += " expanded";
+  }
+
   return (
     <div className="gpterm-main-layout">
       <div className={leftCls}>
-        <Suspense fallback={null}>
-          {appState.showFileExplorer && <FileExplorer appState={appState} />}
-        </Suspense>
+        {appState.showFileExplorer && (
+          <Suspense>
+            <FileExplorer appState={appState} />
+          </Suspense>
+        )}
       </div>
       <TerminalsContainer
         sessionManager={appState.sessionManager}
         theme={theme}
       />
+      <div className={rightCls}>
+        {appState.showGiftBox && (
+          <Suspense>
+            <GiftBox />
+          </Suspense>
+        )}
+      </div>
     </div>
   );
 });

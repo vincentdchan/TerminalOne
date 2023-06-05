@@ -3,15 +3,11 @@ import { Tab } from "./tab";
 import { AppState } from "@pkg/models/app_state";
 import { observer } from "mobx-react";
 import { runInAction } from "mobx";
-import { MdAdd } from "react-icons/md";
+import { MdAdd, MdOutlineDashboard } from "react-icons/md";
 import { window as tauriWindow } from "@tauri-apps/api";
 import { ExplorerBtn } from "./explorer_btn";
 import TabBtn from "@pkg/components/tab_btn";
 import "./tabs.scss";
-
-export interface TabsProps {
-  appState: AppState;
-}
 
 interface LeftPaddingProps {
   appState: AppState;
@@ -43,7 +39,24 @@ const LeftPadding = memo((props: LeftPaddingProps) => {
   );
 });
 
+interface GiftBoxBtnProps {
+  appState: AppState;
+}
+
+const GiftBoxBtn = observer((props: GiftBoxBtnProps) => {
+  const { appState } = props;
+  const handleClick = useCallback(() => {
+    appState.toggleShowGiftBox();
+  }, [appState]);
+  return (
+    <TabBtn onClick={handleClick} unactive={!appState.showGiftBox}>
+      <MdOutlineDashboard />
+    </TabBtn>
+  );
+});
+
 interface RightPartProps {
+  appState: AppState;
   bottomBorder?: boolean;
   leftBorder?: boolean;
   onClick?: () => void;
@@ -62,6 +75,7 @@ const RightPart = memo((props: RightPartProps) => {
 
   return (
     <div className="gpterm-right" style={style}>
+      <GiftBoxBtn appState={props.appState} />
       <TabBtn onClick={props.onClick}>
         <MdAdd />
       </TabBtn>
@@ -69,7 +83,11 @@ const RightPart = memo((props: RightPartProps) => {
   );
 });
 
-const CMD_CHAR = '\u2318';
+const CMD_CHAR = "\u2318";
+
+export interface TabsProps {
+  appState: AppState;
+}
 
 export const Tabs = observer((props: TabsProps) => {
   const { appState } = props;
@@ -123,6 +141,7 @@ export const Tabs = observer((props: TabsProps) => {
         })}
       </div>
       <RightPart
+        appState={appState}
         bottomBorder={sessionsMoreThanOne}
         leftBorder={
           sessionsMoreThanOne &&
