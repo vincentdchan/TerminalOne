@@ -57,7 +57,7 @@ export function Tab(props: TabProps) {
               <span className="icon">
                 <MdFolder />
               </span>
-              {prettyCwd(cwd)}
+              {cwd}
             </>
           ) : (
             title ?? "Untitled"
@@ -67,13 +67,4 @@ export function Tab(props: TabProps) {
       {hintText && <div className="right">{hintText}</div>}
     </div>
   );
-}
-
-const PREFIX = "file://";
-
-function prettyCwd(cwd: string): string {
-  if (cwd.startsWith(cwd)) {
-    return cwd.slice(PREFIX.length);
-  }
-  return cwd;
 }

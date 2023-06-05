@@ -1,0 +1,15 @@
+
+.gpterm-command-item {
+  font-size: 12px;
+  height: 28px;
+  line-height: 28px;
+
+  padding-left: 12px;
+  padding-right: 12px;
+
+  cursor: default;
+
+  &:hover {
+    background-color: var(--gpterm-hover-color);
+  }
+}

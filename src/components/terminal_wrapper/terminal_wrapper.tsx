@@ -28,6 +28,8 @@ interface PtyResponse {
   data: Uint8Array;
 }
 
+const FILE_PREFIX = "file://";
+
 export class TerminalWrapper extends Component<
   TerminalWrapperProps,
   TerminalWrapperState
@@ -90,6 +92,9 @@ export class TerminalWrapper extends Component<
 
     terminal.onCurrentDirectoryChange((dir) => {
       const session = this.props.session;
+      if (dir.startsWith(FILE_PREFIX)) {
+        dir = dir.substring(FILE_PREFIX.length);
+      }
       session.cwd$.next(dir);
     });
 

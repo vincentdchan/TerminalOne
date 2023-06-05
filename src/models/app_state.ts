@@ -6,13 +6,19 @@ export class AppState {
   showFileExplorer$ = new BehaviorSubject<boolean>(false);
   showGiftBox$ = new BehaviorSubject<boolean>(false);
   currentDir$ = new BehaviorSubject<string | undefined>(undefined);
+  giftBoxActiveIndex$ = new BehaviorSubject<number>(0);
 
   constructor() {
     let lastSubscription: Subscription | undefined;
     this.sessionManager.activeSession$.subscribe((session) => {
       lastSubscription?.unsubscribe();
 
-      lastSubscription = session?.cwd$.subscribe((cwd) => {
+      if (!session) {
+        this.currentDir$.next(undefined);
+        return;
+      }
+
+      lastSubscription = session.cwd$.subscribe((cwd) => {
         this.currentDir$.next(cwd);
       });
     });

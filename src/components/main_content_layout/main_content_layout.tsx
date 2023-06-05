@@ -45,7 +45,7 @@ export function MainContentLayout(props: MainContentLayoutProps) {
       <div className={rightCls}>
         {showGiftBox && (
           <Suspense>
-            <GiftBox />
+            <GiftBox appState={appState} />
           </Suspense>
         )}
       </div>

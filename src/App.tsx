@@ -1,10 +1,5 @@
 // import reactLogo from "./assets/react.svg";
-import {
-  useMemo,
-  useState,
-  useEffect,
-  useCallback,
-} from "react";
+import { useMemo, useState, useEffect, useCallback } from "react";
 import { AppState } from "@pkg/models/app_state";
 import { Tabs } from "@pkg/components/tabs";
 import { invoke } from "@tauri-apps/api";
@@ -15,12 +10,14 @@ import type { ThemeResponse } from "@pkg/messages";
 import { useTabSwitcher } from "@pkg/hooks/tab_switcher";
 import { usePtyExit } from "@pkg/hooks/pty_exit";
 import { MainContentLayout } from "@pkg/components/main_content_layout";
-import { exit } from '@tauri-apps/api/process';
+import { exit } from "@tauri-apps/api/process";
+import { AppContext } from "@pkg/contexts/app_context";
 import "./App.scss";
+
+const appState = new AppState();
 
 function App() {
   const [theme, setTheme] = useState<AppTheme | null>(null);
-  const appState = useMemo(() => new AppState(), []);
 
   const loadTheme = useCallback(async () => {
     const themeResp: ThemeResponse = await invoke("get_a_theme");
@@ -32,13 +29,16 @@ function App() {
     }
   }, [setTheme]);
 
-  const handlePtyExit = useCallback(async (id: string) => {
-    const { sessionManager } = appState;
-    sessionManager.removeTabById(id);
-    if (sessionManager.sessions$.value.length === 0) {
-      await exit(0);
-    }
-  }, [appState]);
+  const handlePtyExit = useCallback(
+    async (id: string) => {
+      const { sessionManager } = appState;
+      sessionManager.removeTabById(id);
+      if (sessionManager.sessions$.value.length === 0) {
+        await exit(0);
+      }
+    },
+    [appState]
+  );
 
   useEffect(() => {
     loadTheme();
@@ -77,14 +77,16 @@ function App() {
   }, [theme]);
 
   return (
-    <div className="gpterm-app-container" style={styles}>
-      {theme && (
-        <>
-          <Tabs appState={appState} />
-          <MainContentLayout appState={appState} theme={theme} />
-        </>
-      )}
-    </div>
+    <AppContext.Provider value={appState}>
+      <div className="gpterm-app-container" style={styles}>
+        {theme && (
+          <>
+            <Tabs appState={appState} />
+            <MainContentLayout appState={appState} theme={theme} />
+          </>
+        )}
+      </div>
+    </AppContext.Provider>
   );
 }
 

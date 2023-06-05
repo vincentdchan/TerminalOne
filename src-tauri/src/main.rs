@@ -124,6 +124,12 @@ fn fs_ls(path: String) -> Result<FsLsResponse> {
     Ok(resp)
 }
 
+#[tauri::command]
+fn fs_read_all(path: String) -> Result<String> {
+    let resp = std::fs::read_to_string(path)?;
+    Ok(resp)
+}
+
 fn main() {
     let filter_level = if cfg!(dev) {
         log::LevelFilter::max()
@@ -171,6 +177,7 @@ fn main() {
             resize_pty,
             launch_url,
             fs_ls,
+            fs_read_all,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

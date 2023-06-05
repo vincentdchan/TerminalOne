@@ -1,7 +1,6 @@
 import { AppState } from "@pkg/models/app_state";
 import { escapeShellPath } from "@pkg/utils/shell";
 import { useCallback, useEffect, useState } from "react";
-import { invoke } from "@tauri-apps/api";
 import { isString } from "lodash-es";
 import { FileItem, LsFileResponse } from "@pkg/messages";
 import AutoSizer, { type Size } from "react-virtualized-auto-sizer";
@@ -11,8 +10,9 @@ import {
   type ListChildComponentProps,
 } from "react-window";
 import { useObservable } from "@pkg/hooks/observable";
-import "./file_explorer.scss";
 import { take } from "rxjs";
+import * as fs from "@pkg/utils/fs";
+import "./file_explorer.scss";
 
 function EmptyPlaceholder() {
   return <div className="gpterm-file-explorer-empty">Not directory found</div>;
@@ -21,8 +21,6 @@ function EmptyPlaceholder() {
 export interface FileExplorerProps {
   appState: AppState;
 }
-
-const FILE_PREFIX = "file://";
 
 export function FileExplorer(props: FileExplorerProps) {
   const { appState } = props;
@@ -38,14 +36,7 @@ export function FileExplorer(props: FileExplorerProps) {
         return;
       }
 
-      let path = currentDir;
-      if (path.startsWith(FILE_PREFIX)) {
-        path = path.slice(FILE_PREFIX.length);
-      }
-
-      const data: LsFileResponse = await invoke("fs_ls", {
-        path,
-      });
+      const data: LsFileResponse = await fs.ls(currentDir);
       setFiles(
         data.content.sort((a, b) => {
           const aFtOrder = a.isDir ? 0 : 1;
