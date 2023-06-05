@@ -9,6 +9,24 @@
   height: 100%;
 
   display: flex;
+  flex-direction: column;
+
+  .header {
+    min-height: 28px;
+    flex-grow: 0;
+    flex-shrink: 0;
+    // border-bottom: solid 1px var(--gpterm-border-color);
+
+    font-family: "SF Mono", "Roboto Mono", "PT Mono", "Monaco", "Menlo", monospace;
+    padding-left: 14px;
+    line-height: 28px;
+    font-weight: 600;
+    font-size: 12px;
+  }
+
+  .content {
+    flex: 1;
+  }
 
   .gpterm-file-item {
     display: flex;

@@ -1,6 +1,6 @@
 import { AppState } from "@pkg/models/app_state";
 import { escapeShellPath } from "@pkg/utils/shell";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { isString } from "lodash-es";
 import { FileItem, LsFileResponse } from "@pkg/messages";
 import AutoSizer, { type Size } from "react-virtualized-auto-sizer";
@@ -89,24 +89,33 @@ export function FileExplorer(props: FileExplorerProps) {
     );
   };
 
+  const currentFolderName = useMemo(() => {
+    return currentDir ? currentDir.split("/").pop() : "GPTerminal";
+  }, [currentDir]);
+
   return (
     <div className="gpterm-file-explorer">
-      {currentDir ? (
-        <AutoSizer>
-          {({ width, height }: Size) => (
-            <List
-              width={width}
-              height={height}
-              itemCount={files.length}
-              itemSize={28}
-            >
-              {Row}
-            </List>
-          )}
-        </AutoSizer>
-      ) : (
-        <EmptyPlaceholder />
-      )}
+      <div className="header">
+        {currentFolderName}
+      </div>
+      <div className="content">
+        {currentDir ? (
+          <AutoSizer>
+            {({ width, height }: Size) => (
+              <List
+                width={width}
+                height={height}
+                itemCount={files.length}
+                itemSize={28}
+              >
+                {Row}
+              </List>
+            )}
+          </AutoSizer>
+        ) : (
+          <EmptyPlaceholder />
+        )}
+      </div>
     </div>
   );
-};
+}
