@@ -1,0 +1,36 @@
+
+.gpterm-chat-tab {
+  flex: 1;
+  margin: 16px;
+  display: flex;
+  flex-direction: column;
+
+  .gpterm-chat-history {
+    flex: 1;
+    display: flex;
+    flex-direction: column-reverse;
+    padding-bottom: 8px;
+
+    .gpterm-chat-msg {
+      padding-top: 4px;
+      padding-bottom: 4px;
+    }
+  }
+
+  .gpterm-chat-input-container {
+    flex-grow: 0;
+    flex-shrink: 0;
+
+    textarea {
+      // width: 100%;
+      height: 28px;
+      resize: none;
+      background-color: transparent;
+      color: var(--gpterm-bright-7);
+      font-size: 18px;
+      border-radius: 8px;
+      padding: 8px;
+      border: solid 1px var(--gpterm-border-color);
+    }
+  }
+}

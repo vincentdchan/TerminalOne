@@ -1,18 +1,15 @@
-import { useEffect, useState } from "react";
-import { AppState } from "@pkg/models/app_state";
+import { useContext, useEffect, useState } from "react";
 import { useObservable } from "@pkg/hooks/observable";
-import { find } from "lodash-es";
 import * as fs from "@pkg/utils/fs";
+import { AppContext } from "@pkg/contexts/app_context";
+import { find } from "lodash-es";
 import { NodeItlg } from "./node_itlg";
 import type { IntelligenceKind } from "./intelligence_kind";
 import "./intelligence_tab.scss";
 
-export interface IntelligenceTabProps {
-  appState: AppState;
-}
 
-export function IntelligenceTab(props: IntelligenceTabProps) {
-  const { appState } = props;
+export function IntelligenceTab() {
+  const appState = useContext(AppContext)!;
   const currentDir = useObservable(appState.currentDir$, undefined);
   const [intelligenceType, setIntelligenceType] = useState<
     IntelligenceKind | undefined
