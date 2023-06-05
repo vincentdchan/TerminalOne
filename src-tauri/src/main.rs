@@ -15,9 +15,9 @@ mod mac_ext;
 use app_state::AppState;
 pub use errors::Error;
 use log::{debug, info};
-use messages::{PtyExitMessage, PtyResponse, ThemeResponse};
+use messages::{PtyExitMessage, PtyResponse, ThemeResponse, FsLsResponse, FileItem};
 use portable_pty::ExitStatus;
-use std::{env, io::Write, vec};
+use std::{env, io::Write, vec, fs};
 use sysinfo::{System, SystemExt};
 use tauri::{Manager, State};
 use terminal_delegate::TerminalDelegateEventHandler;
@@ -96,10 +96,32 @@ fn get_a_theme(state: State<AppState>) -> Result<ThemeResponse> {
 }
 
 #[tauri::command]
-fn launch_url(url: String) -> Result<()> {
+fn launch_url(url: &str) -> Result<()> {
     info!("launch url: {}", url);
     open::that(url)?;
     Ok(())
+}
+
+#[tauri::command]
+fn fs_ls(path: String) -> Result<FsLsResponse> {
+    let mut resp = FsLsResponse::default();
+
+    let entries = fs::read_dir(path)?;
+
+    for entry in entries {
+        let file = entry?;
+        let filename = file.file_name();
+        let file_type = file.file_type()?;
+        let path = file.path();
+
+        resp.content.push(FileItem {
+            filename: filename.to_str().unwrap().to_string(),
+            is_dir: file_type.is_dir(),
+            path: path.to_str().unwrap().to_string(),
+        });
+    }
+
+    Ok(resp)
 }
 
 fn main() {
@@ -148,6 +170,7 @@ fn main() {
             get_a_theme,
             resize_pty,
             launch_url,
+            fs_ls,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

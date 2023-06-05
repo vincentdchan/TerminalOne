@@ -36,4 +36,8 @@ export class SessionManager {
     }
   }
 
+  get activeSection(): Session | undefined {
+    return this.sessions[this.activeSessionIndex];
+  }
+
 }

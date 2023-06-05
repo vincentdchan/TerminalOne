@@ -3,21 +3,43 @@ use serde::Serialize;
 #[derive(Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub(crate) struct PtyResponse {
-  pub(crate) id: String,
-  pub(crate) data: Vec<u8>,
+  pub id: String,
+  pub data: Vec<u8>,
 }
 
 #[derive(Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub(crate) struct ThemeResponse {
-  pub(crate) name: String,
-  pub(crate) json_content: Option<String>,
+  pub name: String,
+  pub json_content: Option<String>,
 }
 
 #[derive(Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub(crate) struct PtyExitMessage {
-  pub(crate) id: String,
+  pub id: String,
+}
+
+#[derive(Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub(crate) struct FileItem {
+  pub filename: String,
+  pub path: String,
+  pub is_dir: bool,
+}
+
+#[derive(Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub(crate) struct FsLsResponse {
+  pub content: Vec<FileItem>,
+}
+
+impl Default for FsLsResponse {
+  fn default() -> Self {
+    FsLsResponse {
+      content: Vec::new(),
+    }
+  }
 }
 
 pub(crate) mod push_event {

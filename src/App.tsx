@@ -36,7 +36,7 @@ function App() {
     const { sessionManager } = appState;
     sessionManager.removeTabById(id);
     if (sessionManager.sessions.length === 0) {
-      await exit(0);
+      // await exit(0);
     }
   }, [appState]);
 

@@ -1,6 +1,7 @@
-import { useCallback } from "react"
+import { useCallback } from "react";
 import { observer } from "mobx-react";
 import { MdAccountTree } from "react-icons/md";
+import TabBtn from "@pkg/components/tab_btn";
 import type { AppState } from "@pkg/models/app_state";
 
 export interface ExplorerBtnProps {
@@ -14,14 +15,9 @@ export const ExplorerBtn = observer((props: ExplorerBtnProps) => {
     appState.toggleShowFileExplorer();
   }, [appState]);
 
-  let cls = "";
-  if (appState.showFileExplorer) {
-    cls += "active";
-  }
-
   return (
-    <button className={cls} onClick={handleClick}>
+    <TabBtn unactive={!appState.showFileExplorer} onClick={handleClick}>
       <MdAccountTree />
-    </button>
+    </TabBtn>
   );
 });

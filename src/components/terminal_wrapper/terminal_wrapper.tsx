@@ -10,6 +10,7 @@ import { AppTheme } from "@pkg/models/app_theme";
 import { runInAction } from "mobx";
 import { debounce } from "lodash-es";
 import { PushMessages } from "@pkg/constants";
+import { type Subscription } from "rxjs";
 import "./terminal_wrapper.scss";
 import "xterm.es/css/xterm.css";
 
@@ -37,6 +38,7 @@ export class TerminalWrapper extends Component<
   private terminal?: Terminal;
   private fitAddon?: FitAddon;
   private resizeObserver?: ResizeObserver;
+  #subscriptions: Subscription[] = [];
 
   override componentDidMount(): void {
     this.initTerminal();
@@ -105,6 +107,10 @@ export class TerminalWrapper extends Component<
       })
     });
 
+    this.#subscriptions.push(session.shellInput$.subscribe((content: string) => {
+      this.sendTerminalData(id, content);
+    }));
+
     this.unlistenFn = await listen(PushMessages.PTY_OUTPUT, (event) => {
       const resp = event.payload as PtyResponse;
       if (resp.id === id) {
@@ -141,6 +147,7 @@ export class TerminalWrapper extends Component<
     this.resizeObserver = undefined;
     this.removeTerminal();
     this.unlistenFn?.();
+    this.#subscriptions.forEach(s => s.unsubscribe());
   }
 
   async removeTerminal() {

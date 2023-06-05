@@ -6,6 +6,7 @@ import { runInAction } from "mobx";
 import { MdAdd } from "react-icons/md";
 import { window as tauriWindow } from "@tauri-apps/api";
 import { ExplorerBtn } from "./explorer_btn";
+import TabBtn from "@pkg/components/tab_btn";
 import "./tabs.scss";
 
 export interface TabsProps {
@@ -61,9 +62,9 @@ const RightPart = memo((props: RightPartProps) => {
 
   return (
     <div className="gpterm-right" style={style}>
-      <button onClick={props.onClick}>
+      <TabBtn onClick={props.onClick}>
         <MdAdd />
-      </button>
+      </TabBtn>
     </div>
   );
 });

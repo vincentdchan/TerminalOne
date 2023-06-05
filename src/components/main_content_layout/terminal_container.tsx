@@ -17,7 +17,7 @@ export const TerminalsContainer = observer((props: TerminalsContainerProps) => {
         const active = sessionManager.activeSessionIndex === index;
         return (
           <TerminalWrapper
-            key={`${index}`}
+            key={session.id}
             active={active}
             session={session}
             theme={theme}
