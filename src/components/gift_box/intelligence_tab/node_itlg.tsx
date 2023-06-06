@@ -30,7 +30,7 @@ export function NodeItlg(props: NodeItlgProps) {
   const [scripts, setScripts] = useState<string[]>([]);
 
   const readFile = async (path: string) => {
-    const str = await fs.read_all(path);
+    const str = await fs.readAll(path);
     const data = JSON.parse(str);
     setPrjInfo({
       name: data.name,

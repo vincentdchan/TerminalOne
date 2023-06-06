@@ -13,6 +13,8 @@ pub enum Error {
   TomlError(#[from] toml::de::Error),
   #[error(transparent)]
   JsonError(#[from] serde_json::Error),
+  #[error(transparent)]
+  SystemTimeError(#[from] std::time::SystemTimeError),
 }
 
 impl serde::Serialize for Error {

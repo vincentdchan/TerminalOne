@@ -1,4 +1,4 @@
-import type { LsFileResponse } from "@pkg/messages";
+import type { LsFileResponse, LsStatResponse } from "@pkg/messages";
 import { invoke } from "@tauri-apps/api";
 
 export async function ls(path: string): Promise<LsFileResponse> {
@@ -8,9 +8,16 @@ export async function ls(path: string): Promise<LsFileResponse> {
   return resp;
 }
 
-export async function read_all(path: string): Promise<string> {
+export async function readAll(path: string): Promise<string> {
   const resp = await invoke("fs_read_all", {
     path,
   }) as string;
+  return resp;
+}
+
+export async function stat(path: string): Promise<LsStatResponse> {
+  const resp = await invoke("fs_stat", {
+    path,
+  }) as LsStatResponse;
   return resp;
 }

@@ -7,21 +7,23 @@ extern crate objc;
 
 mod app_state;
 pub mod errors;
+mod mac_ext;
 mod messages;
 mod terminal_delegate;
 mod theme_context;
-mod mac_ext;
 
+use crate::mac_ext::WindowExt;
 use app_state::AppState;
 pub use errors::Error;
 use log::{debug, info};
-use messages::{PtyExitMessage, PtyResponse, ThemeResponse, FsLsResponse, FileItem};
+use messages::{
+    FileItem, FsLsResponse, FsStatResponse, PtyExitMessage, PtyResponse, ThemeResponse,
+};
 use portable_pty::ExitStatus;
-use std::{env, io::Write, vec, fs};
+use std::{env, fs, io::Write, vec, time::{UNIX_EPOCH, SystemTime}};
 use sysinfo::{System, SystemExt};
 use tauri::{Manager, State};
 use terminal_delegate::TerminalDelegateEventHandler;
-use crate::mac_ext::WindowExt;
 // use portable_pty
 
 pub type Result<T> = std::result::Result<T, errors::Error>;
@@ -48,10 +50,8 @@ impl TerminalDelegateEventHandler for MainTerminalEventHandler {
     }
 
     fn handle_exit(&self, id: String, _exit_code: ExitStatus) -> Result<()> {
-        self.window.emit(
-            messages::push_event::PTY_EXIT,
-            PtyExitMessage { id },
-        )?;
+        self.window
+            .emit(messages::push_event::PTY_EXIT, PtyExitMessage { id })?;
         Ok(())
     }
 }
@@ -125,9 +125,24 @@ fn fs_ls(path: String) -> Result<FsLsResponse> {
 }
 
 #[tauri::command]
-fn fs_read_all(path: String) -> Result<String> {
+fn fs_read_all(path: &str) -> Result<String> {
     let resp = std::fs::read_to_string(path)?;
     Ok(resp)
+}
+
+#[inline]
+fn sys_time_to_millis(time: SystemTime) -> Result<u64> {
+    return Ok(time.duration_since(UNIX_EPOCH)?.as_millis() as u64);
+}
+
+#[tauri::command]
+fn fs_stat(path: &str) -> Result<FsStatResponse> {
+    let resp = std::fs::metadata(path)?;
+    return Ok(FsStatResponse {
+        modified_time: sys_time_to_millis(resp.modified()?)?,
+        accessed_time: sys_time_to_millis(resp.accessed()?)?,
+        created_time: sys_time_to_millis(resp.created()?)?,
+    });
 }
 
 fn main() {
@@ -178,6 +193,7 @@ fn main() {
             launch_url,
             fs_ls,
             fs_read_all,
+            fs_stat,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

@@ -34,6 +34,14 @@ pub(crate) struct FsLsResponse {
   pub content: Vec<FileItem>,
 }
 
+#[derive(Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub(crate) struct FsStatResponse {
+  pub modified_time: u64, 
+  pub accessed_time: u64,
+  pub created_time: u64,
+}
+
 impl Default for FsLsResponse {
   fn default() -> Self {
     FsLsResponse {
