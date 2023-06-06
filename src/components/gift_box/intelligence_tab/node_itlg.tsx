@@ -57,10 +57,12 @@ export function NodeItlg(props: NodeItlgProps) {
           {prjInfo.version && <div className="light">{prjInfo.version}</div>}
         </div>
       </div>
-      {prjInfo.description && <div className="main-desp">{prjInfo.description}</div>}
+      {prjInfo.description && (
+        <div className="main-desp">{prjInfo.description}</div>
+      )}
       <div className="gpterm-itlg-command-list">
         <div className="inner">
-          <CommandItem cmd={`${kind.subType ?? "npm"} run install\r`}>
+          <CommandItem cmd={`${kind.subType ?? "npm"} install\r`}>
             install
           </CommandItem>
           {scripts.map((script) => (
