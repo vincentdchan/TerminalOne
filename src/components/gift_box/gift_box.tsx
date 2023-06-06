@@ -1,5 +1,6 @@
 import TabBtn from "@pkg/components/tab_btn";
 import { MdOutlineInfo, MdOutlineAnalytics, MdOutlineChat } from "react-icons/md";
+import { GoGitBranch } from "react-icons/go";
 import { IntelligenceTab } from "./intelligence_tab";
 import { ChatTab } from "./chat_tab";
 import { AppState } from "@pkg/models/app_state";
@@ -21,6 +22,11 @@ const tabsDefinitions: GiftBoxTabIntf[] = [
     name: "Info",
     icon: <MdOutlineInfo />,
     renderer: () => <IntelligenceTab />,
+  },
+  {
+    name: "Git",
+    icon: <GoGitBranch />,
+    renderer: () => <div>Git</div>,
   },
   {
     name: "Chat",
