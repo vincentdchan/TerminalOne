@@ -1,0 +1,29 @@
+
+.gpterm-folder-itlg {
+  flex: 1;
+  margin: 16px;
+
+  .preview {
+    border: solid 1px var(--gpterm-border-color);
+    border-radius: 16px;
+
+    margin-top: 8px;
+    margin-bottom: 8px;
+
+    padding: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    img {
+      width: 82px;
+    }
+  }
+
+  .title {
+    font-size: 18px;
+    font-weight: 600;
+    margin-top: 24px;
+    margin-bottom: 24px;
+  }
+}
