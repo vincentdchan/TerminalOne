@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { isString } from "lodash-es";
 import { FileItem, LsFileResponse } from "@pkg/messages";
 import AutoSizer, { type Size } from "react-virtualized-auto-sizer";
-import { MdInsertDriveFile, MdFolder } from "react-icons/md";
+import { MdInsertDriveFile, MdFolder, MdKeyboardArrowUp } from "react-icons/md";
 import {
   FixedSizeList as List,
   type ListChildComponentProps,
@@ -58,19 +58,13 @@ export function FileExplorer(props: FileExplorerProps) {
     const item = files[index];
 
     const handleDblClick = useCallback(() => {
-      appState.sessionManager.activeSession$
-        .pipe(take(1))
-        .subscribe((activeSession) => {
-          if (!activeSession) {
-            return;
-          }
-          let path = escapeShellPath(item.path);
-          if (item.isDir) {
-            activeSession.shellInput$.next(`cd ${path}\r`);
-          } else {
-            activeSession.shellInput$.next(`"${path}"`);
-          }
-        });
+      const { sessionManager } = appState;
+      let path = escapeShellPath(item.path);
+      if (item.isDir) {
+        sessionManager.executeCommand(`cd ${path}\r`);
+      } else {
+        sessionManager.executeCommand(`"${path}"`);
+      }
     }, [item]);
 
     return (
@@ -93,10 +87,20 @@ export function FileExplorer(props: FileExplorerProps) {
     return currentDir ? currentDir.split("/").pop() : "GPTerminal";
   }, [currentDir]);
 
+  const handleGoUp = useCallback(() => {
+    const { sessionManager } = appState;
+    sessionManager.executeCommand("cd ..\r");
+  }, []);
+
   return (
     <div className="gpterm-file-explorer">
       <div className="header">
-        {currentFolderName}
+        <div className="main">{currentFolderName}</div>
+        <div className="right">
+          <button onClick={handleGoUp}>
+            <MdKeyboardArrowUp />
+          </button>
+        </div>
       </div>
       <div className="content">
         {currentDir ? (

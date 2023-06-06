@@ -12,14 +12,7 @@ export function CommandItem(props: CommandItemProps) {
   const { cmd } = props;
   const appState = useContext(AppContext);
   const handleDblClick = useCallback(() => {
-    appState?.sessionManager.activeSession$
-      .pipe(take(1))
-      .subscribe((activeSession) => {
-        if (!activeSession) {
-          return;
-        }
-        activeSession.shellInput$.next(cmd);
-      });
+    appState?.sessionManager.executeCommand(cmd);
   }, [cmd, appState]);
   return (
     <div className="gpterm-command-item" onDoubleClick={handleDblClick}>

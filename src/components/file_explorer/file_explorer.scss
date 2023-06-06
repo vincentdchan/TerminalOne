@@ -22,6 +22,26 @@
     line-height: 28px;
     font-weight: 600;
     font-size: 12px;
+
+    display: flex;
+
+    .main {
+      flex: 1;
+    }
+
+    .right {
+      flex-grow: 0;
+      flex-shrink: 0;
+      padding-right: 8px;
+
+      button {
+        height: 100%;
+        padding-top: 0px;
+        padding-bottom: 0px;
+
+        font-size: 14px;
+      }
+    }
   }
 
   .content {

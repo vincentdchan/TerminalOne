@@ -17,18 +17,26 @@ export interface NodeItlgProps {
   kind: IntelligenceKind;
 }
 
+export interface ProjectInfo {
+  name?: string;
+  version?: string;
+  description?: string;
+}
+
 export function NodeItlg(props: NodeItlgProps) {
   const { currentDir, kind } = props;
 
-  const [prjName, setPrjName] = useState<string>(
-    currentDir.split("/").pop() || ""
-  );
+  const [prjInfo, setPrjInfo] = useState<ProjectInfo>({});
   const [scripts, setScripts] = useState<string[]>([]);
 
   const readFile = async (path: string) => {
     const str = await fs.read_all(path);
     const data = JSON.parse(str);
-    setPrjName(data.name);
+    setPrjInfo({
+      name: data.name,
+      version: data.version,
+      description: data.description,
+    });
 
     const scripts = Object.keys(data.scripts || {});
     setScripts(scripts);
@@ -44,8 +52,12 @@ export function NodeItlg(props: NodeItlgProps) {
     <div className="gpterm-itlg gpterm-node-itlg">
       <div className="summary">
         <img src={imgSrc} alt="" />
-        <div className="desp">{prjName}</div>
+        <div className="desp">
+          <div>{prjInfo.name}</div>
+          {prjInfo.version && <div className="light">{prjInfo.version}</div>}
+        </div>
       </div>
+      {prjInfo.description && <div className="main-desp">{prjInfo.description}</div>}
       <div className="gpterm-itlg-command-list">
         <div className="inner">
           <CommandItem cmd={`${kind.subType ?? "npm"} run install\r`}>

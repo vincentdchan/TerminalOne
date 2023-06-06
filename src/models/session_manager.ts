@@ -1,4 +1,4 @@
-import { BehaviorSubject, Observable, combineLatestWith, map } from "rxjs";
+import { BehaviorSubject, Observable, combineLatestWith, map, take } from "rxjs";
 import { Session } from "./session";
 
 export class SessionManager {
@@ -37,4 +37,12 @@ export class SessionManager {
       return sessions[activeSessionIndex];
     })
   );
+
+  executeCommand(cmd: string) {
+    this.activeSession$.pipe(take(1)).subscribe((session) => {
+      if (session) {
+        session.shellInput$.next(cmd);
+      }
+    });
+  }
 }
