@@ -15,7 +15,7 @@ export function CommandItem(props: CommandItemProps) {
     appState?.sessionManager.executeCommand(cmd);
   }, [cmd, appState]);
   return (
-    <div className="gpterm-command-item" onDoubleClick={handleDblClick}>
+    <div className="t1-command-item" onDoubleClick={handleDblClick}>
       {props.children}
     </div>
   );

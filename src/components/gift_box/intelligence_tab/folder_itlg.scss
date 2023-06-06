@@ -1,10 +1,10 @@
 
-.gpterm-folder-itlg {
+.t1-folder-itlg {
   flex: 1;
   margin: 16px;
 
   .preview {
-    border: solid 1px var(--gpterm-border-color);
+    border: solid 1px var(--t1-border-color);
     border-radius: 16px;
 
     margin-top: 8px;
@@ -26,6 +26,6 @@
     padding-bottom: 4px;
     margin-top: 24px;
     margin-bottom: 8px;
-    border-bottom: solid 1px var(--gpterm-border-color);
+    border-bottom: solid 1px var(--t1-border-color);
   }
 }

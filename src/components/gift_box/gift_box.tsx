@@ -1,5 +1,9 @@
 import TabBtn from "@pkg/components/tab_btn";
-import { MdOutlineInfo, MdOutlineAnalytics, MdOutlineChat } from "react-icons/md";
+import {
+  MdOutlineInfo,
+  MdOutlineAnalytics,
+  MdOutlineChat,
+} from "react-icons/md";
 import { GoGitBranch } from "react-icons/go";
 import { IntelligenceTab } from "./intelligence_tab";
 import { ChatTab } from "./chat_tab";
@@ -46,8 +50,8 @@ function GiftBox(props: GiftBoxProps) {
   const activeIndex = useBehaviorSubject(appState.giftBoxActiveIndex$);
 
   return (
-    <div className="gpterm-giftbox">
-      <div className="gpterm-giftbox-tabs">
+    <div className="t1-giftbox">
+      <div className="t1-giftbox-tabs">
         {tabsDefinitions.map((tab, index) => {
           return (
             <TabBtn
@@ -62,7 +66,7 @@ function GiftBox(props: GiftBoxProps) {
           );
         })}
       </div>
-      <div className="gpterm-giftbox-content">
+      <div className="t1-giftbox-content">
         {tabsDefinitions[activeIndex].renderer()}
       </div>
     </div>

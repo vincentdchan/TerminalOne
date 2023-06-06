@@ -1,5 +1,5 @@
 
-.gpterm-command-item {
+.t1-command-item {
   font-size: 12px;
   height: 28px;
   line-height: 28px;
@@ -10,6 +10,6 @@
   cursor: default;
 
   &:hover {
-    background-color: var(--gpterm-hover-color);
+    background-color: var(--t1-hover-color);
   }
 }

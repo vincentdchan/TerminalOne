@@ -1,25 +1,25 @@
 
-.gpterm-giftbox {
+.t1-giftbox {
   position: absolute;
   left: 0px;
   top: 0px;
   width: 100%;
   height: 100%;
 
-  border-left: solid 1px var(--gpterm-border-color);
+  border-left: solid 1px var(--t1-border-color);
 
   display: flex;
   flex-direction: column;
 }
 
-.gpterm-giftbox-tabs {
+.t1-giftbox-tabs {
   height: 42px;
   width: 100%;
 
-  border-bottom: solid 1px var(--gpterm-border-color);
+  border-bottom: solid 1px var(--t1-border-color);
 }
 
-.gpterm-giftbox-content {
+.t1-giftbox-content {
   flex-grow: 1;
   flex-shrink: 0;
 

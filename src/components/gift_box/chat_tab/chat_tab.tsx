@@ -14,27 +14,38 @@ export function ChatTab() {
     textAreaRef.current?.focus();
   }, [textAreaRef.current]);
 
-  const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === "Enter") {
-      const msg = e.currentTarget.value;
-      setChatHistory((prev) => [{
-        sender: "Me",
-        msg,
-      }, ...prev]);
-      e.currentTarget.value = "";
-    }
-  }, [chatHistory, setChatHistory]);
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+      if (e.key === "Enter") {
+        const msg = e.currentTarget.value;
+        setChatHistory((prev) => [
+          {
+            sender: "Me",
+            msg,
+          },
+          ...prev,
+        ]);
+        e.currentTarget.value = "";
+      }
+    },
+    [chatHistory, setChatHistory]
+  );
 
   return (
-    <div className="gpterm-chat-tab">
-      <div className="gpterm-chat-history">
+    <div className="t1-chat-tab">
+      <div className="t1-chat-history">
         {chatHistory.map((msg, index) => {
-          return <div className="gpterm-chat-msg" key={`${index}`}><b>{msg.sender}: </b>{msg.msg}</div>;
+          return (
+            <div className="t1-chat-msg" key={`${index}`}>
+              <b>{msg.sender}: </b>
+              {msg.msg}
+            </div>
+          );
         })}
       </div>
-      <div className="gpterm-chat-input-container">
+      <div className="t1-chat-input-container">
         <textarea ref={textAreaRef} onKeyDown={handleKeyDown} />
       </div>
     </div>
-  )
+  );
 }

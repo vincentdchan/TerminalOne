@@ -15,7 +15,7 @@ interface LeftPaddingProps {
   rightBorder?: boolean;
 }
 
-const borderStyle = "solid 1px var(--gpterm-border-color)";
+const borderStyle = "solid 1px var(--t1-border-color)";
 
 const LeftPadding = memo((props: LeftPaddingProps) => {
   const { bottomBorder, rightBorder, onMouseDown } = props;
@@ -31,7 +31,7 @@ const LeftPadding = memo((props: LeftPaddingProps) => {
   }
 
   return (
-    <div className="gpterm-left" style={style} onMouseDown={onMouseDown}>
+    <div className="t1-left" style={style} onMouseDown={onMouseDown}>
       {/* <TrafficLight /> */}
       <ExplorerBtn appState={props.appState} />
     </div>
@@ -44,7 +44,7 @@ interface GiftBoxBtnProps {
 
 function GiftBoxBtn(props: GiftBoxBtnProps) {
   const { appState } = props;
-  const showGiftBox = useBehaviorSubject(appState.showGiftBox$)
+  const showGiftBox = useBehaviorSubject(appState.showGiftBox$);
   const handleClick = useCallback(() => {
     appState.toggleShowGiftBox();
   }, [appState]);
@@ -74,7 +74,7 @@ const RightPart = memo((props: RightPartProps) => {
   }
 
   return (
-    <div className="gpterm-right" style={style}>
+    <div className="t1-right" style={style}>
       <GiftBoxBtn appState={props.appState} />
       <TabBtn onClick={props.onClick}>
         <MdAdd />
@@ -99,22 +99,22 @@ export function Tabs(props: TabsProps) {
     await tauriWindow.appWindow.startDragging();
   }, []);
   const sessions = useBehaviorSubject(sessionManager.sessions$);
-  const activeSessionIndex = useBehaviorSubject(sessionManager.activeSessionIndex$);
+  const activeSessionIndex = useBehaviorSubject(
+    sessionManager.activeSessionIndex$
+  );
   const sessionsMoreThanOne = sessions.length > 1;
   return (
     <div
-      className="gpterm-tabs gpterm-noselect"
+      className="t1-tabs t1-noselect"
       onMouseDown={sessionsMoreThanOne ? undefined : handleMouseDown}
     >
       <LeftPadding
         appState={appState}
         bottomBorder={sessionsMoreThanOne}
-        rightBorder={
-          sessionsMoreThanOne && activeSessionIndex === 0
-        }
+        rightBorder={sessionsMoreThanOne && activeSessionIndex === 0}
         onMouseDown={handleMouseDown}
       />
-      <div className="gpterm-content">
+      <div className="t1-content">
         {sessions.map((session, index) => {
           const active = activeSessionIndex === index;
           const last = index === sessions.length - 1;
@@ -142,9 +142,7 @@ export function Tabs(props: TabsProps) {
         appState={appState}
         bottomBorder={sessionsMoreThanOne}
         leftBorder={
-          sessionsMoreThanOne &&
-          activeSessionIndex ===
-            sessions.length - 1
+          sessionsMoreThanOne && activeSessionIndex === sessions.length - 1
         }
         onClick={handleAddSession}
       />

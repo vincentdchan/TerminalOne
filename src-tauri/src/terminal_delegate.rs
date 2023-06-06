@@ -1,8 +1,8 @@
 use crate::Result;
 use log::{error, info, warn};
 use portable_pty::{native_pty_system, Child, CommandBuilder, ExitStatus, MasterPty, PtySize};
-use std::sync::{Arc, Mutex};
 use std::env;
+use std::sync::{Arc, Mutex};
 
 pub(crate) trait TerminalDelegateEventHandler {
     fn handle_data(&self, terminal: &TerminalDelegate, data: &[u8]) -> Result<()>;
@@ -20,7 +20,7 @@ fn make_precommit_dir() -> Result<String> {
 
     current_dir.pop();
     current_dir.push("shell_integration");
-    current_dir.push("gpterm.sh");
+    current_dir.push("t1.sh");
 
     Ok(current_dir.to_str().unwrap().to_string())
 }

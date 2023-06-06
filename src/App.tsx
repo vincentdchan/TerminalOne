@@ -63,13 +63,13 @@ function App() {
         const brights = value as string[];
         for (let i = 0; i < brights.length; i++) {
           const color = brights[i];
-          result[`--gpterm-bright-${i}`] = color;
+          result[`--t1-bright-${i}`] = color;
         }
         return;
       }
 
       if (isString(value)) {
-        result[`--gpterm-${key}`] = value;
+        result[`--t1-${key}`] = value;
       }
     });
 
@@ -78,7 +78,7 @@ function App() {
 
   return (
     <AppContext.Provider value={appState}>
-      <div className="gpterm-app-container" style={styles}>
+      <div className="t1-app-container" style={styles}>
         {theme && (
           <>
             <Tabs appState={appState} />

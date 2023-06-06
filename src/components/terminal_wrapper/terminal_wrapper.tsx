@@ -3,7 +3,7 @@ import { listen, UnlistenFn } from "@tauri-apps/api/event";
 import { Terminal } from "xterm.es";
 import { WebglAddon } from "xterm-addon-webgl.es";
 import { WebLinksAddon } from "xterm-addon-web-links.es";
-import { FitAddon } from 'xterm-addon-fit.es';
+import { FitAddon } from "xterm-addon-fit.es";
 import { invoke } from "@tauri-apps/api/tauri";
 import { Session } from "@pkg/models/session";
 import { AppTheme } from "@pkg/models/app_theme";
@@ -15,7 +15,7 @@ import "xterm.es/css/xterm.css";
 
 export interface TerminalWrapperProps {
   session: Session;
-  theme: AppTheme,
+  theme: AppTheme;
   active?: boolean;
 }
 
@@ -63,18 +63,20 @@ export class TerminalWrapper extends Component<
         foreground: theme.colors.foreground,
         background: theme.colors.background,
         extendedAnsi: theme.colors.ansi,
-      }
+      },
     });
     this.terminal = terminal;
     const fitAddon = new FitAddon();
     this.fitAddon = fitAddon;
     terminal.loadAddon(fitAddon);
     terminal.loadAddon(new WebglAddon());
-    terminal.loadAddon(new WebLinksAddon(async (_event, link) => {
-      await invoke('launch_url', {
-        url: link
-      });
-    }));
+    terminal.loadAddon(
+      new WebLinksAddon(async (_event, link) => {
+        await invoke("launch_url", {
+          url: link,
+        });
+      })
+    );
     terminal.open(this.containerRef.current!);
 
     window.requestAnimationFrame(() => {
@@ -100,16 +102,18 @@ export class TerminalWrapper extends Component<
 
     terminal.onResize((size) => {
       console.log("terminal resize:", size);
-      invoke('resize_pty', {
+      invoke("resize_pty", {
         id,
         cols: size.cols,
         rows: size.rows,
-      })
+      });
     });
 
-    this.#subscriptions.push(session.shellInput$.subscribe((content: string) => {
-      this.sendTerminalData(id, content);
-    }));
+    this.#subscriptions.push(
+      session.shellInput$.subscribe((content: string) => {
+        this.sendTerminalData(id, content);
+      })
+    );
 
     this.unlistenFn = await listen(PushMessages.PTY_OUTPUT, (event) => {
       const resp = event.payload as PtyResponse;
@@ -123,12 +127,12 @@ export class TerminalWrapper extends Component<
         return;
       }
       this.fitSize();
-    })
+    });
     this.resizeObserver.observe(this.containerRef.current!);
 
     window.requestAnimationFrame(() => {
       terminal.focus();
-    })
+    });
   }
 
   fitSize = debounce(() => {
@@ -147,7 +151,7 @@ export class TerminalWrapper extends Component<
     this.resizeObserver = undefined;
     this.removeTerminal();
     this.unlistenFn?.();
-    this.#subscriptions.forEach(s => s.unsubscribe());
+    this.#subscriptions.forEach((s) => s.unsubscribe());
   }
 
   async removeTerminal() {
@@ -158,15 +162,15 @@ export class TerminalWrapper extends Component<
   }
 
   override render() {
-    let cls = "gpterm-instance-container";
+    let cls = "t1-instance-container";
 
     if (!this.props.active) {
-      cls += " unactive"
+      cls += " unactive";
     }
 
     return (
       <div className={cls}>
-        <div ref={this.containerRef} className="gpterm-main"></div>
+        <div ref={this.containerRef} className="t1-main"></div>
       </div>
     );
   }

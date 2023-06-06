@@ -1,8 +1,8 @@
 
-.gpterm-node-itlg {
+.t1-node-itlg {
   flex: 1;
   margin: 16px;
-  border: solid 1px var(--gpterm-border-color);
+  border: solid 1px var(--t1-border-color);
   font-family: "SF Mono", "Roboto Mono", "PT Mono", "Monaco", "Menlo", monospace;
   display: flex;
   flex-direction: column;
@@ -38,7 +38,7 @@
     margin-bottom: 16px;
   }
 
-  .gpterm-itlg-command-list {
+  .t1-itlg-command-list {
     flex: 1;
     position: relative;
 

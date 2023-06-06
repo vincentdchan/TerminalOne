@@ -15,7 +15,7 @@ const GiftBox = lazy(() => import("@pkg/components/gift_box"));
 
 export function MainContentLayout(props: MainContentLayoutProps) {
   const { appState, theme } = props;
-  let leftCls = "gpterm-layout-left";
+  let leftCls = "t1-layout-left";
 
   const showFileExplorer = useBehaviorSubject(appState.showFileExplorer$);
   const showGiftBox = useBehaviorSubject(appState.showGiftBox$);
@@ -24,13 +24,13 @@ export function MainContentLayout(props: MainContentLayoutProps) {
     leftCls += " expanded";
   }
 
-  let rightCls = "gpterm-layout-right";
+  let rightCls = "t1-layout-right";
   if (showGiftBox) {
     rightCls += " expanded";
   }
 
   return (
-    <div className="gpterm-main-layout">
+    <div className="t1-main-layout">
       <div className={leftCls}>
         {showFileExplorer && (
           <Suspense>

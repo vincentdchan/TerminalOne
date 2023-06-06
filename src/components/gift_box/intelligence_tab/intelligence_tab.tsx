@@ -73,7 +73,7 @@ export function IntelligenceTab() {
   }, [currentDir]);
 
   return (
-    <div className="gpterm-intelligence-tab">
+    <div className="t1-intelligence-tab">
       {currentDir &&
         (intelligenceType?.type === "node" ? (
           <NodeItlg kind={intelligenceType} currentDir={currentDir} />

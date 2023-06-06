@@ -1,39 +1,39 @@
 
-.gpterm-app-container {
+.t1-app-container {
   position: fixed;
   top: 0px;
   left: 0px;
   width: 100%;
   height: 100%;
 
-  color: var(--gpterm-foreground);
-  background-color: var(--gpterm-background);
+  color: var(--t1-foreground);
+  background-color: var(--t1-background);
 
   display: flex;
   flex-direction: column;
 
-  .gpterm-tabs {
+  .t1-tabs {
     flex-grow: 0;
     flex-shrink: 0;
   }
 
-  .gpterm-container {
+  .t1-container {
     flex-grow: 1;
   }
 
   button {
-    color: var(--gpterm-foreground);
-    background-color: var(--gpterm-background);
+    color: var(--t1-foreground);
+    background-color: var(--t1-background);
   }
 }
 
 :root {
-  --gpterm-border-color: rgb(93, 93, 93);
-  --gpterm-hover-color: rgb(49, 49, 49);
+  --t1-border-color: rgb(93, 93, 93);
+  --t1-hover-color: rgb(49, 49, 49);
 }
 
 /* https://stackoverflow.com/questions/826782/how-to-disable-text-selection-highlighting */
-.gpterm-noselect {
+.t1-noselect {
   -webkit-touch-callout: none; /* iOS Safari */
   -webkit-user-select: none; /* Safari */
   -khtml-user-select: none; /* Konqueror HTML */

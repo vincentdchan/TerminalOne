@@ -49,7 +49,7 @@ export function NodeItlg(props: NodeItlgProps) {
   const imgSrc = subTypeToImage[props.kind.subType || "npm"] as string;
 
   return (
-    <div className="gpterm-itlg gpterm-node-itlg">
+    <div className="t1-itlg t1-node-itlg">
       <div className="summary">
         <img src={imgSrc} alt="" />
         <div className="desp">
@@ -60,7 +60,7 @@ export function NodeItlg(props: NodeItlgProps) {
       {prjInfo.description && (
         <div className="main-desp">{prjInfo.description}</div>
       )}
-      <div className="gpterm-itlg-command-list">
+      <div className="t1-itlg-command-list">
         <div className="inner">
           <CommandItem cmd={`${kind.subType ?? "npm"} install\r`}>
             install

@@ -1,4 +1,4 @@
-import AppleFolderIcon from "./images/mac-folder-6654.svg"
+import AppleFolderIcon from "./images/mac-folder-6654.svg";
 import { useEffect, useMemo, useState } from "react";
 import * as fs from "@pkg/utils/fs";
 import type { LsStatResponse } from "@pkg/messages";
@@ -9,7 +9,7 @@ import "./folder_itlg.scss";
 dayjs.extend(relativeTime);
 
 export interface FolderItlgProps {
-  currentDir: string,
+  currentDir: string;
 }
 
 export function FolderItlg(props: FolderItlgProps) {
@@ -23,25 +23,31 @@ export function FolderItlg(props: FolderItlgProps) {
   const fetchStat = async (path: string) => {
     const stat = await fs.stat(path);
     setStat(stat);
-  }
+  };
 
   useEffect(() => {
     fetchStat(currentDir);
   }, [currentDir]);
 
   return (
-    <div className="gpterm-folder-itlg">
+    <div className="t1-folder-itlg">
       <div className="preview">
         <img src={AppleFolderIcon} alt="folder" />
       </div>
-      <div className="title">
-        {folderName}
-      </div>
-      {stat && (<div>
-        <div className="detail">Created: {dayjs(stat.createdTime).fromNow()}</div>
-        <div className="detail">Last modified: {dayjs(stat.modifiedTime).fromNow()}</div>
-        <div className="detail">Last accessed: {dayjs(stat.accessedTime).fromNow()}</div>
-      </div>)}
+      <div className="title">{folderName}</div>
+      {stat && (
+        <div>
+          <div className="detail">
+            Created: {dayjs(stat.createdTime).fromNow()}
+          </div>
+          <div className="detail">
+            Last modified: {dayjs(stat.modifiedTime).fromNow()}
+          </div>
+          <div className="detail">
+            Last accessed: {dayjs(stat.accessedTime).fromNow()}
+          </div>
+        </div>
+      )}
     </div>
-  )
+  );
 }

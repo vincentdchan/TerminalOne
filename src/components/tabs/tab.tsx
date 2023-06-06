@@ -1,4 +1,4 @@
-import { useCallback, } from "react";
+import { useCallback } from "react";
 import { Session } from "@pkg/models/session";
 import { MdClose, MdFolder } from "react-icons/md";
 import { useBehaviorSubject } from "@pkg/hooks/observable";
@@ -31,7 +31,7 @@ export function Tab(props: TabProps) {
     [onClose]
   );
 
-  let className = "gpterm-tab";
+  let className = "t1-tab";
 
   if (active) {
     className += " active";

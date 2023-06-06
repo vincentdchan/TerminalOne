@@ -7,7 +7,7 @@ export interface TabBtnProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 function TabBtn(props: TabBtnProps) {
   const { className, unactive, ...rest } = props;
-  let newCls = className + " gpterm-tab-btn";
+  let newCls = className + " t1-tab-btn";
 
   if (unactive) {
     newCls += " unactive";

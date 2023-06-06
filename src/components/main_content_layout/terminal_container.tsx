@@ -12,9 +12,11 @@ export interface TerminalsContainerProps {
 export function TerminalsContainer(props: TerminalsContainerProps) {
   const { sessionManager, theme } = props;
   const sessions = useBehaviorSubject(sessionManager.sessions$);
-  const activeSessionIndex = useBehaviorSubject(sessionManager.activeSessionIndex$);
+  const activeSessionIndex = useBehaviorSubject(
+    sessionManager.activeSessionIndex$
+  );
   return (
-    <div className="gpterm-terms-container">
+    <div className="t1-terms-container">
       {sessions.map((session, index) => {
         const active = activeSessionIndex === index;
         return (

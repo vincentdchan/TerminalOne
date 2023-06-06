@@ -1,15 +1,15 @@
 
-.gpterm-main-layout {
+.t1-main-layout {
   flex: 1;
   display: flex;
 
-  .gpterm-layout-left {
+  .t1-layout-left {
     flex-grow: 0;
     flex-shrink: 0;
     width: 0px;
     height: 100%;
 
-    border-right: solid 1px var(--gpterm-border-color);
+    border-right: solid 1px var(--t1-border-color);
 
     position: relative;
 
@@ -19,13 +19,13 @@
     }
   }
 
-  .gpterm-layout-right {
+  .t1-layout-right {
     flex-grow: 0;
     flex-shrink: 0;
     width: 0px;
     height: 100%;
 
-    border-right: solid 1px var(--gpterm-border-color);
+    border-right: solid 1px var(--t1-border-color);
 
     position: relative;
 

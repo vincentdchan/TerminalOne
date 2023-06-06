@@ -15,7 +15,7 @@ import * as fs from "@pkg/utils/fs";
 import "./file_explorer.scss";
 
 function EmptyPlaceholder() {
-  return <div className="gpterm-file-explorer-empty">Not directory found</div>;
+  return <div className="t1-file-explorer-empty">Not directory found</div>;
 }
 
 export interface FileExplorerProps {
@@ -69,7 +69,7 @@ export function FileExplorer(props: FileExplorerProps) {
 
     return (
       <div
-        className="gpterm-file-item gpterm-noselect"
+        className="t1-file-item t1-noselect"
         style={style}
         onDoubleClick={handleDblClick}
       >
@@ -93,7 +93,7 @@ export function FileExplorer(props: FileExplorerProps) {
   }, []);
 
   return (
-    <div className="gpterm-file-explorer">
+    <div className="t1-file-explorer">
       <div className="header">
         <div className="main">{currentFolderName}</div>
         <div className="right">

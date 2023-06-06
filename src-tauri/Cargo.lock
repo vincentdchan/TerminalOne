@@ -1073,26 +1073,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "gpterminal"
-version = "0.0.0"
-dependencies = [
- "anyhow",
- "cocoa",
- "env_logger",
- "log",
- "objc",
- "open 4.1.0",
- "portable-pty",
- "serde",
- "serde_json",
- "sysinfo",
- "tauri",
- "tauri-build",
- "thiserror",
- "toml 0.7.3",
-]
-
-[[package]]
 name = "gtk"
 version = "0.15.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2732,6 +2712,26 @@ dependencies = [
  "pkg-config",
  "toml 0.7.3",
  "version-compare 0.1.1",
+]
+
+[[package]]
+name = "t1"
+version = "0.0.0"
+dependencies = [
+ "anyhow",
+ "cocoa",
+ "env_logger",
+ "log",
+ "objc",
+ "open 4.1.0",
+ "portable-pty",
+ "serde",
+ "serde_json",
+ "sysinfo",
+ "tauri",
+ "tauri-build",
+ "thiserror",
+ "toml 0.5.11",
 ]
 
 [[package]]
