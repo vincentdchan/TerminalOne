@@ -3,6 +3,7 @@
   // use monospace font, add a lot of candidates to support vairous platforms
   font-family: "SF Mono", "Roboto Mono", "PT Mono", "Monaco", "Menlo", monospace;
 
+  position: relative;
   display: flex;
   cursor: default;
 
@@ -10,10 +11,12 @@
   color: grey;
   // add border to left righ
   border-right: solid 1px var(--t1-border-color);
-  border-bottom: solid 1px var(--t1-border-color);
 
   padding-left: 4px;
   padding-right: 12px;
+
+  // for dnd
+  background-color: var(--t1-background);
 
   &.last {
     border-right: none;
@@ -98,5 +101,18 @@
       }
     }
 
+  }
+
+  .t1-neon-bar {
+    position: absolute;
+    width: 100%;
+    background-color: var(--t1-border-color);
+    bottom: 0px;
+    height: 2px;
+    left: 0px;
+
+    &.win-active {
+      background-color: var(--t1-bright-4);
+    }
   }
 }

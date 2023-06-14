@@ -83,8 +83,6 @@ const RightPart = memo((props: RightPartProps) => {
   );
 });
 
-const CMD_CHAR = "\u2318";
-
 export interface TabsProps {
   appState: AppState;
 }
@@ -110,7 +108,6 @@ export function Tabs(props: TabsProps) {
     >
       <LeftPadding
         appState={appState}
-        bottomBorder={sessionsMoreThanOne}
         rightBorder={sessionsMoreThanOne && activeSessionIndex === 0}
         onMouseDown={handleMouseDown}
       />
@@ -123,9 +120,11 @@ export function Tabs(props: TabsProps) {
               key={`${index}`}
               session={session}
               showCloseBtn={sessionsMoreThanOne}
+              showNeonBar={sessionsMoreThanOne}
+              draggable={sessionsMoreThanOne}
               active={active}
               last={last}
-              hintText={index <= 9 ? `${CMD_CHAR}${index}` : undefined}
+              index={index}
               onClick={() => {
                 if (activeSessionIndex !== index) {
                   sessionManager.activeSessionIndex$.next(index);
@@ -140,7 +139,6 @@ export function Tabs(props: TabsProps) {
       </div>
       <RightPart
         appState={appState}
-        bottomBorder={sessionsMoreThanOne}
         leftBorder={
           sessionsMoreThanOne && activeSessionIndex === sessions.length - 1
         }

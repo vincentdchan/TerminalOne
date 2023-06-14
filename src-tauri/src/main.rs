@@ -20,7 +20,12 @@ use messages::{
     FileItem, FsLsResponse, FsStatResponse, PtyExitMessage, PtyResponse, ThemeResponse,
 };
 use portable_pty::ExitStatus;
-use std::{env, fs, io::Write, vec, time::{UNIX_EPOCH, SystemTime}};
+use std::{
+    env, fs,
+    io::Write,
+    time::{SystemTime, UNIX_EPOCH},
+    vec,
+};
 use sysinfo::{System, SystemExt};
 use tauri::{Manager, State};
 use terminal_delegate::TerminalDelegateEventHandler;

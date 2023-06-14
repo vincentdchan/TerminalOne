@@ -3,6 +3,7 @@
   display: flex;
   min-height: 42px;
   max-height: 42px;
+  border-bottom: solid 1px var(--t1-border-color);
 
   .t1-left {
     flex-grow: 0;

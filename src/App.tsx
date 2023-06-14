@@ -13,6 +13,7 @@ import { AppContext } from "@pkg/contexts/app_context";
 import { ThemeContext } from "@pkg/contexts/app_theme";
 import type { AppTheme } from "@pkg/models/app_theme";
 import type { ThemeResponse } from "@pkg/messages";
+import { type UnlistenFn, listen } from "@tauri-apps/api/event";
 import "./App.scss";
 
 const appState = new AppState();
@@ -47,6 +48,21 @@ function App() {
 
   useEffect(() => {
     appState.sessionManager.newTab();
+  }, [appState]);
+
+  useEffect(() => {
+    let unlisten: UnlistenFn[] = [];
+    listen("tauri://blur", () => {
+      appState.windowActive$.next(false);
+    }).then((fn) => unlisten.push(fn));
+
+    listen("tauri://focus", () => {
+      appState.windowActive$.next(true);
+    }).then((fn) => unlisten.push(fn));
+
+    return () => {
+      unlisten.forEach((fn) => fn());
+    };
   }, [appState]);
 
   usePtyExit(handlePtyExit);

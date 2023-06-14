@@ -11,6 +11,7 @@ export class AppState {
   giftBoxActiveIndex$ = new BehaviorSubject<number>(0);
   favoriteDirsPath$ = new BehaviorSubject<ImmutableSet<string>>(ImmutableSet());
   dirPathToFileItem = new Map<string, FileItemModel>();
+  windowActive$ = new BehaviorSubject<boolean>(true);
 
   constructor() {
     let lastSubscription: Subscription | undefined;
