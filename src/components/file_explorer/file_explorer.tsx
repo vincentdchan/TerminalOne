@@ -5,18 +5,21 @@ import {
   useState,
   memo,
   useContext,
+  useRef,
 } from "react";
 import { escapeShellPath } from "@pkg/utils/shell";
 import { isString } from "lodash-es";
-import { FileItem, LsFileResponse } from "@pkg/messages";
+import { FileItem as FileItemModel, LsFileResponse } from "@pkg/messages";
 import AutoSizer, { type Size } from "react-virtualized-auto-sizer";
-import { MdInsertDriveFile, MdFolder, MdKeyboardArrowUp } from "react-icons/md";
+import { MdKeyboardArrowUp } from "react-icons/md";
 import {
   FixedSizeList as List,
   type ListChildComponentProps,
 } from "react-window";
 import { useObservable } from "@pkg/hooks/observable";
 import { AppContext } from "@pkg/contexts/app_context";
+import { FileItem } from "./file_item";
+import { Set as ImmutableSet } from "immutable";
 import * as fs from "@pkg/utils/fs";
 import "./file_explorer.scss";
 
@@ -24,11 +27,15 @@ function EmptyPlaceholder() {
   return <div className="t1-file-explorer-empty">Not directory found</div>;
 }
 
+const ITEM_HEIGHT = 28;
+
 export const FileExplorer = memo(() => {
   const appState = useContext(AppContext)!;
   const currentDir = useObservable(appState.currentDir$, undefined);
+  const favoriteDirs = useObservable(appState.favoriteDirs$, []);
 
-  const [files, setFiles] = useState<FileItem[]>([]);
+  const [files, setFiles] = useState<FileItemModel[]>([]);
+  const pathToFileMap = useRef<Map<string, FileItemModel> | null>(null);
 
   useEffect(() => {
     const fetchDir = async () => {
@@ -38,49 +45,55 @@ export const FileExplorer = memo(() => {
       }
 
       const data: LsFileResponse = await fs.ls(currentDir);
-      setFiles(
-        data.content.sort((a, b) => {
-          const aFtOrder = a.isDir ? 0 : 1;
-          const bFtOrder = b.isDir ? 0 : 1;
-          const cmp = aFtOrder - bFtOrder;
-          if (cmp !== 0) {
-            return cmp;
-          }
-          return a.filename.localeCompare(b.filename);
-        })
-      );
+
+      const newFiles = data.content.sort((a, b) => {
+        const aFtOrder = a.isDir ? 0 : 1;
+        const bFtOrder = b.isDir ? 0 : 1;
+        const cmp = aFtOrder - bFtOrder;
+        if (cmp !== 0) {
+          return cmp;
+        }
+        return a.filename.localeCompare(b.filename);
+      });
+
+      pathToFileMap.current = new Map();
+      newFiles.forEach((item) => {
+        pathToFileMap.current!.set(item.path, item);
+      });
+
+      setFiles(newFiles);
     };
 
     fetchDir();
   }, [currentDir]);
 
+  const handleDblClick = (item: FileItemModel) => () => {
+    const { sessionManager } = appState;
+    let path = escapeShellPath(item.path);
+    if (item.isDir) {
+      sessionManager.executeCommand(`cd ${path}\r`);
+    } else {
+      sessionManager.executeCommand(`"${path}"`);
+    }
+  };
+
+  const handleStarClick = (item: FileItemModel) => () =>
+    appState.addOrRemoveFavoriteDir(item);
+
   const Row = (props: ListChildComponentProps<any>) => {
     const { index, style } = props;
     const item = files[index];
 
-    const handleDblClick = useCallback(() => {
-      const { sessionManager } = appState;
-      let path = escapeShellPath(item.path);
-      if (item.isDir) {
-        sessionManager.executeCommand(`cd ${path}\r`);
-      } else {
-        sessionManager.executeCommand(`"${path}"`);
-      }
-    }, [item]);
+    const isFavorite = appState.favoriteDirsPath$.value.has(item.path);
 
     return (
-      <div
-        className="t1-file-item t1-noselect"
+      <FileItem
+        item={item}
+        star={isFavorite}
         style={style}
-        onDoubleClick={handleDblClick}
-      >
-        <div className="icon">
-          {item.isDir ? <MdFolder /> : <MdInsertDriveFile />}
-        </div>
-        <div className="filename">
-          <div className="inner">{item.filename}</div>
-        </div>
-      </div>
+        onStarClick={handleStarClick(item)}
+        onDoubleClick={handleDblClick(item)}
+      />
     );
   };
 
@@ -95,8 +108,34 @@ export const FileExplorer = memo(() => {
 
   return (
     <div className="t1-file-explorer">
+      {favoriteDirs.length === 0 ? null : (
+        <>
+          <div className="header">
+            <div className="main t1-noselect">Favorites</div>
+          </div>
+          <div
+            className="favorite-contents"
+            style={{
+              maxHeight: ITEM_HEIGHT * 4.5,
+            }}
+          >
+            {favoriteDirs.map((item) => {
+              return (
+                <FileItem
+                  star
+                  key={item.path}
+                  style={{ height: ITEM_HEIGHT }}
+                  item={item}
+                  onStarClick={handleStarClick(item)}
+                  onDoubleClick={handleDblClick(item)}
+                />
+              );
+            })}
+          </div>
+        </>
+      )}
       <div className="header">
-        <div className="main">{currentFolderName}</div>
+        <div className="main t1-noselect">{currentFolderName}</div>
         <div className="right">
           <button onClick={handleGoUp}>
             <MdKeyboardArrowUp />
@@ -111,7 +150,7 @@ export const FileExplorer = memo(() => {
                 width={width}
                 height={height}
                 itemCount={files.length}
-                itemSize={28}
+                itemSize={ITEM_HEIGHT}
               >
                 {Row}
               </List>

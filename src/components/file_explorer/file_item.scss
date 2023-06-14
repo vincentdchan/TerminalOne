@@ -1,0 +1,60 @@
+$app: t1;
+
+.#{$app}-file-item {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  cursor: default;
+  font-size: 14px;
+
+  .icon {
+    margin-left: 8px;
+    width: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .filename {
+    flex-grow: 1;
+    flex-shrink: 0;
+    margin-left: 4px;
+    margin-right: 8px;
+    position: relative;
+    height: 100%;
+
+    .inner {
+      position: absolute;
+      top: 0px;
+      left: 0px;
+      width: 100%;
+      height: 100%;
+      line-height: 28px;
+
+      // ellipse
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
+
+  .right {
+    visibility: hidden;
+    margin-right: 16px;
+
+    display: flex;
+
+    &.star {
+      visibility: visible;
+      color: rgb(236, 208, 27);
+    }
+  }
+
+  &:hover {
+    background-color: var(--t1-hover-color);
+
+    .right {
+      visibility: visible;
+    }
+  }
+}
