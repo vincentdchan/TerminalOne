@@ -1,3 +1,3 @@
-import { FileExplorer, type FileExplorerProps } from "./file_explorer";
+import { FileExplorer } from "./file_explorer";
 
-export { FileExplorer as default, type FileExplorerProps };
+export { FileExplorer as default };

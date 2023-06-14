@@ -1,0 +1,20 @@
+
+$app: t1;
+
+.#{$app}-vertical-split {
+  height: 100%;
+  position: absolute;
+  top: 0px;
+  cursor: col-resize;
+
+  .central {
+    height: 100%;
+    width: 1px;
+    transform: translateX(2px);
+    background-color: var(--t1-border-color);
+  }
+
+  &:hover {
+    background-color: var(--t1-border-color);
+  }
+}

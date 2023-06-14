@@ -1,3 +1,4 @@
+import { useContext, memo } from "react";
 import TabBtn from "@pkg/components/tab_btn";
 import {
   MdOutlineInfo,
@@ -7,13 +8,9 @@ import {
 import { GoGitBranch } from "react-icons/go";
 import { IntelligenceTab } from "./intelligence_tab";
 import { ChatTab } from "./chat_tab";
-import { AppState } from "@pkg/models/app_state";
 import { useBehaviorSubject } from "@pkg/hooks/observable";
+import { AppContext } from "@pkg/contexts/app_context";
 import "./gift_box.scss";
-
-export interface GiftBoxProps {
-  appState: AppState;
-}
 
 interface GiftBoxTabIntf {
   name: string;
@@ -44,9 +41,8 @@ const tabsDefinitions: GiftBoxTabIntf[] = [
   },
 ];
 
-function GiftBox(props: GiftBoxProps) {
-  const { appState } = props;
-
+const GiftBox = memo(() => {
+  const appState = useContext(AppContext)!;
   const activeIndex = useBehaviorSubject(appState.giftBoxActiveIndex$);
 
   return (
@@ -71,6 +67,6 @@ function GiftBox(props: GiftBoxProps) {
       </div>
     </div>
   );
-}
+});
 
 export default GiftBox;

@@ -1,6 +1,12 @@
-import { AppState } from "@pkg/models/app_state";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  memo,
+  useContext,
+} from "react";
 import { escapeShellPath } from "@pkg/utils/shell";
-import { useCallback, useEffect, useMemo, useState } from "react";
 import { isString } from "lodash-es";
 import { FileItem, LsFileResponse } from "@pkg/messages";
 import AutoSizer, { type Size } from "react-virtualized-auto-sizer";
@@ -10,7 +16,7 @@ import {
   type ListChildComponentProps,
 } from "react-window";
 import { useObservable } from "@pkg/hooks/observable";
-import { take } from "rxjs";
+import { AppContext } from "@pkg/contexts/app_context";
 import * as fs from "@pkg/utils/fs";
 import "./file_explorer.scss";
 
@@ -18,13 +24,8 @@ function EmptyPlaceholder() {
   return <div className="t1-file-explorer-empty">Not directory found</div>;
 }
 
-export interface FileExplorerProps {
-  appState: AppState;
-}
-
-export function FileExplorer(props: FileExplorerProps) {
-  const { appState } = props;
-
+export const FileExplorer = memo(() => {
+  const appState = useContext(AppContext)!;
   const currentDir = useObservable(appState.currentDir$, undefined);
 
   const [files, setFiles] = useState<FileItem[]>([]);
@@ -122,4 +123,4 @@ export function FileExplorer(props: FileExplorerProps) {
       </div>
     </div>
   );
-}
+});

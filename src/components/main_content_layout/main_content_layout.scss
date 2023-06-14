@@ -2,6 +2,7 @@
 .t1-main-layout {
   flex: 1;
   display: flex;
+  position: relative;
 
   .t1-layout-left {
     flex-grow: 0;
@@ -9,14 +10,9 @@
     width: 0px;
     height: 100%;
 
-    border-right: solid 1px var(--t1-border-color);
+    // border-right: solid 1px var(--t1-border-color);
 
     position: relative;
-
-    &.expanded {
-      width: 280px;
-      min-width: 280px;
-    }
   }
 
   .t1-layout-right {
@@ -25,13 +21,8 @@
     width: 0px;
     height: 100%;
 
-    border-right: solid 1px var(--t1-border-color);
+    // border-right: solid 1px var(--t1-border-color);
 
     position: relative;
-
-    &.expanded {
-      width: 280px;
-      min-width: 280px;
-    }
   }
 }

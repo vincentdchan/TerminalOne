@@ -1,16 +1,15 @@
-import { SessionManager } from "@pkg/models/session_manager";
-import type { AppTheme } from "@pkg/models/app_theme";
+import { useContext, memo } from "react";
 import { TerminalWrapper } from "@pkg/components/terminal_wrapper";
-import "./terminal_container.scss";
 import { useBehaviorSubject } from "@pkg/hooks/observable";
+import { AppContext } from "@pkg/contexts/app_context";
+import { ThemeContext } from "@pkg/contexts/app_theme";
+import "./terminal_container.scss";
 
-export interface TerminalsContainerProps {
-  sessionManager: SessionManager;
-  theme: AppTheme;
-}
+export const TerminalsContainer = memo(() => {
+  const appState = useContext(AppContext)!;
+  const theme = useContext(ThemeContext)!;
 
-export function TerminalsContainer(props: TerminalsContainerProps) {
-  const { sessionManager, theme } = props;
+  const { sessionManager } = appState;
   const sessions = useBehaviorSubject(sessionManager.sessions$);
   const activeSessionIndex = useBehaviorSubject(
     sessionManager.activeSessionIndex$
@@ -30,4 +29,4 @@ export function TerminalsContainer(props: TerminalsContainerProps) {
       })}
     </div>
   );
-}
+});

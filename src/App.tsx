@@ -5,13 +5,14 @@ import { Tabs } from "@pkg/components/tabs";
 import { invoke } from "@tauri-apps/api";
 import { isString } from "lodash-es";
 import { objectToCamlCaseDeep } from "@pkg/utils/objects";
-import type { AppTheme } from "@pkg/models/app_theme";
-import type { ThemeResponse } from "@pkg/messages";
 import { useTabSwitcher } from "@pkg/hooks/tab_switcher";
 import { usePtyExit } from "@pkg/hooks/pty_exit";
 import { MainContentLayout } from "@pkg/components/main_content_layout";
 import { exit } from "@tauri-apps/api/process";
 import { AppContext } from "@pkg/contexts/app_context";
+import { ThemeContext } from "@pkg/contexts/app_theme";
+import type { AppTheme } from "@pkg/models/app_theme";
+import type { ThemeResponse } from "@pkg/messages";
 import "./App.scss";
 
 const appState = new AppState();
@@ -78,14 +79,16 @@ function App() {
 
   return (
     <AppContext.Provider value={appState}>
-      <div className="t1-app-container" style={styles}>
-        {theme && (
-          <>
-            <Tabs appState={appState} />
-            <MainContentLayout appState={appState} theme={theme} />
-          </>
-        )}
-      </div>
+      <ThemeContext.Provider value={theme}>
+        <div className="t1-app-container" style={styles}>
+          {theme && (
+            <>
+              <Tabs appState={appState} />
+              <MainContentLayout appState={appState} />
+            </>
+          )}
+        </div>
+      </ThemeContext.Provider>
     </AppContext.Provider>
   );
 }
