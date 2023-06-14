@@ -10,6 +10,7 @@ import { AppTheme } from "@pkg/models/app_theme";
 import { debounce } from "lodash-es";
 import { PushMessages } from "@pkg/constants";
 import { type Subscription } from "rxjs";
+import classNames from "classnames";
 import "./terminal_wrapper.scss";
 import "xterm.es/css/xterm.css";
 
@@ -162,14 +163,12 @@ export class TerminalWrapper extends Component<
   }
 
   override render() {
-    let cls = "t1-instance-container";
-
-    if (!this.props.active) {
-      cls += " unactive";
-    }
-
     return (
-      <div className={cls}>
+      <div
+        className={classNames("t1-instance-container", {
+          unactive: !this.props.active,
+        })}
+      >
         <div ref={this.containerRef} className="t1-main"></div>
       </div>
     );

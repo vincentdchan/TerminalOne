@@ -2,6 +2,7 @@ import { useCallback } from "react";
 import { Session } from "@pkg/models/session";
 import { MdClose, MdFolder } from "react-icons/md";
 import { useBehaviorSubject } from "@pkg/hooks/observable";
+import className from "classnames";
 import "./tab.scss";
 
 export interface TabProps {
@@ -31,18 +32,14 @@ export function Tab(props: TabProps) {
     [onClose]
   );
 
-  let className = "t1-tab";
-
-  if (active) {
-    className += " active";
-  }
-
-  if (last) {
-    className += " last";
-  }
-
   return (
-    <div className={className} onClick={onClick}>
+    <div
+      className={className("t1-tab", {
+        active,
+        last,
+      })}
+      onClick={onClick}
+    >
       <div className="left">
         {showCloseBtn && (
           <button onClick={handleClose}>

@@ -2,8 +2,9 @@ import { Suspense, lazy } from "react";
 import { TerminalsContainer } from "./terminal_container";
 import { AppState } from "@pkg/models/app_state";
 import { AppTheme } from "@pkg/models/app_theme";
-import "./main_content_layout.scss";
 import { useBehaviorSubject } from "@pkg/hooks/observable";
+import className from "classnames";
+import "./main_content_layout.scss";
 
 export interface MainContentLayoutProps {
   appState: AppState;
@@ -15,23 +16,16 @@ const GiftBox = lazy(() => import("@pkg/components/gift_box"));
 
 export function MainContentLayout(props: MainContentLayoutProps) {
   const { appState, theme } = props;
-  let leftCls = "t1-layout-left";
-
   const showFileExplorer = useBehaviorSubject(appState.showFileExplorer$);
   const showGiftBox = useBehaviorSubject(appState.showGiftBox$);
 
-  if (showFileExplorer) {
-    leftCls += " expanded";
-  }
-
-  let rightCls = "t1-layout-right";
-  if (showGiftBox) {
-    rightCls += " expanded";
-  }
-
   return (
     <div className="t1-main-layout">
-      <div className={leftCls}>
+      <div
+        className={className("t1-layout-left", {
+          expanded: showFileExplorer,
+        })}
+      >
         {showFileExplorer && (
           <Suspense>
             <FileExplorer appState={appState} />
@@ -42,7 +36,11 @@ export function MainContentLayout(props: MainContentLayoutProps) {
         sessionManager={appState.sessionManager}
         theme={theme}
       />
-      <div className={rightCls}>
+      <div
+        className={className("t1-layout-right", {
+          expanded: showGiftBox,
+        })}
+      >
         {showGiftBox && (
           <Suspense>
             <GiftBox appState={appState} />

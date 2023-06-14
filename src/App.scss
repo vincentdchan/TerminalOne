@@ -1,5 +1,6 @@
+$app: t1;
 
-.t1-app-container {
+.#{$app}-app-container {
   position: fixed;
   top: 0px;
   left: 0px;
@@ -12,12 +13,12 @@
   display: flex;
   flex-direction: column;
 
-  .t1-tabs {
+  .#{$app}-tabs {
     flex-grow: 0;
     flex-shrink: 0;
   }
 
-  .t1-container {
+  .#{$app}-container {
     flex-grow: 1;
   }
 
