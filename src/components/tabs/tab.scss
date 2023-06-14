@@ -49,12 +49,18 @@
       height: 100%;
 
       text-align: center;
-      line-height: 41px;
+      line-height: 38px;
 
       // ellipse
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
+
+      .icon {
+        svg {
+          transform: translateY(4px);
+        }
+      }
     }
 
     .icon {

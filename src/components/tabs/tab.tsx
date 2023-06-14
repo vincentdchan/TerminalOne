@@ -85,10 +85,10 @@ export function Tab(props: TabProps) {
               <span className="icon">
                 <MdFolder />
               </span>
-              {cwd}
+              <span className="content">{cwd}</span>
             </>
           ) : (
-            title ?? "Untitled"
+            <span className="content">{title ?? "Untitled"}</span>
           )}
         </div>
       </div>
