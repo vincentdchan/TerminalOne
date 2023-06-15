@@ -2,6 +2,11 @@ import { SessionManager } from "./session_manager";
 import { BehaviorSubject, Subscription, map } from "rxjs";
 import { FileItem as FileItemModel } from "@pkg/messages";
 import { Set as ImmutableSet } from "immutable";
+import { invoke } from "@tauri-apps/api";
+import { isString } from "lodash-es";
+import { objectToCamlCaseDeep } from "@pkg/utils/objects";
+import type { ThemeResponse } from "@pkg/messages";
+import { type AppTheme } from "./app_theme";
 
 export class AppState {
   sessionManager = new SessionManager();
@@ -13,6 +18,8 @@ export class AppState {
   favoriteDirsPath$ = new BehaviorSubject<ImmutableSet<string>>(ImmutableSet());
   dirPathToFileItem = new Map<string, FileItemModel>();
   windowActive$ = new BehaviorSubject<boolean>(true);
+
+  theme$ = new BehaviorSubject<AppTheme | undefined>(undefined);
 
   constructor() {
     let lastSubscription: Subscription | undefined;
@@ -28,6 +35,16 @@ export class AppState {
         this.currentDir$.next(cwd);
       });
     });
+  }
+
+  async init() {
+    const themeResp: ThemeResponse = await invoke("get_a_theme");
+    if (isString(themeResp.jsonContent)) {
+      let themeContent = JSON.parse(themeResp.jsonContent) as AppTheme;
+      themeContent = objectToCamlCaseDeep(themeContent);
+      console.log("update theme:", themeContent);
+      this.theme$.next(themeContent);
+    }
   }
 
   toggleShowSettings() {

@@ -10,7 +10,6 @@ import { usePtyExit } from "@pkg/hooks/pty_exit";
 import { MainContentLayout } from "@pkg/components/main_content_layout";
 import { exit } from "@tauri-apps/api/process";
 import { AppContext } from "@pkg/contexts/app_context";
-import { ThemeContext } from "@pkg/contexts/app_theme";
 import type { AppTheme } from "@pkg/models/app_theme";
 import type { ThemeResponse } from "@pkg/messages";
 import { type UnlistenFn, listen } from "@tauri-apps/api/event";
@@ -19,6 +18,7 @@ import { SettingsModal } from "@pkg/components/settings_modal";
 import "./App.scss";
 
 const appState = new AppState();
+appState.init();
 
 function App() {
   const [theme, setTheme] = useState<AppTheme | null>(null);
@@ -126,19 +126,17 @@ function App() {
 
   return (
     <AppContext.Provider value={appState}>
-      <ThemeContext.Provider value={theme}>
-        <>
-          <div className="t1-app-container" style={styles}>
-            {theme && (
-              <>
-                <Tabs appState={appState} />
-                <MainContentLayout appState={appState} />
-              </>
-            )}
-          </div>
-          {showSettings && <SettingsModal onClose={handleSettingsMaskClick} />}
-        </>
-      </ThemeContext.Provider>
+      <>
+        <div className="t1-app-container" style={styles}>
+          {theme && (
+            <>
+              <Tabs appState={appState} />
+              <MainContentLayout appState={appState} />
+            </>
+          )}
+        </div>
+        {showSettings && <SettingsModal onClose={handleSettingsMaskClick} />}
+      </>
     </AppContext.Provider>
   );
 }
