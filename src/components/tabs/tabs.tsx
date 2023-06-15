@@ -5,7 +5,9 @@ import { MdAdd, MdOutlineDashboard } from "react-icons/md";
 import { window as tauriWindow } from "@tauri-apps/api";
 import { ExplorerBtn } from "./explorer_btn";
 import TabBtn from "@pkg/components/tab_btn";
+import { SortableList, type RenderProps } from "@pkg/components/sortable_list";
 import { useBehaviorSubject } from "@pkg/hooks/observable";
+import { Session } from "@pkg/models/session";
 import "./tabs.scss";
 
 interface LeftPaddingProps {
@@ -112,30 +114,40 @@ export function Tabs(props: TabsProps) {
         onMouseDown={handleMouseDown}
       />
       <div className="t1-content">
-        {sessions.map((session, index) => {
-          const active = activeSessionIndex === index;
-          const last = index === sessions.length - 1;
-          return (
-            <Tab
-              key={`${index}`}
-              session={session}
-              showCloseBtn={sessionsMoreThanOne}
-              showNeonBar={sessionsMoreThanOne}
-              draggable={sessionsMoreThanOne}
-              active={active}
-              last={last}
-              index={index}
-              onClick={() => {
-                if (activeSessionIndex !== index) {
-                  sessionManager.activeSessionIndex$.next(index);
-                }
-              }}
-              onClose={() => {
-                sessionManager.removeTab(index);
-              }}
-            />
-          );
-        })}
+        <SortableList
+          items={sessions}
+          onMove={(from, to) => {
+            sessionManager.moveTab(from, to);
+          }}
+          renderItem={(props: RenderProps) => {
+            const { index, item, ...restProps } = props;
+            const session = item as Session;
+            const active = activeSessionIndex === index;
+            const last = index === sessions.length - 1;
+
+            return (
+              <Tab
+                key={`${index}`}
+                session={session}
+                showCloseBtn={sessionsMoreThanOne}
+                showNeonBar={sessionsMoreThanOne}
+                draggable={sessionsMoreThanOne}
+                active={active}
+                last={last}
+                index={index}
+                onClick={() => {
+                  if (activeSessionIndex !== index) {
+                    sessionManager.activeSessionIndex$.next(index);
+                  }
+                }}
+                onClose={() => {
+                  sessionManager.removeTab(index);
+                }}
+                {...restProps}
+              />
+            );
+          }}
+        />
       </div>
       <RightPart
         appState={appState}

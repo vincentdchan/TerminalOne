@@ -26,6 +26,7 @@ export interface TabProps {
   showNeonBar?: boolean;
   index: number;
   draggable?: boolean;
+  dragging?: boolean;
   onClick?: React.MouseEventHandler<HTMLDivElement>;
   onDragStart?: React.DragEventHandler<HTMLDivElement>;
   onDragOver?: React.DragEventHandler<HTMLDivElement>;
@@ -43,6 +44,7 @@ export function Tab(props: TabProps) {
     last,
     active,
     index,
+    dragging,
     onClose,
     ...restProps
   } = props;
@@ -67,6 +69,7 @@ export function Tab(props: TabProps) {
       className={className("t1-tab", {
         active,
         last,
+        dragging: !!dragging,
       })}
       draggable
       {...restProps}

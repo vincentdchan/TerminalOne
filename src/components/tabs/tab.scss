@@ -18,6 +18,10 @@
   // for dnd
   background-color: var(--t1-background);
 
+  &.dragging {
+    opacity: 0.5;
+  }
+
   &.last {
     border-right: none;
   }

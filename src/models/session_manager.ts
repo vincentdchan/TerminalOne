@@ -1,4 +1,10 @@
-import { BehaviorSubject, Observable, combineLatestWith, map, take } from "rxjs";
+import {
+  BehaviorSubject,
+  Observable,
+  combineLatestWith,
+  map,
+  take,
+} from "rxjs";
 import { Session } from "./session";
 
 export class SessionManager {
@@ -11,6 +17,18 @@ export class SessionManager {
     this.sessions$.next([...this.sessions$.value, session]);
 
     this.activeSessionIndex$.next(len);
+  }
+
+  moveTab(fromIndex: number, toIndex: number) {
+    const next = [...this.sessions$.value];
+    const tmp = next[fromIndex];
+    next[fromIndex] = next[toIndex];
+    next[toIndex] = tmp;
+    this.sessions$.next(next);
+
+    if (this.activeSessionIndex$.value === fromIndex) {
+      this.activeSessionIndex$.next(toIndex);
+    }
   }
 
   removeTab(index: number) {
