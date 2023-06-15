@@ -34,13 +34,11 @@ const settingTabs: SettingTabs[] = [
     name: "Appearance",
     content: () => (
       <div className="inner">
-        <div className="t1-settings-group">
-          <SettingsGroup
-            title="Theme"
-            description="Customize how Terminal One looks on your device."
-            right={<RoundButton>Dark</RoundButton>}
-          />
-        </div>
+        <SettingsGroup
+          title="Theme"
+          description="Customize how Terminal One looks on your device."
+          right={<RoundButton>Dark</RoundButton>}
+        />
       </div>
     ),
   },

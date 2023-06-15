@@ -53,8 +53,10 @@
         "fullscreen": false,
         "resizable": true,
         "title": "GPTerminal",
-        "width": 800,
-        "height": 600
+        "width": 860,
+        "height": 600,
+        "minWidth": 402,
+        "minHeight": 280
       }
     ]
   }

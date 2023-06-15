@@ -30,6 +30,7 @@
   display: flex;
   border: solid 2px rgb(24, 26, 31);
   animation: t1-modal-zoom 0.2s linear;
+  overflow: hidden;
 }
 
 @keyframes t1-modal-zoom {
