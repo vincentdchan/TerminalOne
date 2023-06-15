@@ -26,6 +26,7 @@ toml = "*"
 cocoa = "*"
 objc = "*"
 open = "4.1.0"
+dirs = "5.0.1"
 
 [features]
 # this feature is used for production builds or when `devPath` points to the filesystem

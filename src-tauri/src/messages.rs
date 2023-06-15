@@ -2,6 +2,12 @@ use serde::Serialize;
 
 #[derive(Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
+pub(crate) struct InitMessage {
+  pub home_dir: String,
+}
+
+#[derive(Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub(crate) struct PtyResponse {
   pub id: String,
   pub data: Vec<u8>,

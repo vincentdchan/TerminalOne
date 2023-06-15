@@ -61,6 +61,12 @@ impl TerminalDelegateEventHandler for MainTerminalEventHandler {
     }
 }
 
+#[tauri::command]
+fn fetch_init_data() -> Result<messages::InitMessage> {
+    let home_dir = dirs::home_dir().unwrap().to_str().unwrap().to_string();
+    Ok(messages::InitMessage { home_dir })
+}
+
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 #[tauri::command]
 fn new_terminal(window: tauri::Window, state: State<AppState>, id: String) -> Result<()> {
@@ -338,6 +344,7 @@ fn main() {
             return Ok(());
         })
         .invoke_handler(tauri::generate_handler![
+            fetch_init_data,
             new_terminal,
             send_terminal_data,
             remove_terminal,

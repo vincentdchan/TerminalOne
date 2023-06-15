@@ -1,14 +1,15 @@
 import { SessionManager } from "./session_manager";
-import { BehaviorSubject, Subscription, map } from "rxjs";
-import { FileItem as FileItemModel } from "@pkg/messages";
+import { BehaviorSubject, Subscription, combineLatestWith, map } from "rxjs";
+import { FileItem as FileItemModel, InitMessage } from "@pkg/messages";
 import { Set as ImmutableSet } from "immutable";
 import { invoke } from "@tauri-apps/api";
-import { isString } from "lodash-es";
+import { isString, once } from "lodash-es";
 import { objectToCamlCaseDeep } from "@pkg/utils/objects";
 import type { ThemeResponse } from "@pkg/messages";
 import { type AppTheme } from "./app_theme";
 
 export class AppState {
+  initData$ = new BehaviorSubject<InitMessage | undefined>(undefined);
   sessionManager = new SessionManager();
   showSettings$ = new BehaviorSubject<boolean>(false);
   showFileExplorer$ = new BehaviorSubject<boolean>(false);
@@ -37,7 +38,11 @@ export class AppState {
     });
   }
 
-  async init() {
+  init = once(async () => {
+    await Promise.all([this.#fetchTheme(), this.#fetchInitData()]);
+  });
+
+  async #fetchTheme() {
     const themeResp: ThemeResponse = await invoke("get_a_theme");
     if (isString(themeResp.jsonContent)) {
       let themeContent = JSON.parse(themeResp.jsonContent) as AppTheme;
@@ -46,6 +51,19 @@ export class AppState {
       this.theme$.next(themeContent);
     }
   }
+
+  async #fetchInitData() {
+    const initData: InitMessage = await invoke("fetch_init_data");
+    this.initData$.next(initData);
+  }
+
+  // When initData and theme are both ready, we can say the app is ready
+  appReady$ = this.initData$.pipe(
+    combineLatestWith(this.theme$),
+    map(([initData, theme]) => {
+      return !!initData && !!theme;
+    })
+  );
 
   toggleShowSettings() {
     this.showSettings$.next(!this.showSettings$.value);

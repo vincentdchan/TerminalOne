@@ -1,3 +1,8 @@
+
+export interface InitMessage {
+  homeDir: string;
+}
+
 export interface ThemeResponse {
   name: string;
   jsonContent?: string;
