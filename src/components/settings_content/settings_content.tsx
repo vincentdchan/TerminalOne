@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { RoundButton } from "./round_button";
 import { SettingsGroup } from "./settings_group";
+import Toggle from "@pkg/components/toggle";
 import className from "classnames";
 import "./settings_content.scss";
 
@@ -24,7 +25,8 @@ const settingTabs: SettingTabs[] = [
         <SettingsGroup
           title="Auto update"
           description="Auto update Terminal One when a new version is available."
-          right={<RoundButton>Enable</RoundButton>}
+          right={<Toggle />}
+          paddingRight={12}
         />
       </div>
     ),
@@ -57,7 +59,7 @@ export default function SettingsContent() {
 
   return (
     <div className="t1-settings-content">
-      <h1>Settings</h1>
+      <h1 className="t1-noselect">Settings</h1>
       <div className="main-content">
         <div className="t1-settings-navbar">
           {settingTabs.map((tab) => (
