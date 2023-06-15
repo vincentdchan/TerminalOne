@@ -1,5 +1,37 @@
 $app: t1;
 
+@font-face {
+  font-family: "Inter";
+  src: url("/public/fonts/Inter-VariableFont_slnt\,wght.ttf");
+}
+
+@font-face {
+  font-family: "Open Sans";
+  src: url("/public/fonts/OpenSans-VariableFont_wdth\,wght.ttf");
+}
+
+@font-face {
+  font-family: Roboto;
+  src: url("/public/fonts/Roboto/Roboto-Thin.ttf");
+  font-weight: 100;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: Roboto;
+  src: url("/public/fonts/Roboto/Roboto-Light.ttf");
+  font-weight: 300;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: Roboto;
+  src: url("/public/fonts/Roboto/Roboto-Regular.ttf");
+  font-weight: 400;
+  font-style: normal;
+}
+
+
 .#{$app}-app-container {
   position: fixed;
   top: 0px;

@@ -1,0 +1,17 @@
+
+.t1-round-button {
+  outline: none;
+  background-color: transparent;
+  color: white;
+  font-size: 14px;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 10px;
+  padding-right: 10px;
+  height: 32px;
+  border-radius: 8px;
+
+  &:hover {
+    background-color: var(--t1-hover-color);
+  }
+}
