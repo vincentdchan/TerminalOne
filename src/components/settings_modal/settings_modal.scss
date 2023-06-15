@@ -1,0 +1,24 @@
+
+.t1-settings-modal-mask {
+  position: fixed;
+  top: 0px;
+  left: 0px;
+  width: 100%;
+  height: 100%;
+  z-index: 99;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+$MODAL_PADDING: 42px;
+
+.t1-settings-modal {
+  z-index: 99;
+  position: fixed;
+  top: 62px;
+  bottom: 42px;
+  left: #{$MODAL_PADDING};
+  right: #{$MODAL_PADDING};
+  border-radius: 16px;
+  background-color: rgb(41, 44, 51);
+  display: flex;
+}

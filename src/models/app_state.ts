@@ -5,6 +5,7 @@ import { Set as ImmutableSet } from "immutable";
 
 export class AppState {
   sessionManager = new SessionManager();
+  showSettings$ = new BehaviorSubject<boolean>(false);
   showFileExplorer$ = new BehaviorSubject<boolean>(false);
   showGiftBox$ = new BehaviorSubject<boolean>(false);
   currentDir$ = new BehaviorSubject<string | undefined>(undefined);
@@ -27,6 +28,10 @@ export class AppState {
         this.currentDir$.next(cwd);
       });
     });
+  }
+
+  toggleShowSettings() {
+    this.showSettings$.next(!this.showSettings$.value);
   }
 
   toggleShowFileExplorer() {

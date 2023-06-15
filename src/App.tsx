@@ -14,6 +14,8 @@ import { ThemeContext } from "@pkg/contexts/app_theme";
 import type { AppTheme } from "@pkg/models/app_theme";
 import type { ThemeResponse } from "@pkg/messages";
 import { type UnlistenFn, listen } from "@tauri-apps/api/event";
+import { useBehaviorSubject } from "./hooks/observable";
+import { SettingsModal } from "@pkg/components/settings_modal";
 import "./App.scss";
 
 const appState = new AppState();
@@ -60,10 +62,35 @@ function App() {
       appState.windowActive$.next(true);
     }).then((fn) => unlisten.push(fn));
 
+    listen("tauri://menu", (event) => {
+      switch (event.payload) {
+        case "new-tab": {
+          appState.sessionManager.newTab();
+          break;
+        }
+        case "close-tab": {
+          appState.sessionManager.closeTab();
+          break;
+        }
+        case "explorer": {
+          appState.toggleShowFileExplorer();
+          break;
+        }
+        case "settings": {
+          appState.toggleShowSettings();
+          break;
+        }
+        default: {
+        }
+      }
+    }).then((fn) => unlisten.push(fn));
+
     return () => {
       unlisten.forEach((fn) => fn());
     };
   }, [appState]);
+
+  const showSettings = useBehaviorSubject(appState.showSettings$);
 
   usePtyExit(handlePtyExit);
   useTabSwitcher(appState.sessionManager);
@@ -93,17 +120,24 @@ function App() {
     return result;
   }, [theme]);
 
+  const handleSettingsMaskClick = useCallback(() => {
+    appState.toggleShowSettings();
+  }, [appState]);
+
   return (
     <AppContext.Provider value={appState}>
       <ThemeContext.Provider value={theme}>
-        <div className="t1-app-container" style={styles}>
-          {theme && (
-            <>
-              <Tabs appState={appState} />
-              <MainContentLayout appState={appState} />
-            </>
-          )}
-        </div>
+        <>
+          <div className="t1-app-container" style={styles}>
+            {theme && (
+              <>
+                <Tabs appState={appState} />
+                <MainContentLayout appState={appState} />
+              </>
+            )}
+          </div>
+          {showSettings && <SettingsModal onClose={handleSettingsMaskClick} />}
+        </>
       </ThemeContext.Provider>
     </AppContext.Provider>
   );

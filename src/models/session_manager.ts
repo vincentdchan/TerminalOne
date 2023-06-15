@@ -19,6 +19,17 @@ export class SessionManager {
     this.activeSessionIndex$.next(len);
   }
 
+  closeTab() {
+    const activeSessionIndex = this.activeSessionIndex$.value;
+    if (activeSessionIndex >= 0) {
+      this.removeTab(activeSessionIndex);
+    }
+    const currentSessions = this.sessions$.value;
+    if (activeSessionIndex >= currentSessions.length) {
+      this.activeSessionIndex$.next(currentSessions.length - 1);
+    }
+  }
+
   moveTab(fromIndex: number, toIndex: number) {
     const next = [...this.sessions$.value];
     const tmp = next[fromIndex];

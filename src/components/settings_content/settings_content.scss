@@ -1,0 +1,29 @@
+
+.t1-settings-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 24px;
+
+  h1 {
+    text-align: left;
+    padding-left: 32px;
+    padding-right: 32px;
+    padding-bottom: 8px;
+    padding-top: 8px;
+
+    font-family: "SF Mono", "Roboto Mono", "PT Mono", "Monaco", "Menlo", monospace;
+    font-weight: 200;
+  }
+
+  .main-content {
+    display: flex;
+    flex-direction: row;
+    flex: 1;
+
+    .t1-settings-navbar {
+      border-right: solid 1px var(--t1-border-color);
+      min-width: 200px;
+    }
+  }
+}
