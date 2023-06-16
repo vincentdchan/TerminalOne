@@ -1,19 +1,27 @@
-import { FunctionComponent, ButtonHTMLAttributes } from "react";
+import {
+  type FunctionComponent,
+  type ButtonHTMLAttributes,
+  forwardRef,
+  ForwardedRef,
+} from "react";
 import "./tab_btn.css";
 
 export interface TabBtnProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+  ref?: any;
   unactive?: boolean;
 }
 
-function TabBtn(props: TabBtnProps) {
-  const { className = "", unactive, ...rest } = props;
-  let newCls = className + " t1-tab-btn";
+const TabBtn = forwardRef(
+  (props: TabBtnProps, ref: ForwardedRef<HTMLButtonElement>) => {
+    const { className = "", unactive, ...rest } = props;
+    let newCls = className + " t1-tab-btn";
 
-  if (unactive) {
-    newCls += " unactive";
+    if (unactive) {
+      newCls += " unactive";
+    }
+
+    return <button ref={ref} className={newCls} {...rest} />;
   }
-
-  return <button className={newCls} {...rest} />;
-}
+);
 
 export default TabBtn as FunctionComponent<TabBtnProps>;

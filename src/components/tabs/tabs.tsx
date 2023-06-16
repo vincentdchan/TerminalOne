@@ -1,4 +1,4 @@
-import { useCallback, memo, CSSProperties } from "react";
+import { useCallback, memo, CSSProperties, forwardRef } from "react";
 import { Tab } from "./tab";
 import { AppState } from "@pkg/models/app_state";
 import { MdAdd, MdOutlineDashboard } from "react-icons/md";
@@ -8,6 +8,8 @@ import TabBtn from "@pkg/components/tab_btn";
 import { SortableList, type RenderProps } from "@pkg/components/sortable_list";
 import { useBehaviorSubject } from "@pkg/hooks/observable";
 import { Session } from "@pkg/models/session";
+import Tooltip from "@pkg/components/tooltip";
+import { CMD_CHAR, SHIFT_CHAR } from "@pkg/chars";
 import classes from "./tabs.module.css";
 
 interface LeftPaddingProps {
@@ -34,8 +36,12 @@ const LeftPadding = memo((props: LeftPaddingProps) => {
 
   return (
     <div className="t1-left" style={style} onMouseDown={onMouseDown}>
-      {/* <TrafficLight /> */}
-      <ExplorerBtn appState={props.appState} />
+      <Tooltip
+        content={`File Explorer (${SHIFT_CHAR}${CMD_CHAR}E)`}
+        direction="bottom"
+      >
+        <ExplorerBtn appState={props.appState} />
+      </Tooltip>
     </div>
   );
 });
@@ -44,18 +50,18 @@ interface GiftBoxBtnProps {
   appState: AppState;
 }
 
-function GiftBoxBtn(props: GiftBoxBtnProps) {
+const GiftBoxBtn = forwardRef((props: GiftBoxBtnProps, ref: any) => {
   const { appState } = props;
   const showGiftBox = useBehaviorSubject(appState.showGiftBox$);
   const handleClick = useCallback(() => {
     appState.toggleShowGiftBox();
   }, [appState]);
   return (
-    <TabBtn onClick={handleClick} unactive={!showGiftBox}>
+    <TabBtn ref={ref} onClick={handleClick} unactive={!showGiftBox}>
       <MdOutlineDashboard />
     </TabBtn>
   );
-}
+});
 
 interface RightPartProps {
   appState: AppState;
@@ -77,7 +83,9 @@ const RightPart = memo((props: RightPartProps) => {
 
   return (
     <div className="t1-right" style={style}>
-      <GiftBoxBtn appState={props.appState} />
+      <Tooltip content="Toolbox" direction="bottom">
+        <GiftBoxBtn appState={props.appState} />
+      </Tooltip>
       <TabBtn onClick={props.onClick}>
         <MdAdd />
       </TabBtn>

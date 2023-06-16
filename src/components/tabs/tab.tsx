@@ -5,6 +5,7 @@ import { useBehaviorSubject } from "@pkg/hooks/observable";
 import className from "classnames";
 import { isUndefined } from "lodash-es";
 import { AppContext } from "@pkg/contexts/app_context";
+import { CMD_CHAR } from "@pkg/chars";
 import "./tab.css";
 
 const NeonBar = memo(() => {
@@ -34,8 +35,6 @@ export interface TabProps {
   onDragEnd?: React.DragEventHandler<HTMLDivElement>;
   onClose?: () => void;
 }
-
-const CMD_CHAR = "\u2318";
 
 export function Tab(props: TabProps) {
   const {
