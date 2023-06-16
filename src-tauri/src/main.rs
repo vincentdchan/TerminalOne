@@ -11,6 +11,7 @@ mod mac_ext;
 mod messages;
 mod terminal_delegate;
 mod theme_context;
+mod updater;
 
 use crate::mac_ext::WindowExt;
 use app_state::AppState;
@@ -27,7 +28,7 @@ use std::{
     vec,
 };
 use sysinfo::{System, SystemExt};
-use tauri::{AboutMetadata, CustomMenuItem, Manager, Menu, MenuItem, State, Submenu};
+use tauri::{AboutMetadata, CustomMenuItem, Manager, Menu, MenuItem, State, Submenu, async_runtime};
 use terminal_delegate::TerminalDelegateEventHandler;
 // use portable_pty
 
@@ -321,12 +322,14 @@ fn main() {
             win.set_transparent_titlebar(true);
             win.position_traffic_lights(15.0, 19.0);
 
+            let machine_id = machine_uid::get().unwrap();
+
             let cargo_path = env!("CARGO_MANIFEST_DIR");
             let current_dir = env::current_dir()?;
             let mut sys = System::new_all();
             sys.refresh_all();
 
-            info!("GPTerminal started ~");
+            info!("Terminal One started ~");
             info!("app started: {}", current_dir.to_str().unwrap());
             info!("cargo manifest: {}", cargo_path);
             // Display system information:
@@ -334,12 +337,23 @@ fn main() {
             info!("System kernel version:   {:?}", sys.kernel_version());
             info!("System OS version:       {:?}", sys.os_version());
             info!("System host name:        {:?}", sys.host_name());
+            info!("System architecture:     {:?}", std::env::consts::ARCH);
+            info!("Machine UID:             {:?}", machine_id);
 
             // Number of CPUs:
             info!("NB CPUs: {}", sys.cpus().len());
 
             let state = app.state::<AppState>();
             state.inner().load_themes(&current_dir)?;
+
+            async_runtime::spawn(async {
+                use tokio::time::Duration;
+
+                tokio::time::sleep(Duration::from_secs(10)).await;
+                debug!("child thread");
+
+                let _ = updater::check_update().await;
+            });
 
             return Ok(());
         })
