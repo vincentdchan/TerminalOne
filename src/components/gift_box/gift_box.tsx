@@ -48,19 +48,21 @@ const GiftBox = memo(() => {
   return (
     <div className="t1-giftbox">
       <div className="t1-giftbox-tabs">
-        {tabsDefinitions.map((tab, index) => {
-          return (
-            <TabBtn
-              key={tab.name}
-              unactive={activeIndex !== index}
-              onClick={() => {
-                appState.giftBoxActiveIndex$.next(index);
-              }}
-            >
-              {tab.icon}
-            </TabBtn>
-          );
-        })}
+        <div className="inner">
+          {tabsDefinitions.map((tab, index) => {
+            return (
+              <TabBtn
+                key={tab.name}
+                unactive={activeIndex !== index}
+                onClick={() => {
+                  appState.giftBoxActiveIndex$.next(index);
+                }}
+              >
+                {tab.icon}
+              </TabBtn>
+            );
+          })}
+        </div>
       </div>
       <div className="t1-giftbox-content">
         {tabsDefinitions[activeIndex].renderer()}

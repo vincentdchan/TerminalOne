@@ -1,8 +1,9 @@
-import { useCallback, useContext, memo } from "react";
+import { useCallback, useContext, useMemo, memo } from "react";
 import { Session } from "@pkg/models/session";
 import { MdClose, MdFolder } from "react-icons/md";
 import { useBehaviorSubject } from "@pkg/hooks/observable";
 import className from "classnames";
+import { isUndefined } from "lodash-es";
 import { AppContext } from "@pkg/contexts/app_context";
 import "./tab.scss";
 
@@ -49,6 +50,7 @@ export function Tab(props: TabProps) {
     ...restProps
   } = props;
 
+  const appState = useContext(AppContext)!;
   const title = useBehaviorSubject(session.title$);
   const cwd = useBehaviorSubject(session.cwd$);
 
@@ -61,6 +63,13 @@ export function Tab(props: TabProps) {
     },
     [onClose]
   );
+
+  const prettyCwd = useMemo(() => {
+    if (isUndefined(cwd)) {
+      return cwd;
+    }
+    return appState.prettyPath(cwd);
+  }, [cwd, appState]);
 
   const hintText = index <= 9 ? `${CMD_CHAR}${index}` : undefined;
 
@@ -82,13 +91,13 @@ export function Tab(props: TabProps) {
         )}
       </div>
       <div className="main">
-        <div className="inner">
+        <div className="inner t1-ellipsis">
           {cwd ? (
             <>
               <span className="icon">
                 <MdFolder />
               </span>
-              <span className="content">{cwd}</span>
+              <span className="content">{prettyCwd}</span>
             </>
           ) : (
             <span className="content">{title ?? "Untitled"}</span>

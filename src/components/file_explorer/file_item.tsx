@@ -25,7 +25,7 @@ export function FileItem(props: FileItemProps) {
         {item.isDir ? <MdFolder /> : <MdInsertDriveFile />}
       </div>
       <div className="filename">
-        <div className="inner">{item.filename}</div>
+        <div className="inner t1-ellipsis">{item.filename}</div>
       </div>
       {item.isDir && (
         <div

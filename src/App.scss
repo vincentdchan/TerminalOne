@@ -63,6 +63,8 @@ $app: t1;
 :root {
   --t1-border-color: rgb(59, 59, 59);
   --t1-hover-color: rgb(49, 49, 49);
+  --t1-font: "Open Sans", Arial, Helvetica, sans-serif;
+  --t1-font-mono: "SF Mono", "Roboto Mono", "PT Mono", "Monaco", "Menlo", monospace;
 }
 
 /* https://stackoverflow.com/questions/826782/how-to-disable-text-selection-highlighting */
@@ -74,4 +76,10 @@ $app: t1;
   -ms-user-select: none; /* Internet Explorer/Edge */
   user-select: none; /* Non-prefixed version, currently
                                   supported by Chrome, Edge, Opera and Firefox */
+}
+
+.t1-ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }

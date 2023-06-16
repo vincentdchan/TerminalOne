@@ -1,5 +1,5 @@
 import AppleFolderIcon from "./images/mac-folder-6654.svg";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, memo } from "react";
 import * as fs from "@pkg/utils/fs";
 import type { LsStatResponse } from "@pkg/messages";
 import dayjs from "dayjs";
@@ -7,6 +7,25 @@ import relativeTime from "dayjs/plugin/relativeTime";
 import "./folder_itlg.scss";
 
 dayjs.extend(relativeTime);
+
+interface GridRowProps {
+  name: string;
+  value: string;
+}
+
+const GridRow = memo((props: GridRowProps) => {
+  const { name, value } = props;
+  return (
+    <div className="row">
+      <div className="name">{name}</div>
+      <div className="value">
+        <div className="inner t1-ellipsis">
+          {value}
+        </div>
+      </div>
+    </div>
+  );
+});
 
 export interface FolderItlgProps {
   currentDir: string;
@@ -36,16 +55,20 @@ export function FolderItlg(props: FolderItlgProps) {
       </div>
       <div className="title">{folderName}</div>
       {stat && (
-        <div>
-          <div className="detail">
-            Created: {dayjs(stat.createdTime).fromNow()}
-          </div>
-          <div className="detail">
-            Last modified: {dayjs(stat.modifiedTime).fromNow()}
-          </div>
-          <div className="detail">
-            Last accessed: {dayjs(stat.accessedTime).fromNow()}
-          </div>
+        <div className="t1-folder-info-grid">
+          <GridRow
+            name="Created"
+            value={dayjs(stat.createdTime).fromNow()}
+          />
+          <GridRow
+            name="Modified"
+            value={dayjs(stat.modifiedTime).fromNow()}
+          />
+          <GridRow
+            name="Accessed"
+            value={dayjs(stat.accessedTime).fromNow()}
+            />
+
         </div>
       )}
     </div>

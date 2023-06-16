@@ -42,6 +42,21 @@ export class AppState {
     await Promise.all([this.#fetchTheme(), this.#fetchInitData()]);
   });
 
+  prettyPath(path: string): string {
+    const initData = this.initData$.value;
+    if (!initData) {
+      return path;
+    }
+
+    const { homeDir } = initData;
+
+    if (path.startsWith(homeDir)) {
+      return "~" + path.slice(homeDir.length);
+    }
+
+    return path;
+  }
+
   async #fetchTheme() {
     const themeResp: ThemeResponse = await invoke("get_a_theme");
     if (isString(themeResp.jsonContent)) {

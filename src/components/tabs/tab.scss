@@ -1,7 +1,7 @@
 
 .t1-tab {
   // use monospace font, add a lot of candidates to support vairous platforms
-  font-family: "SF Mono", "Roboto Mono", "PT Mono", "Monaco", "Menlo", monospace;
+  font-family: var(--t1-font-mono);
 
   position: relative;
   display: flex;
@@ -54,11 +54,6 @@
 
       text-align: center;
       line-height: 38px;
-
-      // ellipse
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
 
       .icon {
         svg {

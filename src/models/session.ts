@@ -12,4 +12,12 @@ export class Session {
     this.id = mkTabId();
   }
 
+  setTitle(title: string) {
+    this.title$.next(title);
+  }
+
+  setCwd(cwd: string) {
+    this.cwd$.next(cwd);
+  }
+
 }

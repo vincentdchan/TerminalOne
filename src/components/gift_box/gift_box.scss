@@ -17,6 +17,18 @@
   width: 100%;
 
   border-bottom: solid 1px var(--t1-border-color);
+
+  overflow-x: scroll;
+  overflow-y: hidden;
+  position: relative;
+
+  .inner {
+    display: flex;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    height: 100%;
+  }
 }
 
 .t1-giftbox-content {

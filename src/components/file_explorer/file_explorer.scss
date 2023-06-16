@@ -17,7 +17,7 @@ $app: t1;
     flex-grow: 0;
     flex-shrink: 0;
 
-    font-family: "SF Mono", "Roboto Mono", "PT Mono", "Monaco", "Menlo", monospace;
+    font-family: var(--t1-font-mono);
     padding-left: 14px;
     line-height: 28px;
     font-weight: 600;

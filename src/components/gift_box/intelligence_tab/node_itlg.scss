@@ -3,7 +3,7 @@
   flex: 1;
   margin: 16px;
   border: solid 1px var(--t1-border-color);
-  font-family: "SF Mono", "Roboto Mono", "PT Mono", "Monaco", "Menlo", monospace;
+  font-family: var(--t1-font-mono);
   display: flex;
   flex-direction: column;
   

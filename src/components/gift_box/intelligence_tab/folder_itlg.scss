@@ -2,6 +2,7 @@
 .t1-folder-itlg {
   flex: 1;
   margin: 16px;
+  font-family: var(--t1-font);
 
   .preview {
     border: solid 1px var(--t1-border-color);
@@ -21,11 +22,45 @@
   }
 
   .title {
-    font-size: 18px;
+    font-size: 16px;
     font-weight: 600;
     padding-bottom: 4px;
     margin-top: 24px;
     margin-bottom: 8px;
     border-bottom: solid 1px var(--t1-border-color);
   }
+}
+
+.t1-folder-info-grid {
+  display: flex;
+  flex-direction: column;
+  font-size: 13px;
+  font-weight: 600;
+
+  .row {
+    display: flex;
+  }
+
+  .align-right {
+    text-align: right;
+  }
+
+  .name {
+    color: rgb(165, 165, 165);
+  }
+
+  .value {
+    flex-grow: 1;
+    text-align: right;
+    position: relative;
+
+    .inner {
+      position: absolute;
+      top: 0px;
+      left: 0px;
+      width: 100%;
+      height: 100%;
+    }
+  }
+
 }

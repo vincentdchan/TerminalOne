@@ -90,7 +90,7 @@ export class TerminalWrapper extends Component<
 
     terminal.onTitleChange((title) => {
       const session = this.props.session;
-      session.title$.next(title);
+      session.setTitle(title);
     });
 
     terminal.onCurrentDirectoryChange((dir) => {
@@ -98,7 +98,7 @@ export class TerminalWrapper extends Component<
       if (dir.startsWith(FILE_PREFIX)) {
         dir = dir.substring(FILE_PREFIX.length);
       }
-      session.cwd$.next(dir);
+      session.setCwd(dir);
     });
 
     terminal.onResize((size) => {
