@@ -10,7 +10,7 @@ import { AppContext } from "@pkg/contexts/app_context";
 import { type UnlistenFn, listen } from "@tauri-apps/api/event";
 import { useBehaviorSubject, useObservable } from "./hooks/observable";
 import { SettingsModal } from "@pkg/components/settings_modal";
-import "./App.scss";
+import "./App.css";
 
 const appState = new AppState();
 appState.init();

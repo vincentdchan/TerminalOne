@@ -11,7 +11,7 @@ import { debounce } from "lodash-es";
 import { PushMessages } from "@pkg/constants";
 import { type Subscription } from "rxjs";
 import classNames from "classnames";
-import "./terminal_wrapper.scss";
+import classes from "./terminal_wrapper.module.css";
 import "xterm.es/css/xterm.css";
 
 export interface TerminalWrapperProps {
@@ -165,11 +165,11 @@ export class TerminalWrapper extends Component<
   override render() {
     return (
       <div
-        className={classNames("t1-instance-container", {
+        className={classNames(classes.instanceContainer, {
           unactive: !this.props.active,
         })}
       >
-        <div ref={this.containerRef} className="t1-main"></div>
+        <div ref={this.containerRef} className={classes.mainContent}></div>
       </div>
     );
   }

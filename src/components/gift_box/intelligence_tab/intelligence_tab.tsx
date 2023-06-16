@@ -6,7 +6,7 @@ import { find } from "lodash-es";
 import { FolderItlg } from "./folder_itlg";
 import { NodeItlg } from "./node_itlg";
 import type { IntelligenceKind } from "./intelligence_kind";
-import "./intelligence_tab.scss";
+import classes from "./intelligence_tab.module.css";
 
 export function IntelligenceTab() {
   const appState = useContext(AppContext)!;
@@ -73,7 +73,7 @@ export function IntelligenceTab() {
   }, [currentDir]);
 
   return (
-    <div className="t1-intelligence-tab">
+    <div className={classes.intelligenceTab}>
       {currentDir &&
         (intelligenceType?.type === "node" ? (
           <NodeItlg kind={intelligenceType} currentDir={currentDir} />

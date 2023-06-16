@@ -9,7 +9,7 @@ import React, {
 } from "react";
 import { fromEvent } from "rxjs";
 import { filter } from "rxjs/operators";
-import "./settings_modal.scss";
+import classes from "./settings_modal.module.css";
 
 const Mask = memo((props: { onClick?: React.MouseEventHandler }) => {
   const { onClick } = props;
@@ -24,9 +24,9 @@ const Mask = memo((props: { onClick?: React.MouseEventHandler }) => {
     [onClick]
   );
   return (
-    <div onClick={handleMaskClick} className="t1-settings-modal-mask">
+    <div onClick={handleMaskClick} className={classes.settingsModalMask}>
       <div
-        className="titlebar"
+        className={classes.titlebar}
         {...({ "data-tauri-drag-region": true } as any)}
       ></div>
     </div>
@@ -85,7 +85,7 @@ export function SettingsModal(props: SettingsModalProps) {
     <>
       <Mask onClick={onClose} />
       <div
-        className="t1-settings-modal"
+        className={classes.settingsModal}
         onAnimationEnd={handleAnimationEnd}
         style={{ width, bottom: MODAL_PADDING }}
       >

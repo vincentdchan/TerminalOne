@@ -1,0 +1,65 @@
+.fileExplorer {
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  right: 0px;
+  bottom: 0px;
+  width: 100%;
+  height: 100%;
+
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  min-height: 28px;
+  flex-grow: 0;
+  flex-shrink: 0;
+
+  font-family: var(--t1-font-mono);
+  padding-left: 14px;
+  line-height: 28px;
+  font-weight: 600;
+  font-size: 12px;
+
+  display: flex;
+
+  :global(.main) {
+    flex: 1;
+
+    cursor: default;
+  }
+
+  :global(.right) {
+    flex-grow: 0;
+    flex-shrink: 0;
+    padding-right: 8px;
+
+    button {
+      height: 100%;
+      padding-top: 0px;
+      padding-bottom: 0px;
+
+      font-size: 14px;
+    }
+  }
+}
+
+.content {
+  flex: 1;
+}
+
+.favoriteContents {
+  flex-grow: 0;
+  flex-shrink: 0;
+
+  overflow: scroll;
+}
+
+.fileExplorerEmpty {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: 400;
+}

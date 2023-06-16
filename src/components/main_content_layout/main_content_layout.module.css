@@ -1,0 +1,27 @@
+.mainLayout {
+  flex: 1;
+  display: flex;
+  position: relative;
+}
+
+.layoutLeft {
+  flex-grow: 0;
+  flex-shrink: 0;
+  width: 0px;
+  height: 100%;
+
+  /* border-right: solid 1px var(--t1-border-color); */
+
+  position: relative;
+}
+
+.layoutRight {
+  flex-grow: 0;
+  flex-shrink: 0;
+  width: 0px;
+  height: 100%;
+
+  /* border-right: solid 1px var(--t1-border-color); */
+
+  position: relative;
+}

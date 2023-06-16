@@ -1,7 +1,5 @@
 
-$app: t1;
-
-.#{$app}-vertical-split {
+.t1-vertical-split {
   height: 100%;
   position: absolute;
   top: 0px;

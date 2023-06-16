@@ -19,12 +19,11 @@ import {
 import { useObservable } from "@pkg/hooks/observable";
 import { AppContext } from "@pkg/contexts/app_context";
 import { FileItem } from "./file_item";
-import { Set as ImmutableSet } from "immutable";
 import * as fs from "@pkg/utils/fs";
-import "./file_explorer.scss";
+import classes from "./file_explorer.module.css";
 
 function EmptyPlaceholder() {
-  return <div className="t1-file-explorer-empty">Not directory found</div>;
+  return <div className={classes.fileExplorerEmpty}>Not directory found</div>;
 }
 
 const ITEM_HEIGHT = 28;
@@ -107,14 +106,14 @@ export const FileExplorer = memo(() => {
   }, []);
 
   return (
-    <div className="t1-file-explorer">
+    <div className={classes.fileExplorer}>
       {favoriteDirs.length === 0 ? null : (
         <>
-          <div className="header">
+          <div className={classes.header}>
             <div className="main t1-noselect">Favorites</div>
           </div>
           <div
-            className="favorite-contents"
+            className={classes.favoriteContents}
             style={{
               maxHeight: ITEM_HEIGHT * 4.5,
             }}
@@ -134,7 +133,7 @@ export const FileExplorer = memo(() => {
           </div>
         </>
       )}
-      <div className="header">
+      <div className={classes.header}>
         <div className="main t1-noselect">{currentFolderName}</div>
         <div className="right">
           <button onClick={handleGoUp}>
@@ -142,7 +141,7 @@ export const FileExplorer = memo(() => {
           </button>
         </div>
       </div>
-      <div className="content">
+      <div className={classes.content}>
         {currentDir ? (
           <AutoSizer>
             {({ width, height }: Size) => (

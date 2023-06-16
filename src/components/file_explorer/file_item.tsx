@@ -2,7 +2,7 @@ import React from "react";
 import { FileItem as FileItemModule } from "@pkg/messages";
 import { MdInsertDriveFile, MdFolder, MdStarRate } from "react-icons/md";
 import className from "classnames";
-import "./file_item.scss";
+import classes from "./file_item.module.css";
 
 export interface FileItemProps {
   style?: React.CSSProperties;
@@ -17,19 +17,19 @@ export function FileItem(props: FileItemProps) {
 
   return (
     <div
-      className="t1-file-item t1-noselect"
+      className={`${classes.fileItem} t1-noselect`}
       style={style}
       onDoubleClick={onDoubleClick}
     >
-      <div className="icon">
+      <div className={classes.icon}>
         {item.isDir ? <MdFolder /> : <MdInsertDriveFile />}
       </div>
-      <div className="filename">
+      <div className={classes.filename}>
         <div className="inner t1-ellipsis">{item.filename}</div>
       </div>
       {item.isDir && (
         <div
-          className={className("right", {
+          className={className(classes.right, {
             star: !!star,
           })}
           onClick={onStarClick}

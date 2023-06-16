@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from "react";
-import "./chat_tab.scss";
+import classes from "./chat_tab.module.css";
 
 interface ChatMessage {
   sender: string;
@@ -32,18 +32,18 @@ export function ChatTab() {
   );
 
   return (
-    <div className="t1-chat-tab">
-      <div className="t1-chat-history">
+    <div className={classes.chatTab}>
+      <div className={classes.chatHistory}>
         {chatHistory.map((msg, index) => {
           return (
-            <div className="t1-chat-msg" key={`${index}`}>
+            <div className={classes.chatMsg} key={`${index}`}>
               <b>{msg.sender}: </b>
               {msg.msg}
             </div>
           );
         })}
       </div>
-      <div className="t1-chat-input-container">
+      <div className={classes.chatInputContainer}>
         <textarea ref={textAreaRef} onKeyDown={handleKeyDown} />
       </div>
     </div>

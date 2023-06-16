@@ -1,11 +1,10 @@
-
-.t1-tabs {
+.tabs {
   display: flex;
   min-height: 42px;
   max-height: 42px;
   border-bottom: solid 1px var(--t1-border-color);
 
-  .t1-left {
+  :global(.t1-left) {
     flex-grow: 0;
     flex-shrink: 0;
     min-width: 128px;
@@ -15,17 +14,17 @@
     align-items: center;
   }
 
-  .t1-content {
-    display: flex;
-    flex-grow: 1;
-
-    .t1-tab {
-      flex-grow: 1;
-    }
-  }
-
-  .t1-right {
+  :global(.t1-right) {
     flex-shrink: 0;
     flex-grow: 0;
+  }
+}
+
+.content {
+  display: flex;
+  flex-grow: 1;
+
+  :global(.t1-tab) {
+    flex-grow: 1;
   }
 }

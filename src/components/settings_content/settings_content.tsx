@@ -3,7 +3,7 @@ import { RoundButton } from "./round_button";
 import { SettingsGroup } from "./settings_group";
 import Toggle from "@pkg/components/toggle";
 import className from "classnames";
-import "./settings_content.scss";
+import classes from "./settings_content.module.css";
 
 interface SettingTabs {
   key: string;
@@ -58,15 +58,15 @@ export default function SettingsContent() {
   }, []);
 
   return (
-    <div className="t1-settings-content">
+    <div className={classes.settingsContent}>
       <h1 className="t1-noselect">Settings</h1>
-      <div className="main-content">
-        <div className="t1-settings-navbar">
+      <div className={classes.mainContent}>
+        <div className={classes.settingsNavbar}>
           {settingTabs.map((tab) => (
             <div
               key={tab.key}
               onClick={() => setSelectedKey(tab.key)}
-              className={className("item t1-noselect", {
+              className={className(`${classes.navbarItem} t1-noselect`, {
                 active: tab.key === selectedKey,
               })}
             >
@@ -74,7 +74,7 @@ export default function SettingsContent() {
             </div>
           ))}
         </div>
-        <div className="t1-settings-main">
+        <div className={classes.navTabContent}>
           {tabContentMap.get(selectedKey)?.content()}
         </div>
       </div>

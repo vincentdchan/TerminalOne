@@ -1,18 +1,17 @@
-
-.t1-giftbox {
+.giftbox {
   position: absolute;
   left: 0px;
   top: 0px;
   width: 100%;
   height: 100%;
 
-  // border-left: solid 1px var(--t1-border-color);
+  /* border-left: solid 1px var(--t1-border-color); */
 
   display: flex;
   flex-direction: column;
 }
 
-.t1-giftbox-tabs {
+.tabs {
   height: 42px;
   width: 100%;
 
@@ -22,7 +21,7 @@
   overflow-y: hidden;
   position: relative;
 
-  .inner {
+  :global(.inner) {
     display: flex;
     position: absolute;
     top: 0px;
@@ -31,7 +30,7 @@
   }
 }
 
-.t1-giftbox-content {
+.content {
   flex-grow: 1;
   flex-shrink: 0;
 

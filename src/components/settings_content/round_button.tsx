@@ -1,5 +1,5 @@
 import React from "react";
-import "./round_button.scss";
+import "./round_button.css";
 
 export interface RoundButtonProps
   extends React.DetailedHTMLProps<

@@ -5,7 +5,7 @@ import { useBehaviorSubject } from "@pkg/hooks/observable";
 import className from "classnames";
 import { isUndefined } from "lodash-es";
 import { AppContext } from "@pkg/contexts/app_context";
-import "./tab.scss";
+import "./tab.css";
 
 const NeonBar = memo(() => {
   const appState = useContext(AppContext)!;

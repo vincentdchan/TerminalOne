@@ -1,5 +1,5 @@
 import React, { memo } from "react";
-import "./vertical_split.scss";
+import "./vertical_split.css";
 
 interface VerticalSplitProps {
   left?: number;

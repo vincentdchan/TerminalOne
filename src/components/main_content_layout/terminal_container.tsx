@@ -2,7 +2,7 @@ import { useContext, memo } from "react";
 import { TerminalWrapper } from "@pkg/components/terminal_wrapper";
 import { useBehaviorSubject } from "@pkg/hooks/observable";
 import { AppContext } from "@pkg/contexts/app_context";
-import "./terminal_container.scss";
+import classes from "./terminal_container.module.css";
 
 export const TerminalsContainer = memo(() => {
   const appState = useContext(AppContext)!;
@@ -14,7 +14,7 @@ export const TerminalsContainer = memo(() => {
     sessionManager.activeSessionIndex$
   );
   return (
-    <div className="t1-terms-container">
+    <div className={classes.termsContainer}>
       {sessions.map((session, index) => {
         const active = activeSessionIndex === index;
         return (

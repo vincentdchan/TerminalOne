@@ -1,25 +1,24 @@
-
-.t1-instance-container {
+.instanceContainer {
   display: flex;
   flex-grow: 1;
   position: relative;
   margin-left: 8px;
 
-  &.unactive {
+  &:global(.unactive) {
     position: fixed;
     top: -1000px;
     left: -1000px;
   }
 
-  .t1-main {
-    flex-grow: 1;
-  }
-
-  .xterm {
+  :global(.xterm) {
     position: absolute;
     left: 0px;
     top: 0px;
     height: 100%;
     width: 100%;
   }
+}
+
+.mainContent {
+  flex-grow: 1;
 }

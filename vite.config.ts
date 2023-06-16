@@ -1,6 +1,7 @@
 import { defineConfig } from "vite";
 import * as path from "path";
 import react from "@vitejs/plugin-react";
+import postcssNesting from "postcss-nesting";
 
 export const projectRootDir = process.cwd();
 
@@ -17,6 +18,12 @@ export default defineConfig(async () => ({
   },
 
   plugins: [react()],
+
+  css: {
+    postcss: {
+      plugins: [postcssNesting()],
+    },
+  },
 
   // Vite options tailored for Tauri development and only applied in `tauri dev` or `tauri build`
   // prevent vite from obscuring rust errors
@@ -38,6 +45,6 @@ export default defineConfig(async () => ({
     sourcemap: !!process.env.TAURI_DEBUG,
   },
   optimizeDeps: {
-    include: ['xterm']
-  }
+    include: ["xterm.es"],
+  },
 }));

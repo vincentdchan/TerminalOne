@@ -6,7 +6,7 @@ import { VerticalSplit } from "@pkg/components/vertical_split";
 import { fromEvent } from "rxjs";
 import { takeUntil } from "rxjs/operators";
 import className from "classnames";
-import "./main_content_layout.scss";
+import classes from "./main_content_layout.module.css";
 
 export interface MainContentLayoutProps {
   appState: AppState;
@@ -62,9 +62,9 @@ export function MainContentLayout(props: MainContentLayoutProps) {
   }, [setRightSidebarWidth]);
 
   return (
-    <div className="t1-main-layout">
+    <div className={classes.mainLayout}>
       <div
-        className="t1-layout-left"
+        className={classes.layoutLeft}
         style={
           showFileExplorer
             ? {
@@ -82,7 +82,7 @@ export function MainContentLayout(props: MainContentLayoutProps) {
       </div>
       <TerminalsContainer />
       <div
-        className={className("t1-layout-right", {
+        className={className(classes.layoutRight, {
           expanded: showGiftBox,
         })}
         style={

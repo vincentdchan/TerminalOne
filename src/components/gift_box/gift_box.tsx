@@ -10,7 +10,7 @@ import { IntelligenceTab } from "./intelligence_tab";
 import { ChatTab } from "./chat_tab";
 import { useBehaviorSubject } from "@pkg/hooks/observable";
 import { AppContext } from "@pkg/contexts/app_context";
-import "./gift_box.scss";
+import classes from "./gift_box.module.css";
 
 interface GiftBoxTabIntf {
   name: string;
@@ -46,8 +46,8 @@ const GiftBox = memo(() => {
   const activeIndex = useBehaviorSubject(appState.giftBoxActiveIndex$);
 
   return (
-    <div className="t1-giftbox">
-      <div className="t1-giftbox-tabs">
+    <div className={classes.giftbox}>
+      <div className={classes.tabs}>
         <div className="inner">
           {tabsDefinitions.map((tab, index) => {
             return (
@@ -64,7 +64,7 @@ const GiftBox = memo(() => {
           })}
         </div>
       </div>
-      <div className="t1-giftbox-content">
+      <div className={classes.content}>
         {tabsDefinitions[activeIndex].renderer()}
       </div>
     </div>

@@ -1,5 +1,4 @@
-
-.t1-settings-modal-mask {
+.settingsModalMask {
   position: fixed;
   top: 0px;
   left: 0px;
@@ -19,7 +18,7 @@
   }
 }
 
-.t1-settings-modal {
+.settingsModal {
   z-index: 99;
   position: fixed;
   top: 62px;

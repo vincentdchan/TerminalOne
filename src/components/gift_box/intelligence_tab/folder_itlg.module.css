@@ -1,5 +1,4 @@
-
-.t1-folder-itlg {
+.folderItlg {
   flex: 1;
   margin: 16px;
   font-family: var(--t1-font);
@@ -31,7 +30,7 @@
   }
 }
 
-.t1-folder-info-grid {
+.folderInfoGrid {
   display: flex;
   flex-direction: column;
   font-size: 13px;
@@ -54,7 +53,7 @@
     text-align: right;
     position: relative;
 
-    .inner {
+    :global(.inner) {
       position: absolute;
       top: 0px;
       left: 0px;
@@ -62,5 +61,4 @@
       height: 100%;
     }
   }
-
 }

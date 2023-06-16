@@ -1,7 +1,6 @@
 import { type ReactNode, useCallback, useContext } from "react";
 import { AppContext } from "@pkg/contexts/app_context";
-import { take } from "rxjs";
-import "./command_item.scss";
+import "./command_item.css";
 
 export interface CommandItemProps {
   cmd: string;

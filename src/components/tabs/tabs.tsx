@@ -8,7 +8,7 @@ import TabBtn from "@pkg/components/tab_btn";
 import { SortableList, type RenderProps } from "@pkg/components/sortable_list";
 import { useBehaviorSubject } from "@pkg/hooks/observable";
 import { Session } from "@pkg/models/session";
-import "./tabs.scss";
+import classes from "./tabs.module.css";
 
 interface LeftPaddingProps {
   appState: AppState;
@@ -105,7 +105,7 @@ export function Tabs(props: TabsProps) {
   const sessionsMoreThanOne = sessions.length > 1;
   return (
     <div
-      className="t1-tabs t1-noselect"
+      className={`${classes.tabs} t1-noselect`}
       onMouseDown={sessionsMoreThanOne ? undefined : handleMouseDown}
     >
       <LeftPadding
@@ -113,7 +113,7 @@ export function Tabs(props: TabsProps) {
         rightBorder={sessionsMoreThanOne && activeSessionIndex === 0}
         onMouseDown={handleMouseDown}
       />
-      <div className="t1-content">
+      <div className={classes.content}>
         <SortableList
           items={sessions}
           onMove={(from, to) => {

@@ -1,6 +1,5 @@
-
 .t1-tab {
-  // use monospace font, add a lot of candidates to support vairous platforms
+  /* use monospace font, add a lot of candidates to support vairous platforms */
   font-family: var(--t1-font-mono);
 
   position: relative;
@@ -9,13 +8,13 @@
 
   font-size: 12px;
   color: grey;
-  // add border to left righ
+  /* add border to left righ */
   border-right: solid 1px var(--t1-border-color);
 
   padding-left: 4px;
   padding-right: 12px;
 
-  // for dnd
+  /* for dnd */
   background-color: var(--t1-background);
 
   &.dragging {
@@ -99,13 +98,11 @@
   }
 
   &:hover {
-
     .left {
       button {
         color: gray;
       }
     }
-
   }
 
   .t1-neon-bar {

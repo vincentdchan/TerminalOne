@@ -1,3 +1,5 @@
+import classes from "./settings_group.module.css";
+
 export interface SettingsGroupProps {
   title: string;
   description: string;
@@ -8,12 +10,16 @@ export interface SettingsGroupProps {
 export function SettingsGroup(props: SettingsGroupProps) {
   const { title, description, right, paddingRight } = props;
   return (
-    <div className="t1-settings-group">
-      <div className="left">
-        <div className="title">{title}</div>
-        <div className="description">{description}</div>
+    <div className={classes.settingsGroup}>
+      <div className={classes.left}>
+        <div className={classes.title}>{title}</div>
+        <div className={classes.description}>{description}</div>
       </div>
-      {right && <div style={{ paddingRight }} className="right">{right}</div>}
+      {right && (
+        <div style={{ paddingRight }} className={classes.right}>
+          {right}
+        </div>
+      )}
     </div>
   );
 }
