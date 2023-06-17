@@ -21,9 +21,14 @@ impl AppState {
     pub(crate) fn new_terminal(
         &self,
         id: String,
+        shell_path: &Path,
         event_handler: Box<dyn TerminalDelegateEventHandler + Send>,
     ) -> Result<TerminalDelegate> {
-        let delegate: TerminalDelegate = TerminalDelegate::new(id, event_handler)?;
+        let delegate: TerminalDelegate = TerminalDelegate::new(
+            id,
+            shell_path,
+            event_handler,
+        )?;
         {
             let mut inner = self.inner.lock().unwrap();
             inner.insert_terminal(delegate.clone());

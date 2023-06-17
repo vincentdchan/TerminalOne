@@ -1,8 +1,8 @@
 use crate::Result;
 use log::{error, info, warn};
 use portable_pty::{native_pty_system, Child, CommandBuilder, ExitStatus, MasterPty, PtySize};
-use std::env;
 use std::sync::{Arc, Mutex};
+use std::path::Path;
 
 pub(crate) trait TerminalDelegateEventHandler {
     fn handle_data(&self, terminal: &TerminalDelegate, data: &[u8]) -> Result<()>;
@@ -15,22 +15,24 @@ pub(crate) struct TerminalDelegate {
     _event_handler: Arc<Mutex<Box<dyn TerminalDelegateEventHandler + Send>>>,
 }
 
-fn make_precommit_dir() -> Result<String> {
-    let mut current_dir = env::current_dir()?;
+fn make_precommit_dir(shell_path: &Path) -> Result<String> {
+    let mut shell_path_buf = shell_path.to_path_buf();
+    shell_path_buf.push("t1.sh");
 
-    current_dir.pop();
-    current_dir.push("shell_integration");
-    current_dir.push("t1.sh");
+    Ok(shell_path_buf.to_str().unwrap().to_string())
+}
 
-    Ok(current_dir.to_str().unwrap().to_string())
+fn escape_shell_path(path: &str) -> String {
+    path.replace(" ", "\\ ")
 }
 
 impl TerminalDelegate {
     pub(crate) fn new(
         id: String,
+        shell_path: &Path,
         event_handler: Box<dyn TerminalDelegateEventHandler + Send>,
     ) -> Result<TerminalDelegate> {
-        let (inner, mut child) = TerminalDelegateInner::new(id.clone())?;
+        let (inner, mut child) = TerminalDelegateInner::new(id.clone(), shell_path)?;
 
         let event_handler = Arc::new(Mutex::new(event_handler));
         let delegate = TerminalDelegate {
@@ -164,7 +166,7 @@ struct TerminalDelegateInner {
 }
 
 impl TerminalDelegateInner {
-    fn new(id: String) -> Result<(TerminalDelegateInner, Box<dyn Child + Send + Sync>)> {
+    fn new(id: String, shell_path: &Path) -> Result<(TerminalDelegateInner, Box<dyn Child + Send + Sync>)> {
         // Use the native pty implementation for the system
         let pty_system = native_pty_system();
 
@@ -194,8 +196,9 @@ impl TerminalDelegateInner {
 
         let precommit_str = {
             let mut result = "source ".to_string();
-            let precommit_dir = make_precommit_dir()?;
-            result += precommit_dir.as_str();
+            let precommit_dir = make_precommit_dir(shell_path)?;
+            let escaped_path = escape_shell_path(precommit_dir.as_str());
+            result += escaped_path.as_str();
             result
         };
         writer.write(precommit_str.as_bytes())?;

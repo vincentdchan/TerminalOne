@@ -45,7 +45,8 @@
         "icons/icon.ico"
       ],
       "resources": [
-        "themes"
+        "themes",
+        "shell_integration"
       ]
     },
     "security": {
