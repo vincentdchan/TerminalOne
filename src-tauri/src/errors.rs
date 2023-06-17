@@ -18,6 +18,8 @@ pub enum Error {
   SystemTimeError(#[from] std::time::SystemTimeError),
   #[error(transparent)]
   DbError(#[from] DbError),
+  #[error(transparent)]
+  BsonDeError(#[from] polodb_core::bson::de::Error),
 }
 
 impl serde::Serialize for Error {

@@ -174,6 +174,11 @@ fn fs_stat(path: &str) -> Result<FsStatResponse> {
     });
 }
 
+#[tauri::command]
+fn ui_store(state: State<AppState>, key: &str, value: &[u8]) -> Result<()> {
+    state.ui_store(key, value)?;
+    Ok(())
+}
 
 fn main() {
     let app_log_dir = app_path::app_log_dir("Terminal One").expect("no log dirs");
@@ -273,6 +278,7 @@ fn main() {
             fs_ls,
             fs_read_all,
             fs_stat,
+            ui_store,
         ])
         .on_menu_event(|event| match event.menu_item_id() {
             "settings" => {

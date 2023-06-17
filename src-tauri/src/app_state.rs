@@ -3,6 +3,8 @@ use crate::terminal_delegate::{TerminalDelegate, TerminalDelegateEventHandler};
 use crate::theme_context::{ThemeContext, ThemeItem};
 use crate::{Error, Result};
 use polodb_core::Database;
+use polodb_core::bson::{Document, doc};
+use polodb_core::bson;
 use log::debug;
 use std::collections::HashMap;
 use std::path::Path;
@@ -65,6 +67,25 @@ impl AppState {
         let mut inner = self.inner.lock().unwrap();
         inner.init_db(data_path)
     }
+
+    pub(crate) fn ui_store(&self, key: &str, value: &[u8]) -> Result<()> {
+        let inner = self.inner.lock().unwrap();
+        let db_opt = inner.database.as_ref();
+        if db_opt.is_none() {
+            return Ok(())
+        }
+        let db = db_opt.unwrap();
+
+        let doc: Document = bson::from_slice(value)?;
+
+        debug!("ui_store: key: {}, value: {:?}", key, doc);
+
+        let ui_store = db.collection::<Document>("ui_store");
+        ui_store.insert_one(doc! {"_id": key, "value": doc})?;
+
+        Ok(())
+    }
+
 }
 
 struct AppStateInner {
