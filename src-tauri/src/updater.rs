@@ -1,6 +1,7 @@
 use log::{debug, error, info};
 use sysinfo::{System, SystemExt};
 use serde::{Deserialize, Serialize};
+use reqwest::Client;
 
 #[derive(Debug, Serialize, Deserialize)]
 struct Version {
@@ -21,6 +22,19 @@ struct Version {
 #[derive(Debug, Serialize, Deserialize)]
 struct VersionResponse {
   pub versions: Vec<Version>,
+}
+
+fn build_http_client(platform: &str, arch: &str, os_version: &str) -> Result<Client, Box<dyn std::error::Error>> {
+  let version = env!("CARGO_PKG_VERSION");
+
+  let user_agent = format!("TerminalOne/{} ({}; {}; {})", version, platform, arch, os_version);
+
+  let client = reqwest::Client::builder()
+    .timeout(std::time::Duration::from_secs(20))
+    .user_agent(user_agent)
+    .build()?;
+
+  Ok(client)
 }
 
 pub async fn check_update() -> Result<(), Box<dyn std::error::Error>> {
@@ -47,6 +61,11 @@ pub async fn check_update() -> Result<(), Box<dyn std::error::Error>> {
     os_name.unwrap().to_lowercase()
   };
 
+  let os_version = match sys.os_version() {
+    Some(s) => s,
+    None => "".to_string(),
+  };
+
   let arch = std::env::consts::ARCH;
 
   let mut url = "https://api.terminalone.app/Prod/app-versions?".to_string();
@@ -57,9 +76,7 @@ pub async fn check_update() -> Result<(), Box<dyn std::error::Error>> {
   for _ in 0..5 {
     debug!(">>> get update url: {}", &url);
 
-    let client = reqwest::Client::builder()
-      .timeout(std::time::Duration::from_secs(20))
-      .build()?;
+    let client = build_http_client(&platform, &arch, &os_version)?;
 
     let resp = client
       .get(&url)

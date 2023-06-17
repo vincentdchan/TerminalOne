@@ -31,6 +31,7 @@ tokio = { version = "1.28.2", features = ["time"] }
 reqwest = { version = "0.11.18", features = ["json", "cookies", "native-tls"] }
 dirs-next = "2.0.0"
 log4rs = "1.2.0"
+polodb_core = "4.4.0"
 
 [features]
 # this feature is used for production builds or when `devPath` points to the filesystem
