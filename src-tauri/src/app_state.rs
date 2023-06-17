@@ -74,12 +74,10 @@ impl AppStateInner {
         self.terminals.insert(id, terminal);
     }
 
-    fn load_themes(&mut self, dir: &Path) -> Result<()> {
+    fn load_themes(&mut self, path: &Path) -> Result<()> {
         let mut theme_context = ThemeContext::new();
 
-        let mut path = dir.to_path_buf();
-        path.pop();
-        path.push("themes");
+        debug!("Load themes from {:?}", path);
 
         // check if path is a dir
         if !path.is_dir() {

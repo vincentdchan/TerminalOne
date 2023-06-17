@@ -389,8 +389,13 @@ fn main() {
             // Number of CPUs:
             info!("NB CPUs: {}", sys.cpus().len());
 
+
+            let theme_path = app.path_resolver()
+                .resolve_resource("themes")
+                .expect("failed to resolve resource");
+
             let state = app.state::<AppState>();
-            state.inner().load_themes(&current_dir)?;
+            state.inner().load_themes(&theme_path)?;
 
             async_runtime::spawn(async {
                 use tokio::time::Duration;
