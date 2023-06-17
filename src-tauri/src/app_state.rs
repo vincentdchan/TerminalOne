@@ -2,6 +2,7 @@ use crate::messages::ThemeResponse;
 use crate::terminal_delegate::{TerminalDelegate, TerminalDelegateEventHandler};
 use crate::theme_context::{ThemeContext, ThemeItem};
 use crate::{Error, Result};
+use polodb_core::Database;
 use log::debug;
 use std::collections::HashMap;
 use std::path::Path;
@@ -59,11 +60,17 @@ impl AppState {
         let inner = self.inner.lock().unwrap();
         inner.get_a_theme()
     }
+
+    pub(crate) fn init_db(&self, data_path: &Path) -> Result<()> {
+        let mut inner = self.inner.lock().unwrap();
+        inner.init_db(data_path)
+    }
 }
 
 struct AppStateInner {
     terminals: HashMap<String, TerminalDelegate>,
     theme_context: Option<ThemeContext>,
+    database: Option<Database>,
 }
 
 impl AppStateInner {
@@ -71,7 +78,24 @@ impl AppStateInner {
         AppStateInner {
             terminals: HashMap::new(),
             theme_context: None,
+            database: None,
         }
+    }
+
+    fn init_db(&mut self, data_path: &Path) -> Result<()> {
+        let mut data_path_buf = data_path.to_path_buf();
+
+        if cfg!(dev) {
+            data_path_buf.push("users_dev.db");
+        } else {
+            data_path_buf.push("users.db");
+        }
+
+        let database = Database::open_file(data_path_buf.as_path())?;
+
+        self.database = Some(database);
+
+        Ok(())
     }
 
     fn insert_terminal(&mut self, terminal: TerminalDelegate) {

@@ -1,3 +1,4 @@
+use polodb_core::Error as DbError;
 
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
@@ -15,6 +16,8 @@ pub enum Error {
   JsonError(#[from] serde_json::Error),
   #[error(transparent)]
   SystemTimeError(#[from] std::time::SystemTimeError),
+  #[error(transparent)]
+  DbError(#[from] DbError),
 }
 
 impl serde::Serialize for Error {

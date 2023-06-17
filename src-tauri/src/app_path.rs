@@ -8,9 +8,7 @@ pub fn app_data_dir(config: &Config) -> Option<PathBuf> {
   dirs_next::data_local_dir().map(|dir| dir.join(&product_name))
 }
 
-pub fn app_log_dir(config: &Config) -> Option<PathBuf> {
-  let product_name = config.package.product_name.clone().expect("no product name");
-
+pub fn app_log_dir(product_name: &str) -> Option<PathBuf> {
   #[cfg(target_os = "macos")]
   let path = dirs_next::home_dir().map(|dir| {
     dir

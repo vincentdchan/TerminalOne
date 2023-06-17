@@ -186,8 +186,8 @@ impl TerminalDelegateInner {
         // Spawn a shell into the pty
         // add params to cmd
         let mut cmd = CommandBuilder::new("zsh");
-        cmd.arg("-il");
-        cmd.env("TERM_PROGRAM", "GPTerminal.app");
+        // cmd.arg("-il");
+        cmd.env("TERM_PROGRAM", "Terminal One.app");
         let child = pair.slave.spawn_command(cmd)?;
 
         drop(pair.slave);

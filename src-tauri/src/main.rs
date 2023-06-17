@@ -176,6 +176,8 @@ fn fs_stat(path: &str) -> Result<FsStatResponse> {
 
 
 fn main() {
+    let app_log_dir = app_path::app_log_dir("Terminal One").expect("no log dirs");
+
     if cfg!(dev) {
         let stdout = ConsoleAppender::builder()
             .encoder(Box::new(PatternEncoder::new("{d(%Y-%m-%d %H:%M:%S %Z)} {h({l})} {I} {m}{n}")))
@@ -186,14 +188,26 @@ fn main() {
             .unwrap();
 
         let _handle = log4rs::init_config(config).unwrap();
-    }
+    } else {
+        let _ = std::fs::create_dir(&app_log_dir);
 
-    // let filter_level = if cfg!(dev) {
-    //     log::LevelFilter::max()
-    // } else {
-    //     log::LevelFilter::Info
-    // };
-    // env_logger::builder().filter_level(filter_level).init();
+        let file_path = app_log_dir.join("TerminalOne.log");
+        let file = RollingFileAppender::builder()
+            .encoder(Box::new(PatternEncoder::new("{d(%Y-%m-%d %H:%M:%S %Z)} {h({l})} {I} {m}{n}")))
+            .build(
+                file_path,
+                Box::new(CompoundPolicy::new(
+                    Box::new(SizeTrigger::new(10_000_000)),
+                    Box::new(DeleteRoller::new()),
+                )),
+            ).expect("build rolling file appender failed");
+        let config = Config::builder()
+            .appender(Appender::builder().build("file", Box::new(file)))
+            .build(Root::builder().appender("file").build(log::LevelFilter::Info))
+            .unwrap();
+
+        let _handle = log4rs::init_config(config).unwrap();
+    }
 
     debug!("debug env");
 
@@ -202,46 +216,20 @@ fn main() {
     tauri::Builder::default()
         .menu(menu)
         .manage(AppState::new())
-        .setup(|app| {
-            let config = app.config();
-            let app_log_dir = app_path::app_log_dir(&config).expect("no log dirs");
-
-            if cfg!(not(dev)) {
-                let _ = std::fs::create_dir(&app_log_dir);
-
-                let file_path = app_log_dir.join("TerminalOne.log");
-                let file = RollingFileAppender::builder()
-                    .encoder(Box::new(PatternEncoder::new("{d(%Y-%m-%d %H:%M:%S %Z)} {h({l})} {I} {m}{n}")))
-                    .build(
-                        file_path,
-                        Box::new(CompoundPolicy::new(
-                            Box::new(SizeTrigger::new(10_000_000)),
-                            Box::new(DeleteRoller::new()),
-                        )),
-                    ).expect("build rolling file appender failed");
-                let config = Config::builder()
-                    .appender(Appender::builder().build("file", Box::new(file)))
-                    .build(Root::builder().appender("file").build(log::LevelFilter::Info))
-                    .unwrap();
-
-                let _handle = log4rs::init_config(config).unwrap();
-            }
-
+        .setup(move |app| {
             let win = app.get_window("main").unwrap();
             win.set_transparent_titlebar(true);
             win.position_traffic_lights(15.0, 19.0);
 
-            let cargo_path = env!("CARGO_MANIFEST_DIR");
-            let current_dir = env::current_dir()?;
             let mut sys = System::new_all();
             sys.refresh_all();
 
             let config = app.config();
-            let app_data_dir = app_path::app_data_dir(&config);
+            let app_data_dir = app_path::app_data_dir(&config).expect("no app data");
+
+            let _ = std::fs::create_dir(&app_data_dir);
 
             info!("Terminal One started ~");
-            info!("app started: {}", current_dir.to_str().unwrap());
-            info!("cargo manifest: {}", cargo_path);
             // Display system information:
             info!("System name:             {:?}", sys.name());
             info!("System kernel version:   {:?}", sys.kernel_version());
@@ -254,12 +242,13 @@ fn main() {
             // Number of CPUs:
             info!("NB CPUs: {}", sys.cpus().len());
 
+            let state = app.state::<AppState>();
+            state.inner().init_db(&app_data_dir)?;
 
             let theme_path = app.path_resolver()
                 .resolve_resource("themes")
                 .expect("failed to resolve resource");
 
-            let state = app.state::<AppState>();
             state.inner().load_themes(&theme_path)?;
 
             async_runtime::spawn(async {
