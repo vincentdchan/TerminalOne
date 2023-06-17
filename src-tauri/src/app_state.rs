@@ -3,9 +3,8 @@ use crate::terminal_delegate::{TerminalDelegate, TerminalDelegateEventHandler};
 use crate::theme_context::{ThemeContext, ThemeItem};
 use crate::{Error, Result};
 use polodb_core::Database;
-use polodb_core::bson::{Document, doc};
-use polodb_core::bson;
-use log::debug;
+use polodb_core::bson::Document;
+use log::{debug, warn};
 use std::collections::HashMap;
 use std::path::Path;
 use std::sync::{Arc, Mutex};
@@ -68,22 +67,42 @@ impl AppState {
         inner.init_db(data_path)
     }
 
-    pub(crate) fn ui_store(&self, key: &str, value: &[u8]) -> Result<()> {
+    pub(crate) fn ui_store(&self, doc: Document) -> Result<()> {
         let inner = self.inner.lock().unwrap();
         let db_opt = inner.database.as_ref();
         if db_opt.is_none() {
+            warn!("db is none");
             return Ok(())
         }
         let db = db_opt.unwrap();
 
-        let doc: Document = bson::from_slice(value)?;
-
-        debug!("ui_store: key: {}, value: {:?}", key, doc);
-
         let ui_store = db.collection::<Document>("ui_store");
-        ui_store.insert_one(doc! {"_id": key, "value": doc})?;
+
+        debug!("ui store insert doc: {:?}", doc);
+
+        ui_store.insert_one(doc)?;
 
         Ok(())
+    }
+
+    pub (crate) fn fetch_all_ui_stores(&self) -> Result<Vec<Document>> {
+        let inner = self.inner.lock().unwrap();
+        let db_opt = inner.database.as_ref();
+
+        if db_opt.is_none() {
+            warn!("db is none");
+            return Ok(Vec::new());
+        }
+
+        let db = db_opt.unwrap();
+
+        let ui_store = db.collection::<Document>("ui_store");
+
+        let docs = ui_store
+            .find(None)?
+            .collect::<polodb_core::Result<Vec<Document>>>()?;
+
+        Ok(docs)
     }
 
 }

@@ -97,7 +97,7 @@ export const FileExplorer = memo(() => {
   };
 
   const currentFolderName = useMemo(() => {
-    return currentDir ? currentDir.split("/").pop() : "GPTerminal";
+    return currentDir ? currentDir.split("/").pop() : "Terminal One";
   }, [currentDir]);
 
   const handleGoUp = useCallback(() => {

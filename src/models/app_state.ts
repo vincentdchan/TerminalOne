@@ -3,13 +3,17 @@ import { BehaviorSubject, Subscription, combineLatestWith, map } from "rxjs";
 import { FileItem as FileItemModel, InitMessage } from "@pkg/messages";
 import { Set as ImmutableSet } from "immutable";
 import { invoke } from "@tauri-apps/api";
-import { isString, once } from "lodash-es";
+import { isBoolean, isString, once } from "lodash-es";
 import { objectToCamlCaseDeep } from "@pkg/utils/objects";
+import * as uiStore from "@pkg/utils/ui_store";
 import type { ThemeResponse } from "@pkg/messages";
 import { type AppTheme } from "./app_theme";
 
+const STORE_KEY_SHOW_EXPLORER = "showFileExplorer";
+const STORE_KEY_SHOW_GIFT_BOX = "showGiftBox";
+
 export class AppState {
-  initData$ = new BehaviorSubject<InitMessage | undefined>(undefined);
+  homeDir$ = new BehaviorSubject<string | undefined>(undefined);
   sessionManager = new SessionManager();
   showSettings$ = new BehaviorSubject<boolean>(false);
   showFileExplorer$ = new BehaviorSubject<boolean>(false);
@@ -43,12 +47,10 @@ export class AppState {
   });
 
   prettyPath(path: string): string {
-    const initData = this.initData$.value;
-    if (!initData) {
+    const homeDir = this.homeDir$.value;
+    if (!isString(homeDir)) {
       return path;
     }
-
-    const { homeDir } = initData;
 
     if (path.startsWith(homeDir)) {
       return "~" + path.slice(homeDir.length);
@@ -69,14 +71,24 @@ export class AppState {
 
   async #fetchInitData() {
     const initData: InitMessage = await invoke("fetch_init_data");
-    this.initData$.next(initData);
+    console.log("initData:", initData);
+    const { homeDir, uiStores } = initData;
+    this.homeDir$.next(homeDir);
+
+    if (isBoolean(uiStores[STORE_KEY_SHOW_EXPLORER])) {
+      this.showFileExplorer$.next(uiStores[STORE_KEY_SHOW_EXPLORER]);
+    }
+
+    if (isBoolean(uiStores[STORE_KEY_SHOW_GIFT_BOX])) {
+      this.showGiftBox$.next(uiStores[STORE_KEY_SHOW_GIFT_BOX]);
+    }
   }
 
   // When initData and theme are both ready, we can say the app is ready
-  appReady$ = this.initData$.pipe(
+  appReady$ = this.homeDir$.pipe(
     combineLatestWith(this.theme$),
-    map(([initData, theme]) => {
-      return !!initData && !!theme;
+    map(([homeDir, theme]) => {
+      return isString(homeDir) && !!theme;
     })
   );
 
@@ -85,11 +97,21 @@ export class AppState {
   }
 
   toggleShowFileExplorer() {
-    this.showFileExplorer$.next(!this.showFileExplorer$.value);
+    const next = !this.showFileExplorer$.value;
+    this.showFileExplorer$.next(next);
+    uiStore.store({
+      _id: STORE_KEY_SHOW_EXPLORER,
+      value: next,
+    });
   }
 
   toggleShowGiftBox() {
-    this.showGiftBox$.next(!this.showGiftBox$.value);
+    const next = !this.showGiftBox$.value;
+    this.showGiftBox$.next(next);
+    uiStore.store({
+      _id: STORE_KEY_SHOW_GIFT_BOX,
+      value: next,
+    });
   }
 
   addOrRemoveFavoriteDir(dirModel: FileItemModel) {

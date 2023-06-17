@@ -1,6 +1,7 @@
 
 export interface InitMessage {
   homeDir: string;
+  uiStores: Record<string, any>;
 }
 
 export interface ThemeResponse {

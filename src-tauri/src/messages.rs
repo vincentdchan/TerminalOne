@@ -4,6 +4,7 @@ use serde::Serialize;
 #[serde(rename_all = "camelCase")]
 pub(crate) struct InitMessage {
   pub home_dir: String,
+  pub ui_stores: serde_json::Value,
 }
 
 #[derive(Clone, Serialize)]

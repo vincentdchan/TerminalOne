@@ -22,6 +22,7 @@ use log::{debug, info};
 use messages::{
     FileItem, FsLsResponse, FsStatResponse, PtyExitMessage, PtyResponse, ThemeResponse,
 };
+use polodb_core::bson::Bson;
 use portable_pty::ExitStatus;
 use std::{
     env, fs,
@@ -72,9 +73,38 @@ impl TerminalDelegateEventHandler for MainTerminalEventHandler {
 }
 
 #[tauri::command]
-fn fetch_init_data() -> Result<messages::InitMessage> {
+fn fetch_init_data(state: State<AppState>) -> Result<messages::InitMessage> {
     let home_dir = dirs::home_dir().unwrap().to_str().unwrap().to_string();
-    Ok(messages::InitMessage { home_dir })
+
+    let docs = state.inner().fetch_all_ui_stores()?;
+
+    debug!("init ui stores: {:?}", docs);
+
+    let mut json_doc = serde_json::map::Map::new();
+
+    for doc in &docs {
+        let test_key = match doc.get("_id") {
+            Some(Bson::String(str)) => str.clone(),
+            _ => {
+                continue;
+            }
+        };
+
+        let test_value = match doc.get("value") {
+            Some(v) => v.clone(),
+            _ => {
+                continue;
+            }
+        };
+
+        let json_value = serde_json::to_value(test_value)?;
+        json_doc.insert(test_key, json_value);
+    }
+
+    Ok(messages::InitMessage {
+        home_dir,
+        ui_stores: serde_json::Value::Object(json_doc),
+    })
 }
 
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
@@ -175,8 +205,9 @@ fn fs_stat(path: &str) -> Result<FsStatResponse> {
 }
 
 #[tauri::command]
-fn ui_store(state: State<AppState>, key: &str, value: &[u8]) -> Result<()> {
-    state.ui_store(key, value)?;
+fn ui_store(state: State<AppState>, doc: serde_json::Value) -> Result<()> {
+    let bson_doc = polodb_core::bson::to_document(&doc)?;
+    state.ui_store(bson_doc)?;
     Ok(())
 }
 
