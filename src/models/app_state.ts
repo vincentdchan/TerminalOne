@@ -3,7 +3,7 @@ import { BehaviorSubject, Subscription, combineLatestWith, map } from "rxjs";
 import { FileItem as FileItemModel, InitMessage } from "@pkg/messages";
 import { Set as ImmutableSet } from "immutable";
 import { invoke } from "@tauri-apps/api";
-import { isBoolean, isString, once } from "lodash-es";
+import { isBoolean, isNumber, isString, once } from "lodash-es";
 import { objectToCamlCaseDeep } from "@pkg/utils/objects";
 import * as uiStore from "@pkg/utils/ui_store";
 import type { ThemeResponse } from "@pkg/messages";
@@ -11,6 +11,13 @@ import { type AppTheme } from "./app_theme";
 
 const STORE_KEY_SHOW_EXPLORER = "showFileExplorer";
 const STORE_KEY_SHOW_GIFT_BOX = "showGiftBox";
+const STORE_KEY_ONBOARDING = "onboarding";
+
+export enum AppStatus {
+  Loading,
+  Onboarding,
+  Ready,
+}
 
 export class AppState {
   homeDir$ = new BehaviorSubject<string | undefined>(undefined);
@@ -23,6 +30,7 @@ export class AppState {
   favoriteDirsPath$ = new BehaviorSubject<ImmutableSet<string>>(ImmutableSet());
   dirPathToFileItem = new Map<string, FileItemModel>();
   windowActive$ = new BehaviorSubject<boolean>(true);
+  appStatus$ = new BehaviorSubject<AppStatus>(AppStatus.Loading);
 
   theme$ = new BehaviorSubject<AppTheme | undefined>(undefined);
 
@@ -82,15 +90,13 @@ export class AppState {
     if (isBoolean(uiStores[STORE_KEY_SHOW_GIFT_BOX])) {
       this.showGiftBox$.next(uiStores[STORE_KEY_SHOW_GIFT_BOX]);
     }
-  }
 
-  // When initData and theme are both ready, we can say the app is ready
-  appReady$ = this.homeDir$.pipe(
-    combineLatestWith(this.theme$),
-    map(([homeDir, theme]) => {
-      return isString(homeDir) && !!theme;
-    })
-  );
+    if (isNumber(uiStores[STORE_KEY_ONBOARDING])) {
+      this.appStatus$.next(AppStatus.Ready);
+    } else {
+      this.appStatus$.next(AppStatus.Onboarding);
+    }
+  }
 
   toggleShowSettings() {
     this.showSettings$.next(!this.showSettings$.value);

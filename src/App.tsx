@@ -1,5 +1,5 @@
-import { useMemo, useEffect, useCallback } from "react";
-import { AppState } from "@pkg/models/app_state";
+import { useMemo, useEffect, useCallback, lazy, Suspense } from "react";
+import { AppState, AppStatus } from "@pkg/models/app_state";
 import { Tabs } from "@pkg/components/tabs";
 import { isString } from "lodash-es";
 import { useTabSwitcher } from "@pkg/hooks/tab_switcher";
@@ -8,15 +8,17 @@ import { MainContentLayout } from "@pkg/components/main_content_layout";
 import { exit } from "@tauri-apps/api/process";
 import { AppContext } from "@pkg/contexts/app_context";
 import { type UnlistenFn, listen } from "@tauri-apps/api/event";
-import { useBehaviorSubject, useObservable } from "./hooks/observable";
+import { useBehaviorSubject } from "./hooks/observable";
 import { SettingsModal } from "@pkg/components/settings_modal";
 import "./App.css";
 
 const appState = new AppState();
 appState.init();
 
+const Onboarding = lazy(() => import("@pkg/components/onboarding"));
+
 function App() {
-  const appReady = useObservable(appState.appReady$, false);
+  const appStatus = useBehaviorSubject(appState.appStatus$);
   const theme = useBehaviorSubject(appState.theme$)!;
 
   const handlePtyExit = useCallback(
@@ -108,7 +110,12 @@ function App() {
 
   return (
     <AppContext.Provider value={appState}>
-      {appReady && (
+      {appStatus === AppStatus.Onboarding && (
+        <Suspense>
+          <Onboarding />
+        </Suspense>
+      )}
+      {appStatus === AppStatus.Ready && (
         <>
           <div className="t1-app-container" style={styles}>
             {theme && (
