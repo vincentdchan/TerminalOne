@@ -186,8 +186,15 @@ impl TerminalDelegateInner {
         // Spawn a shell into the pty
         // add params to cmd
         let mut cmd = CommandBuilder::new("zsh");
-        // cmd.arg("-il");
-        cmd.env("TERM_PROGRAM", "Terminal One.app");
+        let version = env!("CARGO_PKG_VERSION");
+        cmd.env("TERM_PROGRAM", "Terminal_One.app");
+        cmd.env("TERM_PROGRAM_VERSION", version);
+        cmd.env("TERM", "xterm-256color");
+
+        let home_dir = dirs::home_dir().unwrap().to_str().unwrap().to_string();
+
+        cmd.cwd(&home_dir);
+        
         let child = pair.slave.spawn_command(cmd)?;
 
         drop(pair.slave);

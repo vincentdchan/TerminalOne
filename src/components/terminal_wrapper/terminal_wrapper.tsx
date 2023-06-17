@@ -119,6 +119,7 @@ export class TerminalWrapper extends Component<
     this.unlistenFn = await listen(PushMessages.PTY_OUTPUT, (event) => {
       const resp = event.payload as PtyResponse;
       if (resp.id === id) {
+        console.log("terminal receive data:", resp.data)
         terminal.write(resp.data);
       }
     });
