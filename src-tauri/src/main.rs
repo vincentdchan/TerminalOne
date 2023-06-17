@@ -5,6 +5,7 @@
 #[macro_use]
 extern crate objc;
 
+mod app_path;
 mod app_state;
 pub mod errors;
 mod mac_ext;
@@ -30,6 +31,13 @@ use std::{
 use sysinfo::{System, SystemExt};
 use tauri::{AboutMetadata, CustomMenuItem, Manager, Menu, MenuItem, State, Submenu, async_runtime};
 use terminal_delegate::TerminalDelegateEventHandler;
+use log4rs::append::console::ConsoleAppender;
+use log4rs::append::rolling_file::RollingFileAppender;
+use log4rs::config::{Appender, Config, Root};
+use log4rs::encode::pattern::PatternEncoder;
+use log4rs::append::rolling_file::policy::compound::CompoundPolicy;
+use log4rs::append::rolling_file::policy::compound::trigger::size::SizeTrigger;
+use log4rs::append::rolling_file::policy::compound::roll::delete::DeleteRoller;
 // use portable_pty
 
 pub type Result<T> = std::result::Result<T, errors::Error>;
@@ -303,12 +311,24 @@ pub fn generate_menu(#[allow(unused)] app_name: &str) -> Menu {
 }
 
 fn main() {
-    let filter_level = if cfg!(dev) {
-        log::LevelFilter::max()
-    } else {
-        log::LevelFilter::Info
-    };
-    env_logger::builder().filter_level(filter_level).init();
+    if cfg!(dev) {
+        let stdout = ConsoleAppender::builder()
+            .encoder(Box::new(PatternEncoder::new("{d(%Y-%m-%d %H:%M:%S %Z)} {h({l})} {I} {m}{n}")))
+            .build();
+        let config = Config::builder()
+            .appender(Appender::builder().build("stdout", Box::new(stdout)))
+            .build(Root::builder().appender("stdout").build(log::LevelFilter::max()))
+            .unwrap();
+
+        let _handle = log4rs::init_config(config).unwrap();
+    }
+
+    // let filter_level = if cfg!(dev) {
+    //     log::LevelFilter::max()
+    // } else {
+    //     log::LevelFilter::Info
+    // };
+    // env_logger::builder().filter_level(filter_level).init();
 
     debug!("debug env");
 
@@ -318,16 +338,41 @@ fn main() {
         .menu(menu)
         .manage(AppState::new())
         .setup(|app| {
+            let config = app.config();
+            let app_log_dir = app_path::app_log_dir(&config).expect("no log dirs");
+
+            if cfg!(not(dev)) {
+                let _ = std::fs::create_dir(&app_log_dir);
+
+                let file_path = app_log_dir.join("TerminalOne.log");
+                let file = RollingFileAppender::builder()
+                    .encoder(Box::new(PatternEncoder::new("{d(%Y-%m-%d %H:%M:%S %Z)} {h({l})} {I} {m}{n}")))
+                    .build(
+                        file_path,
+                        Box::new(CompoundPolicy::new(
+                            Box::new(SizeTrigger::new(10_000_000)),
+                            Box::new(DeleteRoller::new()),
+                        )),
+                    ).expect("build rolling file appender failed");
+                let config = Config::builder()
+                    .appender(Appender::builder().build("file", Box::new(file)))
+                    .build(Root::builder().appender("file").build(log::LevelFilter::Info))
+                    .unwrap();
+
+                let _handle = log4rs::init_config(config).unwrap();
+            }
+
             let win = app.get_window("main").unwrap();
             win.set_transparent_titlebar(true);
             win.position_traffic_lights(15.0, 19.0);
-
-            let machine_id = machine_uid::get().unwrap();
 
             let cargo_path = env!("CARGO_MANIFEST_DIR");
             let current_dir = env::current_dir()?;
             let mut sys = System::new_all();
             sys.refresh_all();
+
+            let config = app.config();
+            let app_data_dir = app_path::app_data_dir(&config);
 
             info!("Terminal One started ~");
             info!("app started: {}", current_dir.to_str().unwrap());
@@ -338,7 +383,8 @@ fn main() {
             info!("System OS version:       {:?}", sys.os_version());
             info!("System host name:        {:?}", sys.host_name());
             info!("System architecture:     {:?}", std::env::consts::ARCH);
-            info!("Machine UID:             {:?}", machine_id);
+            info!("App data dir:            {:?}", app_data_dir);
+            info!("App log dir:             {:?}", app_log_dir);
 
             // Number of CPUs:
             info!("NB CPUs: {}", sys.cpus().len());

@@ -1,4 +1,4 @@
-use log::{debug, error};
+use log::{debug, error, info};
 use sysinfo::{System, SystemExt};
 use serde::{Deserialize, Serialize};
 
@@ -33,6 +33,8 @@ pub async fn check_update() -> Result<(), Box<dyn std::error::Error>> {
     machine_id_opt.unwrap()
   };
 
+  info!("Device ID: {:?}", machine_id);
+
   let mut sys = System::new_all();
   sys.refresh_all();
 
@@ -50,16 +52,37 @@ pub async fn check_update() -> Result<(), Box<dyn std::error::Error>> {
   let mut url = "https://api.terminalone.app/Prod/app-versions?".to_string();
 
   url += &format!("platform={}&", platform);
-  url += &format!("arch={}&", arch);
-  url += &format!("machineId={}", machine_id);
+  url += &format!("arch={}", arch);
 
-  debug!(">>> get update url: {}", url);
+  for _ in 0..5 {
+    debug!(">>> get update url: {}", &url);
 
-  let resp = reqwest::get(url).await?;
+    let client = reqwest::Client::builder()
+      .timeout(std::time::Duration::from_secs(20))
+      .build()?;
 
-  let versions_data = resp.json::<VersionResponse>().await?;
+    let resp = client
+      .get(&url)
+      .header("X-DEVICE-ID", machine_id.clone())
+      .send().await;
 
-  debug!("{:#?}", versions_data);
+    if let Err(e) = resp {
+
+      error!("get update info failed: {}", e);
+
+      use tokio::time::Duration;
+      tokio::time::sleep(Duration::from_secs(10)).await;
+
+      continue;
+    }
+
+    let resp = resp.unwrap();
+
+    let versions_data = resp.json::<VersionResponse>().await?;
+
+    debug!("{:#?}", versions_data);
+    break;
+  }
 
   Ok(())
 }

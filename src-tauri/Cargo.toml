@@ -20,7 +20,6 @@ portable-pty = "0.8.1"
 thiserror = "1.0.40"
 anyhow = "1.0.71"
 log = "0.4.18"
-env_logger = "0.10.0"
 sysinfo = "0.29.0"
 toml = "*"
 cocoa = "*"
@@ -30,6 +29,8 @@ dirs = "5.0.1"
 machine-uid = "0.3.0"
 tokio = { version = "1.28.2", features = ["time"] }
 reqwest = { version = "0.11.18", features = ["json", "cookies", "native-tls"] }
+dirs-next = "2.0.0"
+log4rs = "1.2.0"
 
 [features]
 # this feature is used for production builds or when `devPath` points to the filesystem
