@@ -55,7 +55,7 @@
       {
         "fullscreen": false,
         "resizable": true,
-        "title": "GPTerminal",
+        "title": "Terminal One",
         "width": 860,
         "height": 600,
         "minWidth": 402,
