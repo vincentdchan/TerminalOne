@@ -104,17 +104,4 @@
       }
     }
   }
-
-  .t1-neon-bar {
-    position: absolute;
-    width: 100%;
-    background-color: var(--t1-border-color);
-    bottom: 0px;
-    height: 2px;
-    left: 0px;
-
-    &.win-active {
-      background-color: var(--t1-bright-4);
-    }
-  }
 }

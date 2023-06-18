@@ -23,8 +23,24 @@
 .content {
   display: flex;
   flex-grow: 1;
+  position: relative;
 
   :global(.t1-tab) {
     flex-grow: 1;
+  }
+}
+
+.neonBar {
+  position: absolute;
+  width: 100%;
+  background-color: var(--t1-border-color);
+  bottom: 0px;
+  height: 2px;
+  left: 0px;
+  transition: left 0.1s ease, width 0.1s ease;
+  pointer-events: none;
+
+  &:global(.win-active) {
+    background-color: var(--t1-bright-4);
   }
 }

@@ -1,4 +1,13 @@
-import { useCallback, memo, CSSProperties, forwardRef } from "react";
+import {
+  useCallback,
+  useContext,
+  memo,
+  CSSProperties,
+  forwardRef,
+  useRef,
+  useEffect,
+  useState,
+} from "react";
 import { Tab } from "./tab";
 import { AppState } from "@pkg/models/app_state";
 import { MdAdd, MdOutlineDashboard } from "react-icons/md";
@@ -10,7 +19,31 @@ import { useBehaviorSubject } from "@pkg/hooks/observable";
 import { Session } from "@pkg/models/session";
 import Tooltip from "@pkg/components/tooltip";
 import { CMD_CHAR, SHIFT_CHAR } from "@pkg/chars";
+import className from "classnames";
+import { AppContext } from "@pkg/contexts/app_context";
 import classes from "./tabs.module.css";
+
+interface NeonBarProps {
+  width: number;
+  left: number;
+}
+
+function NeonBar(props: NeonBarProps) {
+  const { width, left } = props;
+  const appState = useContext(AppContext)!;
+  const winActive = useBehaviorSubject(appState.windowActive$);
+  return (
+    <div
+      className={className(classes.neonBar, {
+        "win-active": winActive,
+      })}
+      style={{
+        width,
+        left,
+      }}
+    ></div>
+  );
+}
 
 interface LeftPaddingProps {
   appState: AppState;
@@ -110,7 +143,28 @@ export function Tabs(props: TabsProps) {
   const activeSessionIndex = useBehaviorSubject(
     sessionManager.activeSessionIndex$
   );
+  const [contentDivWidth, setContentDivWidth] = useState(0);
+  const contentDivRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const observer = new ResizeObserver(() => {
+      window.requestAnimationFrame(() => {
+        const clientRect = contentDivRef.current!.getBoundingClientRect();
+        setContentDivWidth(clientRect.width);
+      });
+    });
+
+    observer.observe(contentDivRef.current!);
+
+    return () => observer.disconnect();
+  }, [contentDivRef]);
+
+  const tabWidth =
+    sessions.length === 0 ? 0 : contentDivWidth / sessions.length;
+  const tabLeft = activeSessionIndex * tabWidth;
+
   const sessionsMoreThanOne = sessions.length > 1;
+  const showNeonBar = sessionsMoreThanOne;
   return (
     <div
       className={`${classes.tabs} t1-noselect`}
@@ -121,7 +175,7 @@ export function Tabs(props: TabsProps) {
         rightBorder={sessionsMoreThanOne && activeSessionIndex === 0}
         onMouseDown={handleMouseDown}
       />
-      <div className={classes.content}>
+      <div ref={contentDivRef} className={classes.content}>
         <SortableList
           items={sessions}
           onMove={(from, to) => {
@@ -156,6 +210,7 @@ export function Tabs(props: TabsProps) {
             );
           }}
         />
+        {showNeonBar && <NeonBar width={tabWidth} left={tabLeft} />}
       </div>
       <RightPart
         appState={appState}

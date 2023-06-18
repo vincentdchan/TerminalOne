@@ -9,17 +9,17 @@ import { CMD_CHAR } from "@pkg/chars";
 import { IconButton } from "@pkg/components/button";
 import "./tab.css";
 
-const NeonBar = memo(() => {
-  const appState = useContext(AppContext)!;
-  const winActive = useBehaviorSubject(appState.windowActive$);
-  return (
-    <div
-      className={className("t1-neon-bar", {
-        "win-active": winActive,
-      })}
-    ></div>
-  );
-});
+// const NeonBar = memo(() => {
+//   const appState = useContext(AppContext)!;
+//   const winActive = useBehaviorSubject(appState.windowActive$);
+//   return (
+//     <div
+//       className={className("t1-neon-bar", {
+//         "win-active": winActive,
+//       })}
+//     ></div>
+//   );
+// });
 
 export interface TabProps {
   session: Session;
@@ -105,7 +105,7 @@ export function Tab(props: TabProps) {
         </div>
       </div>
       {hintText && <div className="right">{hintText}</div>}
-      {active && showNeonBar && <NeonBar />}
+      {/* {active && showNeonBar && <NeonBar />} */}
     </div>
   );
 }
