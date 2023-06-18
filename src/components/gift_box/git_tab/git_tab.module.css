@@ -1,13 +1,18 @@
 
-
 .container {
   flex: 1;
+  display: flex;
+  flex-direction: column;
+
   margin: 16px;
+}
+
+.contentContainer {
+  flex: 1;
   border: solid 1px var(--t1-border-color);
   font-family: var(--t1-font-mono);
   display: flex;
   flex-direction: column;
-
 }
 
 .gitShow {

@@ -20,6 +20,7 @@ import { useObservable } from "@pkg/hooks/observable";
 import { AppContext } from "@pkg/contexts/app_context";
 import { FileItem } from "./file_item";
 import * as fs from "@pkg/utils/fs";
+import { IconButton } from "@pkg/components/button";
 import classes from "./file_explorer.module.css";
 
 function EmptyPlaceholder() {
@@ -136,9 +137,9 @@ export const FileExplorer = memo(() => {
       <div className={classes.header}>
         <div className="main t1-noselect">{currentFolderName}</div>
         <div className="right">
-          <button onClick={handleGoUp}>
+          <IconButton onClick={handleGoUp}>
             <MdKeyboardArrowUp />
-          </button>
+          </IconButton>
         </div>
       </div>
       <div className={classes.content}>

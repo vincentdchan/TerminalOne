@@ -1,0 +1,16 @@
+
+.button {
+  outline: none;
+  background-color: rgb(55, 122, 200);
+  color: white;
+  font-weight: 500;
+  font-size: 16px;
+
+  padding: 10px 18px;
+  border-radius: 8px;
+}
+
+.iconButton {
+  color: var(--t1-foreground);
+  background-color: var(--t1-background);
+}

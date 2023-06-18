@@ -9,6 +9,9 @@
   cursor: default;
   color: var(--t1-bright-7);
 
+  color: var(--t1-foreground);
+  background-color: var(--t1-background);
+
   &.unactive {
     color: gray;
   }

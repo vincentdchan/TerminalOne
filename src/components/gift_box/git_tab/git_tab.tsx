@@ -4,6 +4,7 @@ import { useObservable } from "@pkg/hooks/observable";
 import { find, isString } from "lodash-es";
 import { invoke } from "@tauri-apps/api";
 import * as fs from "@pkg/utils/fs";
+import { PrimaryButton } from "@pkg/components/button";
 import classes from "./git_tab.module.css";
 
 interface GitStatusItem {
@@ -23,7 +24,7 @@ function GitShow(props: GitShowProps) {
   const fetchGitStatus = async (currentDir: string) => {
     const result: string = await invoke("spawn_command", {
       command: "git",
-      args: ["status", "--porcelain"],
+      args: ["status", "--porcelain", "-uall"],
       cwd: currentDir,
     });
 
@@ -43,8 +44,8 @@ function GitShow(props: GitShowProps) {
         const filename = path.split("/").pop() ?? path;
 
         items.push({
-          status: testResult[1],
-          path: testResult[2],
+          status,
+          path,
           filename,
         });
       }
@@ -62,14 +63,13 @@ function GitShow(props: GitShowProps) {
       <div className={classes.listContainer}>
         {lines.map((line) => {
           return (
-            <div className={`${classes.gitListItem} t1-noselect`} key={line.path}>
+            <div
+              className={`${classes.gitListItem} t1-noselect`}
+              key={line.path}
+            >
               <p className="t1-ellipsis">
-                <span className={classes.filename}>
-                  {line.filename}
-                </span>
-                <span className={classes.path}>
-                  {line.path}
-                </span>
+                <span className={classes.filename}>{line.filename}</span>
+                <span className={classes.path}>{line.path}</span>
               </p>
             </div>
           );
@@ -98,9 +98,15 @@ export const GitTab = memo(() => {
     }
   }, [currentDir]);
 
-  return (
+  return hasGit ? (
     <div className={classes.container}>
-      {hasGit && <GitShow gitPath={currentDir!} />}
+      <div className={classes.contentContainer}>
+        <GitShow gitPath={currentDir!} />
+      </div>
+      <textarea></textarea>
+      <PrimaryButton>Submit</PrimaryButton>
     </div>
+  ) : (
+    <div></div>
   );
 });

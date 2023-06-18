@@ -51,10 +51,10 @@
     flex-grow: 1;
   }
 
-  button {
+  /* button {
     color: var(--t1-foreground);
     background-color: var(--t1-background);
-  }
+  } */
 }
 
 :root {

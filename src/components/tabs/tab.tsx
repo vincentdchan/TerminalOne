@@ -6,6 +6,7 @@ import className from "classnames";
 import { isUndefined } from "lodash-es";
 import { AppContext } from "@pkg/contexts/app_context";
 import { CMD_CHAR } from "@pkg/chars";
+import { IconButton } from "@pkg/components/button";
 import "./tab.css";
 
 const NeonBar = memo(() => {
@@ -84,9 +85,9 @@ export function Tab(props: TabProps) {
     >
       <div className="left">
         {showCloseBtn && (
-          <button onClick={handleClose}>
+          <IconButton onClick={handleClose}>
             <MdClose />
-          </button>
+          </IconButton>
         )}
       </div>
       <div className="main">
