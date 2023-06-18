@@ -1,11 +1,11 @@
 import { useState, useEffect } from "react";
-import type { BehaviorSubject, Observable } from "rxjs";
+import { skip, type BehaviorSubject, type Observable } from "rxjs";
 
 export function useBehaviorSubject<T = any>(observable: BehaviorSubject<T>): T {
   const [value, setValue] = useState(observable.value);
 
   useEffect(() => {
-    const s = observable.subscribe(setValue);
+    const s = observable.pipe(skip(1)).subscribe(setValue);
     return () => s.unsubscribe();
   }, [observable]);
 

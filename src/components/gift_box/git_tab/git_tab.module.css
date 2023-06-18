@@ -13,6 +13,8 @@
   font-family: var(--t1-font-mono);
   display: flex;
   flex-direction: column;
+  border-radius: 4px;
+  margin: 2px;
 }
 
 .gitShow {
@@ -32,40 +34,18 @@
   left: 0px;
 }
 
-.gitListItem {
-  display: flex;
-  cursor: default;
+.commitMessage {
+  background-color: var(--t1-bg-color);
+  border-radius: 4px;
+  border: solid 1px var(--t1-border-color);
+  margin-top: 12px;
+  margin-bottom: 12px;
+  height: 28px;
+  color: white;
+  font-size: 14px;
+  padding: 8px;
 
-  position: relative;
-  overflow: hidden;
-  height: 24px;
-  width: 100%;
-
-  p {
-    padding: 0px 8px;
-    margin: 0px;
-    top: 0px;
-    left: 0px;
-
-    position: absolute;
-    height: 100%;
-    line-height: 24px;
-
-    width: 100%;
-  }
-
-  .filename {
-    font-size: 13px;
-    font-weight: 500;
-  }
-
-  .path {
-    font-size: 12px;
-    font-weight: 300;
-    margin-left: 4px;
-  }
-
-  &:hover {
-    background-color: var(--t1-hover-color);
+  &:focus {
+    outline: none;
   }
 }

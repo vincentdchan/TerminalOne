@@ -5,13 +5,8 @@ import { find, isString } from "lodash-es";
 import { invoke } from "@tauri-apps/api";
 import * as fs from "@pkg/utils/fs";
 import { PrimaryButton } from "@pkg/components/button";
+import { type GitStatusItemIntf, GitStatusItem } from "./git_status_item";
 import classes from "./git_tab.module.css";
-
-interface GitStatusItem {
-  status: string;
-  path: string;
-  filename: string;
-}
 
 interface GitShowProps {
   gitPath: string;
@@ -19,7 +14,7 @@ interface GitShowProps {
 
 function GitShow(props: GitShowProps) {
   const { gitPath } = props;
-  const [lines, setLines] = useState<GitStatusItem[]>([]);
+  const [lines, setLines] = useState<GitStatusItemIntf[]>([]);
 
   const fetchGitStatus = async (currentDir: string) => {
     const result: string = await invoke("spawn_command", {
@@ -30,7 +25,7 @@ function GitShow(props: GitShowProps) {
 
     const lines = result.split("\n");
 
-    const items: GitStatusItem[] = [];
+    const items: GitStatusItemIntf[] = [];
 
     for (const line of lines) {
       const testResult = /(\S+)\s+(\S+)/.exec(line);
@@ -62,17 +57,7 @@ function GitShow(props: GitShowProps) {
     <div className={classes.gitShow}>
       <div className={classes.listContainer}>
         {lines.map((line) => {
-          return (
-            <div
-              className={`${classes.gitListItem} t1-noselect`}
-              key={line.path}
-            >
-              <p className="t1-ellipsis">
-                <span className={classes.filename}>{line.filename}</span>
-                <span className={classes.path}>{line.path}</span>
-              </p>
-            </div>
-          );
+          return <GitStatusItem key={line.path} data={line} />;
         })}
       </div>
     </div>
@@ -103,8 +88,17 @@ export const GitTab = memo(() => {
       <div className={classes.contentContainer}>
         <GitShow gitPath={currentDir!} />
       </div>
-      <textarea></textarea>
-      <PrimaryButton>Submit</PrimaryButton>
+      <textarea
+        className={classes.commitMessage}
+        placeholder="Commit message"
+      />
+      <PrimaryButton
+        style={{
+          fontSize: 14,
+        }}
+      >
+        Submit
+      </PrimaryButton>
     </div>
   ) : (
     <div></div>

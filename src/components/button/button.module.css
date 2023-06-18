@@ -6,8 +6,18 @@
   font-weight: 500;
   font-size: 16px;
 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
   padding: 10px 18px;
-  border-radius: 8px;
+  border-radius: 4px;
+
+  cursor: default;
+
+  &:hover {
+    background-color: rgb(41, 102, 171);
+  }
 }
 
 .iconButton {
