@@ -3,7 +3,7 @@ use crate::terminal_delegate::{TerminalDelegate, TerminalDelegateEventHandler};
 use crate::theme_context::{ThemeContext, ThemeItem};
 use crate::{Error, Result};
 use polodb_core::Database;
-use polodb_core::bson::Document;
+use polodb_core::bson::{Document, doc};
 use log::{debug, warn};
 use std::collections::HashMap;
 use std::path::Path;
@@ -99,6 +99,74 @@ impl AppState {
         let ui_store = db.collection::<Document>("ui_store");
 
         let docs = ui_store
+            .find(None)?
+            .collect::<polodb_core::Result<Vec<Document>>>()?;
+
+        Ok(docs)
+    }
+
+    pub(crate) fn add_favorite_folder(&self, path: &str) -> Result<()> {
+        let inner = self.inner.lock().unwrap();
+        let db_opt = inner.database.as_ref();
+
+        if db_opt.is_none() {
+            warn!("db is none");
+            return Ok(());
+        }
+
+        let db = db_opt.unwrap();
+        
+        let favorite_folders = db.collection::<Document>("favorite_folders");
+
+        let timestamp_ms = chrono::Utc::now().timestamp_millis();
+        let timestamp_str = timestamp_ms.to_string();
+
+        favorite_folders.insert_one(doc! {
+            "id": timestamp_str.clone(),
+            "path": path.clone(),
+        })?;
+
+        debug!("insert favorite folder: {} {}", timestamp_str, path);
+
+        Ok(())
+    }
+
+    pub(crate) fn remove_favorite_folder(&self, path: &str) -> Result<()> {
+        let inner = self.inner.lock().unwrap();
+        let db_opt = inner.database.as_ref();
+
+        if db_opt.is_none() {
+            warn!("db is none");
+            return Ok(());
+        }
+
+        let db = db_opt.unwrap();
+        
+        let favorite_folders = db.collection::<Document>("favorite_folders");
+
+        let delete_result = favorite_folders.delete_many(doc! {
+            "path": path.clone(),
+        })?;
+
+        debug!("delete favorite folder: {} count: {:?}", path, delete_result.deleted_count);
+
+        Ok(())
+    }
+
+    pub(crate) fn get_all_favorite_folders(&self) -> Result<Vec<Document>> {
+        let inner = self.inner.lock().unwrap();
+        let db_opt = inner.database.as_ref();
+
+        if db_opt.is_none() {
+            warn!("db is none");
+            return Ok(Vec::new());
+        }
+
+        let db = db_opt.unwrap();
+        
+        let favorite_folders = db.collection::<Document>("favorite_folders");
+
+        let docs = favorite_folders
             .find(None)?
             .collect::<polodb_core::Result<Vec<Document>>>()?;
 

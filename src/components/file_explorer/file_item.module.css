@@ -9,7 +9,7 @@
     background-color: var(--t1-hover-color);
 
     .right {
-      visibility: visible;
+      display: flex;
     }
   }
 }
@@ -41,10 +41,9 @@
 }
 
 .right {
-  visibility: hidden;
   margin-right: 16px;
 
-  display: flex;
+  display: none;
 
   &:global(.star) {
     visibility: visible;

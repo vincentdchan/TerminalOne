@@ -11,7 +11,6 @@ import { escapeShellPath } from "@pkg/utils/shell";
 import { isString } from "lodash-es";
 import { FileItem as FileItemModel, LsFileResponse } from "@pkg/messages";
 import AutoSizer, { type Size } from "react-virtualized-auto-sizer";
-import { MdKeyboardArrowUp } from "react-icons/md";
 import {
   FixedSizeList as List,
   type ListChildComponentProps,
@@ -20,7 +19,6 @@ import { useObservable } from "@pkg/hooks/observable";
 import { AppContext } from "@pkg/contexts/app_context";
 import { FileItem } from "./file_item";
 import * as fs from "@pkg/utils/fs";
-import { IconButton } from "@pkg/components/button";
 import classes from "./file_explorer.module.css";
 
 function EmptyPlaceholder() {
@@ -36,6 +34,10 @@ export const FileExplorer = memo(() => {
 
   const [files, setFiles] = useState<FileItemModel[]>([]);
   const pathToFileMap = useRef<Map<string, FileItemModel> | null>(null);
+
+  useEffect(() => {
+    appState.fetchFavoriteDirs();
+  }, [appState]);
 
   useEffect(() => {
     const fetchDir = async () => {
@@ -54,6 +56,12 @@ export const FileExplorer = memo(() => {
           return cmp;
         }
         return a.filename.localeCompare(b.filename);
+      });
+
+      newFiles.splice(0, 0, {
+        filename: "..",
+        path: "..",
+        isDir: true,
       });
 
       pathToFileMap.current = new Map();
@@ -84,7 +92,7 @@ export const FileExplorer = memo(() => {
     const { index, style } = props;
     const item = files[index];
 
-    const isFavorite = appState.favoriteDirsPath$.value.has(item.path);
+    const isFavorite = appState.favoriteDirsPath$.value.includes(item.path);
 
     return (
       <FileItem
@@ -100,11 +108,6 @@ export const FileExplorer = memo(() => {
   const currentFolderName = useMemo(() => {
     return currentDir ? currentDir.split("/").pop() : "Terminal One";
   }, [currentDir]);
-
-  const handleGoUp = useCallback(() => {
-    const { sessionManager } = appState;
-    sessionManager.executeCommand("cd ..\r");
-  }, []);
 
   return (
     <div className={classes.fileExplorer}>
@@ -136,11 +139,11 @@ export const FileExplorer = memo(() => {
       )}
       <div className={classes.header}>
         <div className="main t1-noselect">{currentFolderName}</div>
-        <div className="right">
+        {/* <div className="right">
           <IconButton onClick={handleGoUp}>
             <MdKeyboardArrowUp />
           </IconButton>
-        </div>
+        </div> */}
       </div>
       <div className={classes.content}>
         {currentDir ? (

@@ -232,6 +232,30 @@ async fn spawn_command(command: &str, cwd: &str, args: Option<Vec<String>>) -> R
     Ok(String::from_utf8_lossy(&output.stdout).to_string())
 }
 
+#[tauri::command]
+fn add_favorite_folder(state: State<AppState>, path: &str) -> Result<()> {
+    state.inner().add_favorite_folder(path)?;
+    Ok(())
+}
+
+#[tauri::command]
+fn remove_favorite_folder(state: State<AppState>, path: &str) -> Result<()> {
+    state.inner().remove_favorite_folder(path)?;
+    Ok(())
+}
+
+#[tauri::command]
+fn get_all_favorite_folders(state: State<AppState>) -> Result<Vec<serde_json::Value>> {
+    let docs = state.inner().get_all_favorite_folders()?;
+    let mut result = Vec::new();
+
+    for doc in docs {
+        result.push(serde_json::to_value(doc)?);
+    }
+
+    Ok(result)
+}
+
 fn main() {
     let app_log_dir = app_path::app_log_dir("Terminal One").expect("no log dirs");
 
@@ -346,6 +370,9 @@ fn main() {
             fs_stat,
             ui_store,
             spawn_command,
+            add_favorite_folder,
+            remove_favorite_folder,
+            get_all_favorite_folders,
         ])
         .on_menu_event(|event| match event.menu_item_id() {
             "settings" => {

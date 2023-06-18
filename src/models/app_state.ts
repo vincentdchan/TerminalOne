@@ -1,9 +1,9 @@
 import { SessionManager } from "./session_manager";
-import { BehaviorSubject, Subscription, combineLatestWith, map } from "rxjs";
+import { BehaviorSubject, Subscription, map } from "rxjs";
 import { FileItem as FileItemModel, InitMessage } from "@pkg/messages";
-import { Set as ImmutableSet } from "immutable";
+import { List as ImmutableList } from "immutable";
 import { invoke } from "@tauri-apps/api";
-import { isBoolean, isNumber, isString, once } from "lodash-es";
+import { isBoolean, isNumber, isString, once, debounce } from "lodash-es";
 import { objectToCamlCaseDeep } from "@pkg/utils/objects";
 import * as uiStore from "@pkg/utils/ui_store";
 import type { ThemeResponse } from "@pkg/messages";
@@ -27,7 +27,7 @@ export class AppState {
   showGiftBox$ = new BehaviorSubject<boolean>(false);
   currentDir$ = new BehaviorSubject<string | undefined>(undefined);
   giftBoxActiveIndex$ = new BehaviorSubject<number>(0);
-  favoriteDirsPath$ = new BehaviorSubject<ImmutableSet<string>>(ImmutableSet());
+  favoriteDirsPath$ = new BehaviorSubject<ImmutableList<string>>(ImmutableList());
   dirPathToFileItem = new Map<string, FileItemModel>();
   windowActive$ = new BehaviorSubject<boolean>(true);
   appStatus$ = new BehaviorSubject<AppStatus>(AppStatus.Loading);
@@ -98,6 +98,23 @@ export class AppState {
     }
   }
 
+  fetchFavoriteDirs = debounce(async () => {
+    const data = await uiStore.getAllFavoriteFolders();
+
+    const paths: string[] = [];
+
+    for (const folderItem of data) {
+      this.dirPathToFileItem.set(folderItem.path, {
+        path: folderItem.path,
+        isDir: true,
+        filename: folderItem.path.split("/").pop() || "",
+      });
+      paths.push(folderItem.path);
+    }
+
+    this.favoriteDirsPath$.next(ImmutableList(paths));
+  });
+
   toggleShowSettings() {
     this.showSettings$.next(!this.showSettings$.value);
   }
@@ -123,12 +140,17 @@ export class AppState {
   addOrRemoveFavoriteDir(dirModel: FileItemModel) {
     const { path } = dirModel;
     const favoriteDirs = this.favoriteDirsPath$.value;
-    if (favoriteDirs.has(path)) {
-      this.favoriteDirsPath$.next(favoriteDirs.delete(path));
+    const index = favoriteDirs.indexOf(path);
+    if (index >= 0) {
+      this.favoriteDirsPath$.next(favoriteDirs.remove(index));
       this.dirPathToFileItem.delete(path);
+
+      uiStore.removeFavoriteFolder(path);
     } else {
       this.dirPathToFileItem.set(path, dirModel);
-      this.favoriteDirsPath$.next(favoriteDirs.add(path));
+      this.favoriteDirsPath$.next(favoriteDirs.push(path));
+
+      uiStore.addFavoriteFolder(path);
     }
   }
 
