@@ -95,9 +95,11 @@ export const GitTab = memo(() => {
       <PrimaryButton
         style={{
           fontSize: 14,
+          marginLeft: 0,
+          marginRight: 0,
         }}
       >
-        Submit
+        Commit
       </PrimaryButton>
     </div>
   ) : (
