@@ -8,6 +8,7 @@ import {
 import { GoGitBranch } from "react-icons/go";
 import { IntelligenceTab } from "./intelligence_tab";
 import { ChatTab } from "./chat_tab";
+import { GitTab } from "./git_tab";
 import { useBehaviorSubject } from "@pkg/hooks/observable";
 import { AppContext } from "@pkg/contexts/app_context";
 import classes from "./gift_box.module.css";
@@ -27,7 +28,7 @@ const tabsDefinitions: GiftBoxTabIntf[] = [
   {
     name: "Git",
     icon: <GoGitBranch />,
-    renderer: () => <div>Git</div>,
+    renderer: () => <GitTab />,
   },
   {
     name: "Chat",

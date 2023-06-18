@@ -9,16 +9,23 @@ mod app_path;
 mod app_state;
 pub mod errors;
 mod mac_ext;
+mod menu;
 mod messages;
 mod terminal_delegate;
 mod theme_context;
 mod updater;
-mod menu;
 
 use crate::mac_ext::WindowExt;
 use app_state::AppState;
 pub use errors::Error;
 use log::{debug, info};
+use log4rs::append::console::ConsoleAppender;
+use log4rs::append::rolling_file::policy::compound::roll::delete::DeleteRoller;
+use log4rs::append::rolling_file::policy::compound::trigger::size::SizeTrigger;
+use log4rs::append::rolling_file::policy::compound::CompoundPolicy;
+use log4rs::append::rolling_file::RollingFileAppender;
+use log4rs::config::{Appender, Config, Root};
+use log4rs::encode::pattern::PatternEncoder;
 use messages::{
     FileItem, FsLsResponse, FsStatResponse, PtyExitMessage, PtyResponse, ThemeResponse,
 };
@@ -31,15 +38,8 @@ use std::{
     vec,
 };
 use sysinfo::{System, SystemExt};
-use tauri::{Manager,  State, async_runtime};
+use tauri::{async_runtime, Manager, State};
 use terminal_delegate::TerminalDelegateEventHandler;
-use log4rs::append::console::ConsoleAppender;
-use log4rs::append::rolling_file::RollingFileAppender;
-use log4rs::config::{Appender, Config, Root};
-use log4rs::encode::pattern::PatternEncoder;
-use log4rs::append::rolling_file::policy::compound::CompoundPolicy;
-use log4rs::append::rolling_file::policy::compound::trigger::size::SizeTrigger;
-use log4rs::append::rolling_file::policy::compound::roll::delete::DeleteRoller;
 // use portable_pty
 
 pub type Result<T> = std::result::Result<T, errors::Error>;
@@ -109,8 +109,14 @@ fn fetch_init_data(state: State<AppState>) -> Result<messages::InitMessage> {
 
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 #[tauri::command]
-fn new_terminal(app_handle: tauri::AppHandle, window: tauri::Window, state: State<AppState>, id: String) -> Result<()> {
-    let shell_path = app_handle.path_resolver()
+fn new_terminal(
+    app_handle: tauri::AppHandle,
+    window: tauri::Window,
+    state: State<AppState>,
+    id: String,
+) -> Result<()> {
+    let shell_path = app_handle
+        .path_resolver()
         .resolve_resource("shell_integration")
         .expect("no shell integration found");
 
@@ -118,11 +124,9 @@ fn new_terminal(app_handle: tauri::AppHandle, window: tauri::Window, state: Stat
         Box::new(MainTerminalEventHandler {
             window: window.clone(),
         });
-    let _delegate = state.inner().new_terminal(
-        id,
-        &shell_path,
-        events_handler,
-    )?;
+    let _delegate = state
+        .inner()
+        .new_terminal(id, &shell_path, events_handler)?;
     Ok(())
 }
 
@@ -211,16 +215,39 @@ fn ui_store(state: State<AppState>, doc: serde_json::Value) -> Result<()> {
     Ok(())
 }
 
+#[tauri::command]
+async fn spawn_command(command: &str, cwd: &str, args: Option<Vec<String>>) -> Result<String> {
+    debug!("spawn command: {:?}, cwd: {:?}", command, cwd);
+
+    let mut command = tokio::process::Command::new(command);
+
+    if let Some(args) = &args {
+        command.args(args);
+    }
+
+    command.current_dir(cwd);
+
+    let output = command.output().await?;
+
+    Ok(String::from_utf8_lossy(&output.stdout).to_string())
+}
+
 fn main() {
     let app_log_dir = app_path::app_log_dir("Terminal One").expect("no log dirs");
 
     if cfg!(dev) {
         let stdout = ConsoleAppender::builder()
-            .encoder(Box::new(PatternEncoder::new("{d(%Y-%m-%d %H:%M:%S %Z)} {h({l})} {I} {m}{n}")))
+            .encoder(Box::new(PatternEncoder::new(
+                "{d(%Y-%m-%d %H:%M:%S %Z)} {h({l})} {I} {m}{n}",
+            )))
             .build();
         let config = Config::builder()
             .appender(Appender::builder().build("stdout", Box::new(stdout)))
-            .build(Root::builder().appender("stdout").build(log::LevelFilter::max()))
+            .build(
+                Root::builder()
+                    .appender("stdout")
+                    .build(log::LevelFilter::max()),
+            )
             .unwrap();
 
         let _handle = log4rs::init_config(config).unwrap();
@@ -229,17 +256,24 @@ fn main() {
 
         let file_path = app_log_dir.join("TerminalOne.log");
         let file = RollingFileAppender::builder()
-            .encoder(Box::new(PatternEncoder::new("{d(%Y-%m-%d %H:%M:%S %Z)} {h({l})} {I} {m}{n}")))
+            .encoder(Box::new(PatternEncoder::new(
+                "{d(%Y-%m-%d %H:%M:%S %Z)} {h({l})} {I} {m}{n}",
+            )))
             .build(
                 file_path,
                 Box::new(CompoundPolicy::new(
                     Box::new(SizeTrigger::new(10_000_000)),
                     Box::new(DeleteRoller::new()),
                 )),
-            ).expect("build rolling file appender failed");
+            )
+            .expect("build rolling file appender failed");
         let config = Config::builder()
             .appender(Appender::builder().build("file", Box::new(file)))
-            .build(Root::builder().appender("file").build(log::LevelFilter::Info))
+            .build(
+                Root::builder()
+                    .appender("file")
+                    .build(log::LevelFilter::Info),
+            )
             .unwrap();
 
         let _handle = log4rs::init_config(config).unwrap();
@@ -281,7 +315,8 @@ fn main() {
             let state = app.state::<AppState>();
             state.inner().init_db(&app_data_dir)?;
 
-            let theme_path = app.path_resolver()
+            let theme_path = app
+                .path_resolver()
                 .resolve_resource("themes")
                 .expect("failed to resolve resource");
 
@@ -310,6 +345,7 @@ fn main() {
             fs_read_all,
             fs_stat,
             ui_store,
+            spawn_command,
         ])
         .on_menu_event(|event| match event.menu_item_id() {
             "settings" => {

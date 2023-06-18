@@ -1,0 +1,66 @@
+
+
+.container {
+  flex: 1;
+  margin: 16px;
+  border: solid 1px var(--t1-border-color);
+  font-family: var(--t1-font-mono);
+  display: flex;
+  flex-direction: column;
+
+}
+
+.gitShow {
+  flex: 1;
+
+  position: relative;
+  overflow-y: scroll;
+
+  height: 100%;
+  width: 100%;
+}
+
+.listContainer {
+  position: absolute;
+  width: 100%;
+  top: 0px;
+  left: 0px;
+}
+
+.gitListItem {
+  display: flex;
+  cursor: default;
+
+  position: relative;
+  overflow: hidden;
+  height: 24px;
+  width: 100%;
+
+  p {
+    padding: 0px 8px;
+    margin: 0px;
+    top: 0px;
+    left: 0px;
+
+    position: absolute;
+    height: 100%;
+    line-height: 24px;
+
+    width: 100%;
+  }
+
+  .filename {
+    font-size: 13px;
+    font-weight: 500;
+  }
+
+  .path {
+    font-size: 12px;
+    font-weight: 300;
+    margin-left: 4px;
+  }
+
+  &:hover {
+    background-color: var(--t1-hover-color);
+  }
+}

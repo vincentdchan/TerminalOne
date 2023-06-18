@@ -27,7 +27,7 @@ objc = "*"
 open = "4.1.0"
 dirs = "5.0.1"
 machine-uid = "0.3.0"
-tokio = { version = "1.28.2", features = ["time"] }
+tokio = { version = "1.28.2", features = ["time", "process"] }
 reqwest = { version = "0.11.18", features = ["json", "cookies", "native-tls"] }
 dirs-next = "2.0.0"
 log4rs = "1.2.0"
