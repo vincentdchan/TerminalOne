@@ -20,6 +20,7 @@ const Onboarding = lazy(() => import("@pkg/components/onboarding"));
 function App() {
   const appStatus = useBehaviorSubject(appState.appStatus$);
   const theme = useBehaviorSubject(appState.theme$)!;
+  const showOnboarding = useBehaviorSubject(appState.showOnboarding$);
 
   const handlePtyExit = useCallback(
     async (id: string) => {
@@ -110,7 +111,7 @@ function App() {
 
   return (
     <AppContext.Provider value={appState}>
-      {appStatus === AppStatus.Onboarding && (
+      {showOnboarding && (
         <Suspense>
           <Onboarding />
         </Suspense>

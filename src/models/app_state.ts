@@ -15,7 +15,6 @@ const STORE_KEY_ONBOARDING = "onboarding";
 
 export enum AppStatus {
   Loading,
-  Onboarding,
   Ready,
 }
 
@@ -25,6 +24,7 @@ export class AppState {
   showSettings$ = new BehaviorSubject<boolean>(false);
   showFileExplorer$ = new BehaviorSubject<boolean>(false);
   showGiftBox$ = new BehaviorSubject<boolean>(false);
+  showOnboarding$ = new BehaviorSubject<boolean>(false);
   currentDir$ = new BehaviorSubject<string | undefined>(undefined);
   giftBoxActiveIndex$ = new BehaviorSubject<number>(0);
   favoriteDirsPath$ = new BehaviorSubject<ImmutableList<string>>(ImmutableList());
@@ -94,7 +94,7 @@ export class AppState {
     if (isNumber(uiStores[STORE_KEY_ONBOARDING])) {
       this.appStatus$.next(AppStatus.Ready);
     } else {
-      this.appStatus$.next(AppStatus.Onboarding);
+      this.showOnboarding$.next(true);
     }
   }
 
