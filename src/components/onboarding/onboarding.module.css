@@ -33,11 +33,20 @@
   justify-content: center;
   text-align: center;
 
-  h1 {
-    cursor: default;
-    font-family: var(--t1-onboarding-font-family);
-    font-weight: 200;
-    font-size: 48px;
+  .header {
+    display: flex;
+
+    h1 {
+      cursor: default;
+      font-family: var(--t1-onboarding-font-family);
+      font-weight: 200;
+      font-size: 48px;
+    }
+
+    img {
+      width: 72px;
+      margin-right: 32px;
+    }
   }
 
   p {
@@ -53,8 +62,6 @@
 
   button {
     outline: none;
-    background-color: rgb(55, 122, 200);
-    color: white;
 
     font-family: var(--t1-onboarding-font-family);
     font-weight: 500;
