@@ -3,6 +3,11 @@ export enum PushMessages {
   PTY_EXIT = "pty-exit",
 }
 
+export interface PtyResponse {
+  id: string;
+  data64: string;
+}
+
 export enum StoreKeys {
   showFileExplorer = "showFileExplorer",
   showGiftBox = "showGiftBox",

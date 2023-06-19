@@ -6,13 +6,32 @@ import {
   take,
 } from "rxjs";
 import { Session } from "./session";
+import { listen } from "@tauri-apps/api/event";
+import { PushMessages, type PtyResponse } from "@pkg/constants";
 
 export class SessionManager {
+  sessionsMap = new Map<string, Session>();
   sessions$ = new BehaviorSubject<Session[]>([]);
   activeSessionIndex$ = new BehaviorSubject<number>(-1);
 
+  constructor() {
+    this.#listenPtyOutput();
+  }
+
+  async #listenPtyOutput() {
+    await listen(PushMessages.PTY_OUTPUT, (event) => {
+      const resp = event.payload as PtyResponse;
+      const session = this.sessionsMap.get(resp.id);
+      const { data64 } = resp;
+      const data = Uint8Array.from(atob(data64), c => c.charCodeAt(0))
+      session?.ptyOutput$.next(data);
+    });
+  }
+
   newTab() {
     const session = new Session();
+    this.sessionsMap.set(session.id, session);
+
     const len = this.sessions$.value.length;
     this.sessions$.next([...this.sessions$.value, session]);
 
@@ -44,6 +63,10 @@ export class SessionManager {
 
   removeTab(index: number) {
     const next = [...this.sessions$.value];
+
+    const legacy = next[index];
+    this.sessionsMap.delete(legacy.id);
+
     next.splice(index, 1);
     this.sessions$.next(next);
 

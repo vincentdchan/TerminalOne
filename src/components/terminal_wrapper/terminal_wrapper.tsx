@@ -1,5 +1,4 @@
 import { createRef, Component } from "react";
-import { listen, UnlistenFn } from "@tauri-apps/api/event";
 import { Terminal } from "xterm.es";
 import { WebglAddon } from "xterm-addon-webgl.es";
 import { WebLinksAddon } from "xterm-addon-web-links.es";
@@ -8,7 +7,6 @@ import { invoke } from "@tauri-apps/api/tauri";
 import { Session } from "@pkg/models/session";
 import { AppTheme } from "@pkg/models/app_theme";
 import { debounce } from "lodash-es";
-import { PushMessages } from "@pkg/constants";
 import { type Subscription } from "rxjs";
 import classNames from "classnames";
 import classes from "./terminal_wrapper.module.css";
@@ -24,11 +22,6 @@ interface TerminalWrapperState {
   loading: boolean;
 }
 
-interface PtyResponse {
-  id: string;
-  data: Uint8Array;
-}
-
 const FILE_PREFIX = "file://";
 
 export class TerminalWrapper extends Component<
@@ -36,7 +29,6 @@ export class TerminalWrapper extends Component<
   TerminalWrapperState
 > {
   private containerRef = createRef<HTMLDivElement>();
-  private unlistenFn?: UnlistenFn;
   private terminal?: Terminal;
   private fitAddon?: FitAddon;
   private resizeObserver?: ResizeObserver;
@@ -116,12 +108,11 @@ export class TerminalWrapper extends Component<
       })
     );
 
-    this.unlistenFn = await listen(PushMessages.PTY_OUTPUT, (event) => {
-      const resp = event.payload as PtyResponse;
-      if (resp.id === id) {
-        terminal.write(resp.data);
-      }
-    });
+    this.#subscriptions.push(
+      session.ptyOutput$.subscribe((data: Uint8Array) => {
+        terminal.write(data);
+      })
+    );
 
     this.resizeObserver = new ResizeObserver(() => {
       if (!this.props.active) {
@@ -151,7 +142,6 @@ export class TerminalWrapper extends Component<
     this.resizeObserver?.disconnect();
     this.resizeObserver = undefined;
     this.removeTerminal();
-    this.unlistenFn?.();
     this.#subscriptions.forEach((s) => s.unsubscribe());
   }
 

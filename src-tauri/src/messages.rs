@@ -11,7 +11,7 @@ pub(crate) struct InitMessage {
 #[serde(rename_all = "camelCase")]
 pub(crate) struct PtyResponse {
   pub id: String,
-  pub data: Vec<u8>,
+  pub data64: String,
 }
 
 #[derive(Clone, Serialize)]

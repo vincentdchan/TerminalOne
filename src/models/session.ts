@@ -7,6 +7,7 @@ export class Session {
   cwd$ = new BehaviorSubject<string | undefined>(undefined);
 
   shellInput$ = new Subject<string>();
+  ptyOutput$ = new Subject<Uint8Array>();
 
   constructor() {
     this.id = mkTabId();

@@ -40,6 +40,7 @@ use std::{
 use sysinfo::{System, SystemExt};
 use tauri::{async_runtime, Manager, State};
 use terminal_delegate::TerminalDelegateEventHandler;
+use base64::{Engine as _, engine::general_purpose};
 // use portable_pty
 
 pub type Result<T> = std::result::Result<T, errors::Error>;
@@ -55,11 +56,12 @@ impl TerminalDelegateEventHandler for MainTerminalEventHandler {
         data: &[u8],
     ) -> Result<()> {
         let id_str = terminal_delegate.id();
+        let data64 = general_purpose::STANDARD_NO_PAD.encode(data);
         self.window.emit(
             messages::push_event::PTY_OUTPUT,
             PtyResponse {
                 id: id_str,
-                data: data.to_vec(),
+                data64: data64,
             },
         )?;
         Ok(())

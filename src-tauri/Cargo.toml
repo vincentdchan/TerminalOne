@@ -33,6 +33,7 @@ dirs-next = "2.0.0"
 log4rs = "1.2.0"
 polodb_core = "4.4.0"
 chrono = "0.4.26"
+base64 = "0.21.2"
 
 [features]
 # this feature is used for production builds or when `devPath` points to the filesystem
