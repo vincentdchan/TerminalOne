@@ -23,8 +23,12 @@ export interface MenuItemProps {
 export function MenuItem(props: MenuItemProps) {
   const { style, children } = props;
   return (
-    <div style={style} className={`${classes.menuItem} t1-noselect`}>
+    <div style={style} className={`${classes.menuItem} t1-noselect t1-ellipsis`}>
       {children}
     </div>
   );
+}
+
+export function MenuDivider() {
+  return <div className={classes.menuDivider} />;
 }

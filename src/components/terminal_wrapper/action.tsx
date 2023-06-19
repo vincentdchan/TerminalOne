@@ -1,7 +1,7 @@
-import type { ActionData, ActionMenuItem } from "@pkg/models/extension";
+import { isDivider, type ActionData, type ActionMenuItemType } from "@pkg/models/extension";
 import { OUTLINE_DEFAULT_COLOR } from "./toolbar";
 import Dropdown from "@pkg/components/dropdown";
-import { Menu, MenuItem } from "@pkg/components/menu";
+import { Menu, MenuItem, MenuDivider } from "@pkg/components/menu";
 import classNames from "classnames";
 import classes from "./action.module.css";
 import { useState } from "react";
@@ -12,13 +12,16 @@ export interface ActionProps {
 
 function Action(props: ActionProps) {
   const { data } = props;
-  const [actionMenuItems, setActionMenuItems] = useState<ActionMenuItem[]>([]);
+  const [actionMenuItems, setActionMenuItems] = useState<ActionMenuItemType[]>([]);
   const { title, color } = data;
   return (
     <Dropdown
       overlay={(style) => (
         <Menu style={style}>
-          {actionMenuItems.map((item) => {
+          {actionMenuItems.map((item, index) => {
+            if (isDivider(item)) {
+              return <MenuDivider key={`divider-${index}`} />;
+            }
             return <MenuItem key={item.key}>{item.title}</MenuItem>;
           })}
         </Menu>

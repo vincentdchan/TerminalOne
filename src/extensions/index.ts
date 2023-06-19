@@ -1,4 +1,4 @@
-import { ActionMenuItem, Extension } from "@pkg/models/extension";
+import { ActionMenuItemType, Extension } from "@pkg/models/extension";
 import { invoke } from "@tauri-apps/api";
 import * as fs from "@pkg/utils/fs";
 import { isString } from "lodash-es";
@@ -42,6 +42,13 @@ const extensions: Extension[] = [
               title: "git commit -a",
             },
             {
+              type: "divider",
+            },
+            {
+              key: "git-pull",
+              title: "git pull",
+            },
+            {
               key: "git-push",
               title: "git push",
             },
@@ -63,7 +70,7 @@ const extensions: Extension[] = [
         return {
           title: "yarn",
           color: "rgb(74, 140, 183)",
-          onTrigger: () => generateNpmRelativeItem("yarn"),
+          onTrigger: () => generateNpmRelativeItem(currentDir, "yarn"),
         };
       }
 
@@ -71,30 +78,119 @@ const extensions: Extension[] = [
         return {
           title: "pnpm",
           color: "rgb(231, 169, 59)",
-          onTrigger: () => generateNpmRelativeItem("pnpm"),
+          onTrigger: () => generateNpmRelativeItem(currentDir, "pnpm"),
         };
       }
 
       return {
         title: "npm",
         color: "rgb(181, 66, 60)",
-        onTrigger: () => generateNpmRelativeItem("npm"),
+        onTrigger: () => generateNpmRelativeItem(currentDir, "npm"),
       };
+    },
+  },
+  {
+    name: "flutter",
+    testFile: "pubspec.yaml",
+    generateActions: () => {
+      return {
+        title: "flutter",
+        color: "rgb(117, 191, 235)",
+        onTrigger: () => {
+          return [
+            {
+              key: "flutter-run",
+              title: "flutter run",
+            },
+            {
+              key: "flutter-test",
+              title: "flutter test",
+            },
+            {
+              key: "flutter-pub-get",
+              title: "flutter pub get",
+            },
+            {
+              key: "flutter-build",
+              title: "flutter build",
+            },
+          ]
+        },
+      }
+    },
+  },
+  {
+    name: "cargo",
+    testFile: "Cargo.toml",
+    generateActions: () => {
+      return {
+        title: "cargo",
+        color: "rgb(221, 85, 39)",
+        onTrigger: () => {
+          return [
+            {
+              key: "cargo-run",
+              title: "cargo run",
+            },
+            {
+              key: "cargo-build",
+              title: "cargo build",
+            },
+            {
+              key: "cargo-build-release",
+              title: "cargo build --release",
+            },
+            {
+              key: "cargo-test",
+              title: "cargo test",
+            },
+            {
+              key: "cargo-bench",
+              title: "cargo bench",
+            },
+            {
+              key: "cargo-doc",
+              title: "cargo doc",
+            },
+            {
+              key: "cargo-publish",
+              title: "cargo publish",
+            },
+          ]
+        },
+      }
     },
   },
 ];
 
-function generateNpmRelativeItem(pkg: string): ActionMenuItem[] {
-  return [
+async function generateNpmRelativeItem(currentDir: string, pkg: string): Promise<ActionMenuItemType[]> {
+  const result: ActionMenuItemType[] = [
     {
       key: "install",
       title: `${pkg} install`,
     },
-    {
-      key: "start",
-      title: `${pkg} start`,
-    },
   ];
+
+  const fileToRead = currentDir + "/package.json";
+  const str = await fs.readAll(fileToRead);
+
+  const data = JSON.parse(str);
+  const scripts = Object.keys(data.scripts || {});
+
+  scripts.forEach((script, index) => {
+    if (index === 0) {
+      result.push({
+        type: "divider",
+      });
+    }
+
+    result.push({
+      key: script,
+      title: `${pkg} run ${script}`,
+    });
+  });
+
+  return result;
 }
 
 export default extensions;

@@ -2,7 +2,7 @@
   background-color: rgb(72, 72, 72);
   border-radius: 8px;
 
-  overflow: hidden;
+  overflow: scroll;
 }
 
 .menuItem {
@@ -12,8 +12,17 @@
   padding-left: 10px;
   padding-right: 10px;
   height: 28px;
+  line-height: 28px;
 
   &:hover {
     background-color: rgb(95, 95, 95);
   }
+}
+
+.menuDivider {
+  height: 1px;
+  width: 100%;
+  margin-top: 2px;
+  margin-bottom: 2px;
+  background-color: rgb(103, 103, 103);
 }
