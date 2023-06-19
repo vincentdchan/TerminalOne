@@ -7,11 +7,8 @@ import { isBoolean, isNumber, isString, once, debounce } from "lodash-es";
 import { objectToCamlCaseDeep } from "@pkg/utils/objects";
 import * as uiStore from "@pkg/utils/ui_store";
 import type { ThemeResponse } from "@pkg/messages";
+import { StoreKeys } from "@pkg/constants";
 import { type AppTheme } from "./app_theme";
-
-const STORE_KEY_SHOW_EXPLORER = "showFileExplorer";
-const STORE_KEY_SHOW_GIFT_BOX = "showGiftBox";
-const STORE_KEY_ONBOARDING = "onboarding";
 
 export enum AppStatus {
   Loading,
@@ -83,15 +80,15 @@ export class AppState {
     const { homeDir, uiStores } = initData;
     this.homeDir$.next(homeDir);
 
-    if (isBoolean(uiStores[STORE_KEY_SHOW_EXPLORER])) {
-      this.showFileExplorer$.next(uiStores[STORE_KEY_SHOW_EXPLORER]);
+    if (isBoolean(uiStores[StoreKeys.showFileExplorer])) {
+      this.showFileExplorer$.next(uiStores[StoreKeys.showFileExplorer]);
     }
 
-    if (isBoolean(uiStores[STORE_KEY_SHOW_GIFT_BOX])) {
-      this.showGiftBox$.next(uiStores[STORE_KEY_SHOW_GIFT_BOX]);
+    if (isBoolean(uiStores[StoreKeys.showGiftBox])) {
+      this.showGiftBox$.next(uiStores[StoreKeys.showGiftBox]);
     }
 
-    if (isNumber(uiStores[STORE_KEY_ONBOARDING])) {
+    if (isNumber(uiStores[StoreKeys.onboarding])) {
       this.appStatus$.next(AppStatus.Ready);
     } else {
       this.showOnboarding$.next(true);
@@ -123,7 +120,7 @@ export class AppState {
     const next = !this.showFileExplorer$.value;
     this.showFileExplorer$.next(next);
     uiStore.store({
-      _id: STORE_KEY_SHOW_EXPLORER,
+      _id: StoreKeys.showFileExplorer,
       value: next,
     });
   }
@@ -132,7 +129,7 @@ export class AppState {
     const next = !this.showGiftBox$.value;
     this.showGiftBox$.next(next);
     uiStore.store({
-      _id: STORE_KEY_SHOW_GIFT_BOX,
+      _id: StoreKeys.showGiftBox,
       value: next,
     });
   }

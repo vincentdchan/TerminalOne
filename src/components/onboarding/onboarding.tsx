@@ -1,24 +1,24 @@
-import { useContext, useCallback, memo, useState } from "react";
-import classes from "./onboarding.module.css";
+import React, { useContext, useCallback, memo, useState } from "react";
 import classNames from "classnames";
 import { AppContext } from "@pkg/contexts/app_context";
 import { AppStatus } from "@pkg/models/app_state";
 import { PrimaryButton } from "@pkg/components/button";
 import Face from "./face.svg?url";
+import * as uiStore from "@pkg/utils/ui_store";
+import { StoreKeys } from "@pkg/constants"
+import classes from "./onboarding.module.css";
 
 interface PrettyCheckBoxProps {
   content: string;
   description: string;
+  checked?: boolean;
+  onClick?: React.MouseEventHandler;
 }
 
 function PrettyCheckBox(props: PrettyCheckBoxProps) {
-  const { content, description } = props;
-  const [checked, setChecked] = useState(true);
-  const handleClick = () => {
-    setChecked(!checked);
-  }
+  const { checked, content, description, onClick } = props;
   return (
-    <div className={classes.prettyCheckBox} onClick={handleClick}>
+    <div className={classes.prettyCheckBox} onClick={onClick}>
       <input type="checkbox" checked={checked} />
       <div className={classes.mainLine}>
         <p className="content">{content}</p>
@@ -32,9 +32,35 @@ export const Onboarding = memo(() => {
   const appState = useContext(AppContext)!;
   const [showAni, setShowAni] = useState(false);
 
+  const [usageDataChecked, setUsageDataChecked] = useState(true);
+  const [diagnosticDataChecked, setDiagnosticDataChecked] = useState(true);
+  const [processing, setProcessing] = useState(false);
+
+  const submit = async () => {
+    if (processing) {
+      return;
+    }
+    setProcessing(true);
+    try {
+      await uiStore.store({
+        _id: StoreKeys.collectUsageData,
+        value: usageDataChecked,
+      });
+      await uiStore.store({
+        _id: StoreKeys.collectDiagnosticData,
+        value: diagnosticDataChecked,
+      });
+    } catch (err) {
+      console.error(err);
+    } finally {
+      appState.appStatus$.next(AppStatus.Ready);
+      setShowAni(true);
+      setProcessing(false);
+    }
+  }
+
   const handleStart = useCallback(() => {
-    appState.appStatus$.next(AppStatus.Ready);
-    setShowAni(true);
+    submit();
   }, [appState]);
 
   const handleAnimationEnd = useCallback(() => {
@@ -67,10 +93,14 @@ export const Onboarding = memo(() => {
           <PrettyCheckBox
             content="Allow Terminal One to collect anonymous usage data."
             description="Help us improve Terminal One. We cannot track your identity from the collected data."
+            checked={usageDataChecked}
+            onClick={() => setUsageDataChecked(!usageDataChecked)}
           />
           <PrettyCheckBox
             content="Allow Terminal One to collect diagnostic and performance data."
             description="Help us improve the performance and stability of Terminal One. We cannot track your identity from the collected data."
+            checked={diagnosticDataChecked}
+            onClick={() => setDiagnosticDataChecked(!diagnosticDataChecked)}
           />
         </div>
         <PrimaryButton onClick={handleStart}>
