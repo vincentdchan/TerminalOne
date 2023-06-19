@@ -12,14 +12,14 @@ interface PrettyCheckBoxProps {
   content: string;
   description: string;
   checked?: boolean;
-  onClick?: React.MouseEventHandler;
+  onToggle?: () => void;
 }
 
 function PrettyCheckBox(props: PrettyCheckBoxProps) {
-  const { checked, content, description, onClick } = props;
+  const { checked, content, description, onToggle } = props;
   return (
-    <div className={classes.prettyCheckBox} onClick={onClick}>
-      <input type="checkbox" checked={checked} />
+    <div className={classes.prettyCheckBox} onClick={onToggle}>
+      <input type="checkbox" onChange={onToggle} checked={checked} />
       <div className={classes.mainLine}>
         <p className="content">{content}</p>
         <p className="description">{description}</p>
@@ -94,13 +94,13 @@ export const Onboarding = memo(() => {
             content="Allow Terminal One to collect anonymous usage data."
             description="Help us improve Terminal One. We cannot track your identity from the collected data."
             checked={usageDataChecked}
-            onClick={() => setUsageDataChecked(!usageDataChecked)}
+            onToggle={() => setUsageDataChecked(!usageDataChecked)}
           />
           <PrettyCheckBox
             content="Allow Terminal One to collect diagnostic and performance data."
             description="Help us improve the performance and stability of Terminal One. We cannot track your identity from the collected data."
             checked={diagnosticDataChecked}
-            onClick={() => setDiagnosticDataChecked(!diagnosticDataChecked)}
+            onToggle={() => setDiagnosticDataChecked(!diagnosticDataChecked)}
           />
         </div>
         <PrimaryButton onClick={handleStart}>

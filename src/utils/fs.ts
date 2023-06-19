@@ -21,3 +21,13 @@ export async function stat(path: string): Promise<LsStatResponse> {
   }) as LsStatResponse;
   return resp;
 }
+
+export async function batchTestFiles(currentDir: string, files: string[]): Promise<number[]> {
+  const resp: { files: number[] } = await invoke("batch_test_files", {
+    req: {
+      currentDir,
+      files,
+    }
+  });
+  return resp.files;
+}

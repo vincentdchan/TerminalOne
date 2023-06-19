@@ -27,10 +27,11 @@ use log4rs::append::rolling_file::RollingFileAppender;
 use log4rs::config::{Appender, Config, Root};
 use log4rs::encode::pattern::PatternEncoder;
 use messages::{
-    FileItem, FsLsResponse, FsStatResponse, PtyExitMessage, PtyResponse, ThemeResponse,
+    FileItem, FsLsResponse, FsStatResponse, PtyExitMessage, PtyResponse, ThemeResponse, BatchTestFilesReq, BatchTestFilesResp,
 };
 use polodb_core::bson::Bson;
 use portable_pty::ExitStatus;
+use std::path::PathBuf;
 use std::{
     env, fs,
     io::Write,
@@ -258,6 +259,31 @@ fn get_all_favorite_folders(state: State<AppState>) -> Result<Vec<serde_json::Va
     Ok(result)
 }
 
+#[tauri::command]
+fn batch_test_files(req: BatchTestFilesReq) -> Result<BatchTestFilesResp> {
+    let mut files = Vec::new();
+    let current_path = PathBuf::from(&req.current_dir);
+
+    for file in &req.files {
+        let mut path = current_path.clone();
+        path.push(file);
+
+        let test_stat = fs::metadata(&path);
+        match test_stat {
+            Ok(stat) => {
+                if stat.is_dir() {
+                    files.push(1);
+                } else {
+                    files.push(2);
+                }
+            }
+            Err(_) => files.push(0),
+        }
+    }
+
+    Ok(BatchTestFilesResp { files })
+}
+
 fn main() {
     let app_log_dir = app_path::app_log_dir("Terminal One").expect("no log dirs");
 
@@ -375,6 +401,7 @@ fn main() {
             add_favorite_folder,
             remove_favorite_folder,
             get_all_favorite_folders,
+            batch_test_files,
         ])
         .on_menu_event(|event| match event.menu_item_id() {
             "settings" => {

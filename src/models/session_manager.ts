@@ -8,13 +8,14 @@ import {
 import { Session } from "./session";
 import { listen } from "@tauri-apps/api/event";
 import { PushMessages, type PtyResponse } from "@pkg/constants";
+import type { AppState } from "./app_state";
 
 export class SessionManager {
   sessionsMap = new Map<string, Session>();
   sessions$ = new BehaviorSubject<Session[]>([]);
   activeSessionIndex$ = new BehaviorSubject<number>(-1);
 
-  constructor() {
+  constructor(public appState: AppState) {
     this.#listenPtyOutput();
   }
 
@@ -29,7 +30,7 @@ export class SessionManager {
   }
 
   newTab() {
-    const session = new Session();
+    const session = new Session(this.appState);
     this.sessionsMap.set(session.id, session);
 
     const len = this.sessions$.value.length;

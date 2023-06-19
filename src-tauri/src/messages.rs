@@ -1,4 +1,4 @@
-use serde::Serialize;
+use serde::{Serialize, Deserialize};
 
 #[derive(Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -55,6 +55,19 @@ impl Default for FsLsResponse {
       content: Vec::new(),
     }
   }
+}
+
+#[derive(Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub(crate) struct BatchTestFilesReq {
+  pub current_dir: String,
+  pub files: Vec<String>,
+}
+
+#[derive(Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub(crate) struct BatchTestFilesResp {
+  pub files: Vec<i32>,
 }
 
 pub(crate) mod push_event {

@@ -1,7 +1,7 @@
 .instanceContainer {
   display: flex;
+  flex-direction: column;
   flex-grow: 1;
-  position: relative;
   margin-left: 8px;
 
   &:global(.unactive) {
@@ -10,6 +10,15 @@
     left: -1000px;
   }
 
+  :global(.t1-terminal-toolbar) {
+    width: 100%;
+  }
+}
+
+.mainContent {
+  flex-grow: 1;
+  position: relative;
+
   :global(.xterm) {
     position: absolute;
     left: 0px;
@@ -17,8 +26,4 @@
     height: 100%;
     width: 100%;
   }
-}
-
-.mainContent {
-  flex-grow: 1;
 }

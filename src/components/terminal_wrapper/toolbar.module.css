@@ -1,0 +1,18 @@
+
+:global(.t1-terminal-toolbar) {
+  display: flex;
+  min-height: 32px;
+  max-height: 32px;
+  align-items: center;
+
+  overflow-y: hidden;
+  overflow-x: scroll;
+}
+
+.path {
+  font-family: var(--t1-font-mono);
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  font-weight: 600;
+}

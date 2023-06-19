@@ -10,6 +10,7 @@ import { debounce } from "lodash-es";
 import { type Subscription } from "rxjs";
 import classNames from "classnames";
 import classes from "./terminal_wrapper.module.css";
+import Toolbar from "./toolbar";
 import "xterm.es/css/xterm.css";
 
 export interface TerminalWrapperProps {
@@ -159,6 +160,7 @@ export class TerminalWrapper extends Component<
           unactive: !this.props.active,
         })}
       >
+        <Toolbar session={this.props.session} />
         <div ref={this.containerRef} className={classes.mainContent}></div>
       </div>
     );

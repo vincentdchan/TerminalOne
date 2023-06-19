@@ -1,0 +1,25 @@
+
+.action {
+  font-family: var(--t1-font-mono);
+  /* padding: 2px 2px; */
+  padding-left: 8px;
+  padding-right: 8px;
+  height: 18px;
+  border: solid 1px rgb(250, 127, 86);
+  border-radius: 12px;
+  margin-left: 8px;
+
+  font-size: 12px;
+  font-weight: 600;
+
+  display: flex;
+  align-items: center;
+
+  &:global(.git) {
+    border: solid 1px rgb(255, 123, 0);
+  }
+
+  &:hover {
+    cursor: pointer;
+  }
+}

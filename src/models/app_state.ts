@@ -1,4 +1,5 @@
 import { SessionManager } from "./session_manager";
+import ExtensionManager from "./extension_manager";
 import { BehaviorSubject, Subscription, map } from "rxjs";
 import { FileItem as FileItemModel, InitMessage } from "@pkg/messages";
 import { List as ImmutableList } from "immutable";
@@ -9,6 +10,7 @@ import * as uiStore from "@pkg/utils/ui_store";
 import type { ThemeResponse } from "@pkg/messages";
 import { StoreKeys } from "@pkg/constants";
 import { type AppTheme } from "./app_theme";
+import extensions from "@pkg/extensions";
 
 export enum AppStatus {
   Loading,
@@ -16,8 +18,19 @@ export enum AppStatus {
 }
 
 export class AppState {
+  #sessionManager = once(() => new SessionManager(this));
+
+  get sessionManager(): SessionManager {
+    return this.#sessionManager();
+  }
+
+  #extensionManager = once(() => new ExtensionManager(this, extensions));
+
+  get extensionManager(): ExtensionManager {
+    return this.#extensionManager();
+  }
+
   homeDir$ = new BehaviorSubject<string | undefined>(undefined);
-  sessionManager = new SessionManager();
   showSettings$ = new BehaviorSubject<boolean>(false);
   showFileExplorer$ = new BehaviorSubject<boolean>(false);
   showGiftBox$ = new BehaviorSubject<boolean>(false);
