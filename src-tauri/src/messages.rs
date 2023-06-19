@@ -57,6 +57,14 @@ impl Default for FsLsResponse {
   }
 }
 
+#[derive(Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub(crate) struct SpawnResult {
+  pub output: String,
+  pub success: bool,
+  pub code: Option<i32>,
+}
+
 #[derive(Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub(crate) struct BatchTestFilesReq {

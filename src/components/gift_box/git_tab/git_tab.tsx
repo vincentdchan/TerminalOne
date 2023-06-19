@@ -7,6 +7,7 @@ import * as fs from "@pkg/utils/fs";
 import { PrimaryButton } from "@pkg/components/button";
 import { type GitStatusItemIntf, GitStatusItem } from "./git_status_item";
 import classes from "./git_tab.module.css";
+import type { SpawnResult } from "@pkg/messages";
 
 interface GitShowProps {
   gitPath: string;
@@ -17,13 +18,13 @@ function GitShow(props: GitShowProps) {
   const [lines, setLines] = useState<GitStatusItemIntf[]>([]);
 
   const fetchGitStatus = async (currentDir: string) => {
-    const result: string = await invoke("spawn_command", {
+    const result: SpawnResult = await invoke("spawn_command", {
       command: "git",
       args: ["status", "--porcelain", "-uall"],
       cwd: currentDir,
     });
 
-    const lines = result.split("\n");
+    const lines = result.output.split("\n");
 
     const items: GitStatusItemIntf[] = [];
 

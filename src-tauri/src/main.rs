@@ -26,9 +26,7 @@ use log4rs::append::rolling_file::policy::compound::CompoundPolicy;
 use log4rs::append::rolling_file::RollingFileAppender;
 use log4rs::config::{Appender, Config, Root};
 use log4rs::encode::pattern::PatternEncoder;
-use messages::{
-    FileItem, FsLsResponse, FsStatResponse, PtyExitMessage, PtyResponse, ThemeResponse, BatchTestFilesReq, BatchTestFilesResp,
-};
+use messages::*;
 use polodb_core::bson::Bson;
 use portable_pty::ExitStatus;
 use std::path::PathBuf;
@@ -219,7 +217,7 @@ fn ui_store(state: State<AppState>, doc: serde_json::Value) -> Result<()> {
 }
 
 #[tauri::command]
-async fn spawn_command(command: &str, cwd: &str, args: Option<Vec<String>>) -> Result<String> {
+async fn spawn_command(command: &str, cwd: &str, args: Option<Vec<String>>) -> Result<SpawnResult> {
     debug!("spawn command: {:?}, cwd: {:?}", command, cwd);
 
     let mut command = tokio::process::Command::new(command);
@@ -232,7 +230,13 @@ async fn spawn_command(command: &str, cwd: &str, args: Option<Vec<String>>) -> R
 
     let output = command.output().await?;
 
-    Ok(String::from_utf8_lossy(&output.stdout).to_string())
+    let code = output.status.code().clone();
+    let success = output.status.success();
+    Ok(SpawnResult {
+        output: String::from_utf8_lossy(&output.stdout).to_string(),
+        success,
+        code,
+    })
 }
 
 #[tauri::command]

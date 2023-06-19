@@ -2,6 +2,7 @@ import { ActionMenuItemType, Extension } from "@pkg/models/extension";
 import { invoke } from "@tauri-apps/api";
 import * as fs from "@pkg/utils/fs";
 import { isString } from "lodash-es";
+import type { SpawnResult } from "@pkg/messages";
 
 const extensions: Extension[] = [
   {
@@ -21,15 +22,19 @@ const extensions: Extension[] = [
   },
   {
     name: "git",
-    testFile: ".git",
     generateActions: async ({ currentDir }) => {
-      const result: string = await invoke("spawn_command", {
+      const result: SpawnResult = await invoke("spawn_command", {
         command: "git",
         args: ["branch", "--show-current"],
         cwd: currentDir,
       });
+
+      if (!result.success) {
+        return;
+      }
+
       return {
-        title: result,
+        title: `git:${result.output}`,
         color: "rgb(215, 90, 62)",
         onTrigger: () => {
           return [

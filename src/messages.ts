@@ -24,3 +24,9 @@ export interface FileItem {
   path: string;
   isDir: boolean;
 }
+
+export interface SpawnResult {
+  output: string;
+  success: boolean;
+  code?: number;
+}
