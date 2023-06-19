@@ -1,0 +1,10 @@
+.t1-terminal-toolbar {
+  display: block;
+  height: 32px;
+  line-height: 32px;
+  min-height: 32px;
+  align-items: center;
+
+  overflow-y: hidden;
+  overflow-x: scroll;
+}

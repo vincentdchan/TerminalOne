@@ -13,7 +13,7 @@ class ExtensionManager {
   }
 
   async generateActions(currentDir: string): Promise<ActionPayload[]> {
-    const result: ActionPayload[] = [];
+    const resultMap: Map<string, ActionPayload> = new Map();
 
     const testFilesExts: Extension[] = [];
     const matchAllExts: Extension[] = [];
@@ -43,7 +43,7 @@ class ExtensionManager {
       const actionData = await ext.generateActions(params);
 
       if (actionData) {
-        result.push({
+        resultMap.set(ext.name, {
           extName: ext.name,
           data: actionData,
         });
@@ -54,10 +54,19 @@ class ExtensionManager {
     for (const ext of matchAllExts) {
       const actionData = await ext.generateActions(params);
       if (actionData) {
-        result.push({
+        resultMap.set(ext.name, {
           extName: ext.name,
           data: actionData,
         });
+      }
+    }
+
+    const result: ActionPayload[] = [];
+
+    for (const ext of this.extensions) {
+      const testResult = resultMap.get(ext.name);
+      if (testResult) {
+        result.push(testResult);
       }
     }
 
