@@ -46,7 +46,6 @@ export class SessionManager {
     }
     const currentSessions = this.sessions$.value;
     if (activeSessionIndex >= currentSessions.length) {
-      console.log("next:", currentSessions.length - 1);
       this.activeSessionIndex$.next(currentSessions.length - 1);
     }
   }
@@ -74,7 +73,7 @@ export class SessionManager {
 
     const activeSessionIndex = this.activeSessionIndex$.value;
     if (activeSessionIndex >= next.length) {
-      this.activeSessionIndex$.next(1);
+      this.activeSessionIndex$.next(next.length - 1);
     }
   }
 
