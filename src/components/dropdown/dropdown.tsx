@@ -3,9 +3,10 @@ import React, {
   type ReactNode,
   type RefObject,
   Component,
+  Ref,
 } from "react";
-import Mask from "@pkg/components/mask";
 import { createPortal } from "react-dom";
+import { Subscription, fromEvent } from "rxjs";
 
 export enum DropdownDirection {
   BottomWithLeftAligned = 1,
@@ -21,11 +22,17 @@ const defaultWidth = 240;
 const maxHeight = 240;
 const minHeight = 120;
 
+export interface DropdownOverlayOptions {
+  style: React.CSSProperties;
+  ref: Ref<HTMLElement>;
+  close: () => void;
+}
+
 export interface DropdownProps {
   offsetY?: number;
   direction?: DropdownDirection;
   width?: number;
-  overlay?: (style: React.CSSProperties) => ReactNode;
+  overlay?: (overlayOptions: DropdownOverlayOptions) => ReactNode;
   children: (options: ChildRenderOptions) => ReactNode;
 }
 
@@ -89,7 +96,9 @@ export function computeDropdown(input: DropdownInput): DropdownOutput {
 }
 
 class Dropdown extends Component<DropdownProps, DropdownState> {
+  #overlayRef: RefObject<HTMLElement> = createRef();
   #childRef: RefObject<HTMLElement> = createRef();
+  #subscriptions: Subscription[] = [];
 
   constructor(props: DropdownProps) {
     super(props);
@@ -99,6 +108,28 @@ class Dropdown extends Component<DropdownProps, DropdownState> {
       y: 0,
       maxHeight: maxHeight,
     };
+  }
+
+  override componentDidMount(): void {
+    const click$ = fromEvent(window, "click");
+    this.#subscriptions.push(
+      click$.subscribe((event) => {
+        if (!this.state.show) {
+          return;
+        }
+        const target = event.target as HTMLElement;
+        if (
+          !this.#childRef.current?.contains(target) &&
+          !this.#overlayRef.current?.contains(target)
+        ) {
+          this.setState({ show: false });
+        }
+      })
+    );
+  }
+
+  override componentWillUnmount(): void {
+    this.#subscriptions.forEach((s) => s.unsubscribe());
   }
 
   #show = () => {
@@ -122,12 +153,6 @@ class Dropdown extends Component<DropdownProps, DropdownState> {
     });
   };
 
-  #handleMaskClicked = () => {
-    this.setState({
-      show: false,
-    });
-  };
-
   override render() {
     const { children, overlay, width } = this.props;
     const { show, x, y, maxHeight } = this.state;
@@ -136,15 +161,17 @@ class Dropdown extends Component<DropdownProps, DropdownState> {
         {children({ ref: this.#childRef, show: this.#show })}
         {show &&
           createPortal(
-            <Mask onClick={this.#handleMaskClicked}>
-              {overlay?.({
+            overlay?.({
+              style: {
                 position: "fixed",
                 width: width ?? defaultWidth,
                 left: x,
                 top: y,
                 maxHeight: maxHeight,
-              })}
-            </Mask>,
+              },
+              ref: this.#overlayRef,
+              close: () => this.setState({ show: false }),
+            }),
             document.getElementById("t1-dropdown")!
           )}
       </>

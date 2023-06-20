@@ -1,4 +1,4 @@
-import React, { type CSSProperties } from "react";
+import React, { type CSSProperties, forwardRef } from "react";
 import classes from "./menu.module.css";
 
 export interface MenuProps {
@@ -6,14 +6,16 @@ export interface MenuProps {
   children?: React.ReactNode;
 }
 
-export function Menu(props: MenuProps) {
-  const { style, children } = props;
-  return (
-    <div style={style} className={classes.menu}>
-      {children}
-    </div>
-  );
-}
+export const Menu = forwardRef(
+  (props: MenuProps, ref: React.ForwardedRef<HTMLDivElement>) => {
+    const { style, children } = props;
+    return (
+      <div ref={ref} style={style} className={classes.menu}>
+        {children}
+      </div>
+    );
+  }
+);
 
 export interface MenuItemProps {
   style?: CSSProperties;

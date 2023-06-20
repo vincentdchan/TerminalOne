@@ -20,6 +20,7 @@ export const TerminalsContainer = memo(() => {
         return (
           <TerminalWrapper
             key={session.id}
+            appState={appState}
             active={active}
             session={session}
             theme={theme}

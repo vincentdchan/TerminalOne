@@ -8,7 +8,7 @@ import Dropdown from "@pkg/components/dropdown";
 import { Menu, MenuItem, MenuDivider } from "@pkg/components/menu";
 import classNames from "classnames";
 import classes from "./action.module.css";
-import { useContext, useState } from "react";
+import { Ref, useContext, useState } from "react";
 import { AppContext } from "@pkg/contexts/app_context";
 
 export interface ActionProps {
@@ -24,15 +24,17 @@ function Action(props: ActionProps) {
   const { title, color } = data;
   return (
     <Dropdown
-      overlay={(style) => (
-        <Menu style={style}>
+      overlay={({ style, ref, close }) => (
+        <Menu style={style} ref={ref as Ref<HTMLDivElement>}>
           {actionMenuItems.map((item, index) => {
             if (isDivider(item)) {
               return <MenuDivider key={`divider-${index}`} />;
             }
             const title = item.title ?? item.command;
-            const handleClick = () => {
+            const handleClick = (e: React.MouseEvent) => {
+              e.preventDefault();
               appState.sessionManager.executeCommand(`${item.command}\r`);
+              close();
             };
             return (
               <MenuItem key={item.key} onClick={handleClick}>

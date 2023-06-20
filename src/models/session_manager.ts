@@ -24,7 +24,7 @@ export class SessionManager {
       const resp = event.payload as PtyResponse;
       const session = this.sessionsMap.get(resp.id);
       const { data64 } = resp;
-      const data = Uint8Array.from(atob(data64), c => c.charCodeAt(0))
+      const data = Uint8Array.from(atob(data64), (c) => c.charCodeAt(0));
       session?.ptyOutput$.next(data);
     });
   }
@@ -46,6 +46,7 @@ export class SessionManager {
     }
     const currentSessions = this.sessions$.value;
     if (activeSessionIndex >= currentSessions.length) {
+      console.log("next:", currentSessions.length - 1);
       this.activeSessionIndex$.next(currentSessions.length - 1);
     }
   }

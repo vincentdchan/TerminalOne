@@ -11,9 +11,12 @@ import { type Subscription } from "rxjs";
 import classNames from "classnames";
 import classes from "./terminal_wrapper.module.css";
 import Toolbar from "./toolbar";
+import { UnlistenFn, listen } from "@tauri-apps/api/event";
+import type { AppState } from "@pkg/models/app_state";
 import "xterm.es/css/xterm.css";
 
 export interface TerminalWrapperProps {
+  appState: AppState;
   session: Session;
   theme: AppTheme;
   active?: boolean;
@@ -34,8 +37,20 @@ export class TerminalWrapper extends Component<
   private fitAddon?: FitAddon;
   private resizeObserver?: ResizeObserver;
   #subscriptions: Subscription[] = [];
+  #unlistens: UnlistenFn[] = [];
 
   override componentDidMount(): void {
+    listen("tauri://move", () => {
+      if (this.props.active) {
+        this.delayFocus();
+      }
+    }).then((unlisten) => {
+      this.#unlistens.push(unlisten);
+    });
+    const s = this.props.appState.modalClosed$.subscribe(() =>
+      this.delayFocus()
+    );
+    this.#subscriptions.push(s);
     this.initTerminal();
   }
 
@@ -106,6 +121,7 @@ export class TerminalWrapper extends Component<
     this.#subscriptions.push(
       session.shellInput$.subscribe((content: string) => {
         this.sendTerminalData(id, content);
+        this.delayFocus();
       })
     );
 
@@ -122,7 +138,14 @@ export class TerminalWrapper extends Component<
       this.fitSize();
     });
     this.resizeObserver.observe(this.containerRef.current!);
+    this.delayFocus();
+  }
 
+  delayFocus() {
+    const terminal = this.terminal;
+    if (!terminal) {
+      return;
+    }
     window.requestAnimationFrame(() => {
       terminal.focus();
     });
@@ -140,6 +163,7 @@ export class TerminalWrapper extends Component<
   }
 
   override componentWillUnmount(): void {
+    this.#unlistens.forEach((u) => u());
     this.resizeObserver?.disconnect();
     this.resizeObserver = undefined;
     this.removeTerminal();

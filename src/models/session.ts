@@ -34,5 +34,4 @@ export class Session {
   setCwd(cwd: string) {
     this.cwd$.next(cwd);
   }
-
 }

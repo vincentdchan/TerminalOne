@@ -1,6 +1,6 @@
 import { SessionManager } from "./session_manager";
 import ExtensionManager from "./extension_manager";
-import { BehaviorSubject, Subscription, map } from "rxjs";
+import { BehaviorSubject, Subject, Subscription, map } from "rxjs";
 import { FileItem as FileItemModel, InitMessage } from "@pkg/messages";
 import { List as ImmutableList } from "immutable";
 import { invoke } from "@tauri-apps/api";
@@ -37,10 +37,13 @@ export class AppState {
   showOnboarding$ = new BehaviorSubject<boolean>(false);
   currentDir$ = new BehaviorSubject<string | undefined>(undefined);
   giftBoxActiveIndex$ = new BehaviorSubject<number>(0);
-  favoriteDirsPath$ = new BehaviorSubject<ImmutableList<string>>(ImmutableList());
+  favoriteDirsPath$ = new BehaviorSubject<ImmutableList<string>>(
+    ImmutableList()
+  );
   dirPathToFileItem = new Map<string, FileItemModel>();
   windowActive$ = new BehaviorSubject<boolean>(true);
   appStatus$ = new BehaviorSubject<AppStatus>(AppStatus.Loading);
+  modalClosed$ = new Subject<void>();
 
   theme$ = new BehaviorSubject<AppTheme | undefined>(undefined);
 
@@ -126,7 +129,11 @@ export class AppState {
   });
 
   toggleShowSettings() {
-    this.showSettings$.next(!this.showSettings$.value);
+    const next = !this.showSettings$.value;
+    this.showSettings$.next(next);
+    if (!next) {
+      this.modalClosed$.next();
+    }
   }
 
   toggleShowFileExplorer() {

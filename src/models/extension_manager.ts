@@ -40,24 +40,32 @@ class ExtensionManager {
         continue;
       }
       const ext = testFilesExts[index];
-      const actionData = await ext.generateActions(params);
+      try {
+        const actionData = await ext.generateActions(params);
 
-      if (actionData) {
-        resultMap.set(ext.name, {
-          extName: ext.name,
-          data: actionData,
-        });
+        if (actionData) {
+          resultMap.set(ext.name, {
+            extName: ext.name,
+            data: actionData,
+          });
+        }
+      } catch (err) {
+        console.error("generate action error for: ", ext.name, err);
       }
       index++;
     }
 
     for (const ext of matchAllExts) {
-      const actionData = await ext.generateActions(params);
-      if (actionData) {
-        resultMap.set(ext.name, {
-          extName: ext.name,
-          data: actionData,
-        });
+      try {
+        const actionData = await ext.generateActions(params);
+        if (actionData) {
+          resultMap.set(ext.name, {
+            extName: ext.name,
+            data: actionData,
+          });
+        }
+      } catch (err) {
+        console.error("generate action error for: ", ext.name, "(all)", err);
       }
     }
 
