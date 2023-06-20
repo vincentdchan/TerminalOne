@@ -1,18 +1,26 @@
-import { isDivider, type ActionData, type ActionMenuItemType } from "@pkg/models/extension";
+import {
+  isDivider,
+  type ActionData,
+  type ActionMenuItemType,
+} from "@pkg/models/extension";
 import { OUTLINE_DEFAULT_COLOR } from "./toolbar";
 import Dropdown from "@pkg/components/dropdown";
 import { Menu, MenuItem, MenuDivider } from "@pkg/components/menu";
 import classNames from "classnames";
 import classes from "./action.module.css";
-import { useState } from "react";
+import { useContext, useState } from "react";
+import { AppContext } from "@pkg/contexts/app_context";
 
 export interface ActionProps {
   data: ActionData;
 }
 
 function Action(props: ActionProps) {
+  const appState = useContext(AppContext)!;
   const { data } = props;
-  const [actionMenuItems, setActionMenuItems] = useState<ActionMenuItemType[]>([]);
+  const [actionMenuItems, setActionMenuItems] = useState<ActionMenuItemType[]>(
+    []
+  );
   const { title, color } = data;
   return (
     <Dropdown
@@ -22,7 +30,15 @@ function Action(props: ActionProps) {
             if (isDivider(item)) {
               return <MenuDivider key={`divider-${index}`} />;
             }
-            return <MenuItem key={item.key}>{item.title}</MenuItem>;
+            const title = item.title ?? item.command;
+            const handleClick = () => {
+              appState.sessionManager.executeCommand(`${item.command}\r`);
+            };
+            return (
+              <MenuItem key={item.key} onClick={handleClick}>
+                {title}
+              </MenuItem>
+            );
           })}
         </Menu>
       )}

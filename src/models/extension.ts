@@ -5,7 +5,8 @@ export interface ActionPayload {
 
 export interface ActionMenuItem {
   key: string;
-  title: string;
+  command: string;
+  title?: string;
 }
 
 export interface ActionMenuDivider {

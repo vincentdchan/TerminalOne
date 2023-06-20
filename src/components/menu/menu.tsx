@@ -17,13 +17,18 @@ export function Menu(props: MenuProps) {
 
 export interface MenuItemProps {
   style?: CSSProperties;
+  onClick?: React.MouseEventHandler<HTMLDivElement>;
   children?: React.ReactNode;
 }
 
 export function MenuItem(props: MenuItemProps) {
-  const { style, children } = props;
+  const { style, onClick, children } = props;
   return (
-    <div style={style} className={`${classes.menuItem} t1-noselect t1-ellipsis`}>
+    <div
+      style={style}
+      className={`${classes.menuItem} t1-noselect t1-ellipsis`}
+      onClick={onClick}
+    >
       {children}
     </div>
   );
