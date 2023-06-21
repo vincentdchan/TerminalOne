@@ -74,6 +74,13 @@ pub(crate) struct BatchTestFilesReq {
 
 #[derive(Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
+pub(crate) struct TermOptions {
+  pub path: String,
+  pub watch_dirs: bool,
+}
+
+#[derive(Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub(crate) struct BatchTestFilesResp {
   pub files: Vec<i32>,
 }

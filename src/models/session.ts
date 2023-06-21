@@ -1,6 +1,7 @@
 import { mkTabId } from "@pkg/utils/id_helper";
 import { Subject, BehaviorSubject, skip, map } from "rxjs";
 import type { AppState } from "./app_state";
+import { invoke } from "@tauri-apps/api";
 import { isUndefined } from "lodash-es";
 import { ActionPayload } from "./extension";
 
@@ -17,6 +18,15 @@ export class Session {
     this.id = mkTabId();
 
     this.cwd$.pipe(skip(1)).subscribe(() => this.generateActions());
+    this.shouldWatchFiles$.subscribe((shouldWatch) => {
+      invoke('terminal_set_options', {
+        id: this.id,
+        options: {
+          path: this.cwd$.value!,
+          watchDirs: shouldWatch,
+        }
+      })
+    });
   }
 
   async generateActions() {

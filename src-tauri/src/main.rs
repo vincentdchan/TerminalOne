@@ -148,10 +148,10 @@ fn send_terminal_data(state: State<AppState>, id: &str, data: &str) -> Result<()
 }
 
 #[tauri::command]
-fn terminal_set_cwd(state: State<AppState>, id: &str, cwd: &str) -> Result<()> {
+fn terminal_set_options(state: State<AppState>, id: &str, options: TermOptions) -> Result<()> {
     let delegate = state.inner().get_terminal_by_id(id);
 
-    delegate.set_cwd(cwd)?;
+    delegate.set_options(options)?;
 
     Ok(())
 }
@@ -402,7 +402,7 @@ fn main() {
             fetch_init_data,
             new_terminal,
             send_terminal_data,
-            terminal_set_cwd,
+            terminal_set_options,
             remove_terminal,
             get_a_theme,
             resize_pty,

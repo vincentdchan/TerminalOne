@@ -1,4 +1,5 @@
 use crate::Result;
+use crate::messages::TermOptions;
 use log::{error, info, warn, debug};
 use notify::{Watcher, RecursiveMode};
 use portable_pty::{native_pty_system, Child, CommandBuilder, ExitStatus, MasterPty, PtySize};
@@ -131,9 +132,9 @@ impl TerminalDelegate {
         inner.resize(rows, cols)
     }
 
-    pub(crate) fn set_cwd(&self, cwd: &str) -> Result<()> {
+    pub(crate) fn set_options(&self, options: TermOptions) -> Result<()> {
         let mut inner = self.inner.lock().unwrap();
-        inner.set_cwd(cwd)
+        inner.set_options(options)
     }
 
     pub(crate) fn close(&self) {
@@ -169,7 +170,7 @@ struct TerminalDelegateInner {
     id: String,
     master: Option<Box<dyn MasterPty + Send>>,
     writer: Option<Box<dyn std::io::Write + Send>>,
-    cwd: Option<String>,
+    options: Option<TermOptions>,
     fs_watcher: Option<Box<dyn Watcher + Send>>,
 }
 
@@ -223,28 +224,33 @@ impl TerminalDelegateInner {
             id: id.clone(),
             master: Some(pair.master),
             writer: Some(writer),
-            cwd: None,
+            options: None,
             fs_watcher: None,
         };
 
         Ok((inner, child))
     }
 
-    fn set_cwd(&mut self, cwd: &str) -> Result<()> {
-        self.cwd = Some(cwd.to_string());
+    fn set_options(&mut self, options: TermOptions) -> Result<()> {
+        let opt = options.clone();
+        self.options = Some(options);
 
-        let mut watcher = notify::recommended_watcher(|res| {
-            match res {
-               Ok(event) => println!("event: {:?}", event),
-               Err(e) => println!("watch error: {:?}", e),
-            }
-        })?;
+        if !opt.watch_dirs {
+            self.fs_watcher = None;
+        } else {
+            let mut watcher = notify::recommended_watcher(|res| {
+                match res {
+                Ok(event) => println!("event: {:?}", event),
+                Err(e) => error!("watch error: {:?}", e),
+                }
+            })?;
 
-        watcher.watch(Path::new(cwd), RecursiveMode::Recursive)?;
+            watcher.watch(Path::new(&opt.path), RecursiveMode::Recursive)?;
 
-        self.fs_watcher = Some(Box::new(watcher));
-        
-        debug!("watch: {:?}", cwd);
+            self.fs_watcher = Some(Box::new(watcher));
+            
+            debug!("watch: {:?}", &opt.path);
+        }
 
         Ok(())
     }
