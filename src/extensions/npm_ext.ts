@@ -1,4 +1,7 @@
-import type { ActionMenuItemType, Extension } from "@pkg/models/extension";
+import type {
+  ActionMenuItemType,
+  ExtensionConfig,
+} from "@pkg/models/extension";
 import * as fs from "@pkg/utils/fs";
 
 async function generateNpmRelativeItem(
@@ -34,36 +37,45 @@ async function generateNpmRelativeItem(
   return result;
 }
 
-const npmExt: Extension = {
+const npmExt: ExtensionConfig = {
   name: "npm",
-  testFile: "package.json",
-  generateActions: async ({ currentDir }) => {
-    const resp = await fs.batchTestFiles(currentDir, [
-      "yarn.lock",
-      "pnpm-lock.yaml",
-    ]);
+  setup(context) {
+    context.onResolve(
+      {
+        testFile: "package.json",
+      },
+      async ({ currentDir }) => {
+        const resp = await fs.batchTestFiles(currentDir, [
+          "yarn.lock",
+          "pnpm-lock.yaml",
+        ]);
 
-    if (resp[0] === 2) {
-      return {
-        title: "yarn",
-        color: "rgb(74, 140, 183)",
-        onTrigger: () => generateNpmRelativeItem(currentDir, "yarn"),
-      };
-    }
+        if (resp[0] === 2) {
+          return {
+            title: "yarn",
+            color: "rgb(74, 140, 183)",
+            onTrigger: () => generateNpmRelativeItem(currentDir, "yarn"),
+          };
+        }
 
-    if (resp[1] === 2) {
-      return {
-        title: "pnpm",
-        color: "rgb(231, 169, 59)",
-        onTrigger: () => generateNpmRelativeItem(currentDir, "pnpm"),
-      };
-    }
+        if (resp[1] === 2) {
+          return {
+            title: "pnpm",
+            color: "rgb(231, 169, 59)",
+            onTrigger: () => generateNpmRelativeItem(currentDir, "pnpm"),
+          };
+        }
 
-    return {
-      title: "npm",
-      color: "rgb(181, 66, 60)",
-      onTrigger: () => generateNpmRelativeItem(currentDir, "npm"),
-    };
+        return {
+          title: "npm",
+          color: "rgb(181, 66, 60)",
+          onTrigger: () => generateNpmRelativeItem(currentDir, "npm"),
+        };
+      }
+    );
+    context.onActionTrigger(({ currentDir, data }) =>
+      generateNpmRelativeItem(currentDir, data.title)
+    );
   },
 };
 

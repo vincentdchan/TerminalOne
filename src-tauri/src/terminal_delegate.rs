@@ -1,5 +1,6 @@
 use crate::Result;
-use log::{error, info, warn};
+use log::{error, info, warn, debug};
+use notify::{Watcher, RecursiveMode};
 use portable_pty::{native_pty_system, Child, CommandBuilder, ExitStatus, MasterPty, PtySize};
 use std::sync::{Arc, Mutex};
 use std::path::Path;
@@ -130,6 +131,11 @@ impl TerminalDelegate {
         inner.resize(rows, cols)
     }
 
+    pub(crate) fn set_cwd(&self, cwd: &str) -> Result<()> {
+        let mut inner = self.inner.lock().unwrap();
+        inner.set_cwd(cwd)
+    }
+
     pub(crate) fn close(&self) {
         let mut inner = self.inner.lock().unwrap();
         inner.close();
@@ -163,6 +169,8 @@ struct TerminalDelegateInner {
     id: String,
     master: Option<Box<dyn MasterPty + Send>>,
     writer: Option<Box<dyn std::io::Write + Send>>,
+    cwd: Option<String>,
+    fs_watcher: Option<Box<dyn Watcher + Send>>,
 }
 
 impl TerminalDelegateInner {
@@ -215,9 +223,30 @@ impl TerminalDelegateInner {
             id: id.clone(),
             master: Some(pair.master),
             writer: Some(writer),
+            cwd: None,
+            fs_watcher: None,
         };
 
         Ok((inner, child))
+    }
+
+    fn set_cwd(&mut self, cwd: &str) -> Result<()> {
+        self.cwd = Some(cwd.to_string());
+
+        let mut watcher = notify::recommended_watcher(|res| {
+            match res {
+               Ok(event) => println!("event: {:?}", event),
+               Err(e) => println!("watch error: {:?}", e),
+            }
+        })?;
+
+        watcher.watch(Path::new(cwd), RecursiveMode::Recursive)?;
+
+        self.fs_watcher = Some(Box::new(watcher));
+        
+        debug!("watch: {:?}", cwd);
+
+        Ok(())
     }
 
     fn resize(&mut self, rows: u16, cols: u16) -> Result<()> {

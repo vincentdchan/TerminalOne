@@ -1,7 +1,7 @@
 import {
   isDivider,
-  type ActionData,
   type ActionMenuItemType,
+  type ActionPayload,
 } from "@pkg/models/extension";
 import { OUTLINE_DEFAULT_COLOR } from "./toolbar";
 import Dropdown from "@pkg/components/dropdown";
@@ -12,16 +12,17 @@ import { Ref, useContext, useState } from "react";
 import { AppContext } from "@pkg/contexts/app_context";
 
 export interface ActionProps {
-  data: ActionData;
+  payload: ActionPayload;
 }
 
 function Action(props: ActionProps) {
   const appState = useContext(AppContext)!;
-  const { data } = props;
+  const { payload } = props;
   const [actionMenuItems, setActionMenuItems] = useState<ActionMenuItemType[]>(
     []
   );
-  const { title, color } = data;
+  const ext = appState.extensionManager.extensionMap.get(payload.extName);
+  const { title, color } = payload.data;
   return (
     <Dropdown
       overlay={({ style, ref, close }) => (
@@ -50,16 +51,16 @@ function Action(props: ActionProps) {
           <div
             ref={options.ref}
             className={classNames(`${classes.action} t1-noselect`, {
-              clickable: !!data.onTrigger,
+              clickable: !!ext?.actionTriggerHandler
             })}
             style={{
               border: `solid 2px ${color ?? OUTLINE_DEFAULT_COLOR}`,
             }}
             onClick={async () => {
-              if (!data.onTrigger) {
+              if (!ext) {
                 return;
               }
-              const result = await data.onTrigger();
+              const result = await ext.generateActionMenuItems(payload.data);
               if (!result) {
                 return;
               }

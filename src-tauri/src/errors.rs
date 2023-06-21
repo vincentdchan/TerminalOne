@@ -22,6 +22,8 @@ pub enum Error {
   BsonDeError(#[from] polodb_core::bson::de::Error),
   #[error(transparent)]
   BsonSeError(#[from] polodb_core::bson::ser::Error),
+  #[error(transparent)]
+  NotifyError(#[from] notify::Error),
 }
 
 impl serde::Serialize for Error {

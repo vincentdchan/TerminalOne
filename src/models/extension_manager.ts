@@ -1,25 +1,42 @@
-import { ActionPayload, Extension, GenerateActionsParams } from "./extension";
+import {
+  type ActionPayload,
+  type ExtensionConfig,
+  type GenerateActionsParams,
+  type ActionMenuItemType,
+  ExtensionContext,
+} from "./extension";
 import type { AppState } from "./app_state";
 import { isString } from "lodash-es";
 import * as fs from "@pkg/utils/fs";
 
 class ExtensionManager {
-  extensionMap: Map<string, Extension> = new Map();
+  extensions: ExtensionContext[] = [];
+  extensionMap: Map<string, ExtensionContext> = new Map();
 
-  constructor(public appState: AppState, public extensions: Extension[]) {
+  constructor(public appState: AppState, extensions: ExtensionConfig[]) {
+    extensions.forEach((extConfig) => {
+      if (this.extensionMap.has(extConfig.name)) {
+        console.error("Extension name duplicated: ", extConfig.name);
+        return;
+      }
+      const ctx = new ExtensionContext(extConfig);
+      this.extensionMap.set(ctx.name, ctx);
+      this.extensions.push(ctx);
+    });
+
     this.extensions.forEach((ext) => {
-      this.extensionMap.set(ext.name, ext);
+      ext.setup();
     });
   }
 
   async generateActions(currentDir: string): Promise<ActionPayload[]> {
     const resultMap: Map<string, ActionPayload> = new Map();
 
-    const testFilesExts: Extension[] = [];
-    const matchAllExts: Extension[] = [];
+    const testFilesExts: ExtensionContext[] = [];
+    const matchAllExts: ExtensionContext[] = [];
 
     for (const ext of this.extensions) {
-      if (isString(ext.testFile)) {
+      if (isString(ext.resolveConfig?.testFile)) {
         testFilesExts.push(ext);
       } else {
         matchAllExts.push(ext);
@@ -28,7 +45,7 @@ class ExtensionManager {
 
     const resp = await fs.batchTestFiles(
       currentDir,
-      testFilesExts.map((ext) => ext.testFile!)
+      testFilesExts.map((ext) => ext.resolveConfig?.testFile!)
     );
 
     const params: GenerateActionsParams = { currentDir };

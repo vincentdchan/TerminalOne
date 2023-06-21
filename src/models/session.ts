@@ -1,5 +1,5 @@
 import { mkTabId } from "@pkg/utils/id_helper";
-import { Subject, BehaviorSubject, skip } from "rxjs";
+import { Subject, BehaviorSubject, skip, map } from "rxjs";
 import type { AppState } from "./app_state";
 import { isUndefined } from "lodash-es";
 import { ActionPayload } from "./extension";
@@ -16,16 +16,23 @@ export class Session {
   constructor(public appState: AppState) {
     this.id = mkTabId();
 
-    this.cwd$.pipe(skip(1)).subscribe(async (cwd) => {
-      if (isUndefined(cwd)) {
-        return;
-      }
-
-      const { extensionManager } = this.appState;
-      const actions = await extensionManager.generateActions(cwd);
-      this.actions$.next(actions);
-    });
+    this.cwd$.pipe(skip(1)).subscribe(() => this.generateActions());
   }
+
+  async generateActions() {
+    const cwd = this.cwd$.value;
+    if (isUndefined(cwd)) {
+      return;
+    }
+
+    const { extensionManager } = this.appState;
+    const actions = await extensionManager.generateActions(cwd);
+    this.actions$.next(actions);
+  }
+
+  shouldWatchFiles$ = this.actions$.pipe(
+    map((actions) => actions.some((action) => action.data.watchDir))
+  );
 
   setTitle(title: string) {
     this.title$.next(title);

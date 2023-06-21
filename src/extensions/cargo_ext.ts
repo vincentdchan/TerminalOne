@@ -1,45 +1,51 @@
-import { Extension } from "@pkg/models/extension";
+import { ExtensionConfig } from "@pkg/models/extension";
 
-const cargoExt: Extension = {
+const cargoExt: ExtensionConfig = {
   name: "cargo",
-  testFile: "Cargo.toml",
-  generateActions: () => {
-    return {
-      title: "cargo",
-      color: "rgb(221, 85, 39)",
-      onTrigger: () => {
-        return [
-          {
-            key: "cargo-run",
-            command: "cargo run",
-          },
-          {
-            key: "cargo-build",
-            command: "cargo build",
-          },
-          {
-            key: "cargo-build-release",
-            command: "cargo build --release",
-          },
-          {
-            key: "cargo-test",
-            command: "cargo test",
-          },
-          {
-            key: "cargo-bench",
-            command: "cargo bench",
-          },
-          {
-            key: "cargo-doc",
-            command: "cargo doc",
-          },
-          {
-            key: "cargo-publish",
-            command: "cargo publish",
-          },
-        ];
+  setup(context) {
+    context.onResolve(
+      {
+        testFile: "Cargo.toml",
       },
-    };
+      () => {
+        return {
+          title: "cargo",
+          color: "rgb(221, 85, 39)",
+        };
+      }
+    );
+    context.onActionTrigger(() => {
+      return [
+        {
+          key: "cargo-run",
+          command: "cargo run",
+        },
+        {
+          key: "cargo-build",
+          command: "cargo build",
+        },
+        {
+          key: "cargo-build-release",
+          command: "cargo build --release",
+        },
+        {
+          key: "cargo-test",
+          command: "cargo test",
+        },
+        {
+          key: "cargo-bench",
+          command: "cargo bench",
+        },
+        {
+          key: "cargo-doc",
+          command: "cargo doc",
+        },
+        {
+          key: "cargo-publish",
+          command: "cargo publish",
+        },
+      ];
+    });
   },
 };
 
