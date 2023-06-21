@@ -7,7 +7,7 @@ import {
 } from "rxjs";
 import { Session } from "./session";
 import { listen } from "@tauri-apps/api/event";
-import { PushMessages, type PtyResponse } from "@pkg/constants";
+import { PushMessages, type PtyResponse, FsChangedEvent } from "@pkg/constants";
 import type { AppState } from "./app_state";
 
 export class SessionManager {
@@ -17,6 +17,7 @@ export class SessionManager {
 
   constructor(public appState: AppState) {
     this.#listenPtyOutput();
+    this.#listenFsChanged()
   }
 
   async #listenPtyOutput() {
@@ -27,6 +28,14 @@ export class SessionManager {
       const data = Uint8Array.from(atob(data64), (c) => c.charCodeAt(0));
       session?.ptyOutput$.next(data);
     });
+  }
+
+  async #listenFsChanged() {
+    await listen(PushMessages.FS_CHANGED, (event) => {
+      const resp = event.payload as FsChangedEvent;
+      const session = this.sessionsMap.get(resp.id);
+      session?.fsChanged$.next(resp.paths);
+    })
   }
 
   newTab() {

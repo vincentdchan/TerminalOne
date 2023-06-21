@@ -13,6 +13,7 @@ export class Session {
 
   shellInput$ = new Subject<string>();
   ptyOutput$ = new Subject<Uint8Array>();
+  fsChanged$ = new Subject<string[]>();
 
   constructor(public appState: AppState) {
     this.id = mkTabId();
@@ -26,6 +27,17 @@ export class Session {
           watchDirs: shouldWatch,
         }
       })
+    });
+
+    this.fsChanged$.subscribe(async () => {
+      const { extensionManager } = this.appState;
+      const currentDir = this.cwd$.value;
+      if (isUndefined(currentDir)) {
+        return;
+      }
+      const actions = this.actions$.value;
+      const next = await extensionManager.regenerateFsChangedActions(currentDir, [...actions]);
+      this.actions$.next(next);
     });
   }
 

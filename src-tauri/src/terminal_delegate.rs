@@ -10,6 +10,7 @@ use std::time::Duration;
 pub(crate) trait TerminalDelegateEventHandler {
     fn handle_data(&self, terminal: &TerminalDelegate, data: &[u8]) -> Result<()>;
     fn handle_exit(&self, id: String, exit_statue: ExitStatus) -> Result<()>;
+    fn handle_fs_changed(&self, id: String, path: Vec<String>) -> Result<()>;
 }
 
 #[derive(Clone)]
@@ -134,8 +135,9 @@ impl TerminalDelegate {
     }
 
     pub(crate) fn set_options(&self, options: TermOptions) -> Result<()> {
+        let event_handler = self._event_handler.clone();
         let mut inner = self.inner.lock().unwrap();
-        inner.set_options(options)
+        inner.set_options(options, event_handler)
     }
 
     pub(crate) fn close(&self) {
@@ -235,31 +237,59 @@ impl TerminalDelegateInner {
         Ok((inner, child))
     }
 
-    fn set_options(&mut self, options: TermOptions) -> Result<()> {
+    fn set_options(
+        &mut self,
+        options: TermOptions,
+        event_handler: Arc<Mutex<Box<dyn TerminalDelegateEventHandler + Send>>>,
+    ) -> Result<()> {
         let opt = options.clone();
+
+        if let Some(exist) = &self.options {
+            if exist == &opt {
+                return Ok(());
+            }
+        }
+
         self.options = Some(options);
 
         if !opt.watch_dirs {
             self.fs_watcher = None;
-        } else {
-            let mut debouncer = new_debouncer(
+            return Ok(());
+        }
+
+        let mut debouncer = {
+            let id_clone: String = self.id.clone();
+            new_debouncer(
                 Duration::from_secs(1),
                 None,
-                |res: DebounceEventResult| match res {
-                    Ok(event) => debug!("event: {:?}", event),
-                    Err(e) => error!("watch error: {:?}", e),
+                move |res: DebounceEventResult| {
+                    let id: String = id_clone.clone();
+                    match res {
+                        Ok(event) => {
+                            debug!("event: {:?}", event);
+
+                            let mut paths = Vec::new();
+
+                            for event in event {
+                                paths.push(event.path.to_string_lossy().to_string());
+                            }
+
+                            let handler = event_handler.lock().unwrap();
+                            handler.handle_fs_changed(id, paths).unwrap();
+                        }
+                        Err(e) => error!("watch error: {:?}", e),
+                    }
                 },
-            )?;
+            )?
+        };
 
-            debouncer
-                .watcher()
-                .watch(Path::new(&opt.path), RecursiveMode::Recursive)
-                .unwrap();
+        debouncer
+            .watcher()
+            .watch(Path::new(&opt.path), RecursiveMode::Recursive)?;
 
-            self.fs_watcher = Some(debouncer);
+        self.fs_watcher = Some(debouncer);
 
-            debug!("watch: {:?}", &opt.path);
-        }
+        debug!("watch: {:?}", &opt.path);
 
         Ok(())
     }

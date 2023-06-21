@@ -31,6 +31,7 @@ export interface ActionData {
 
 export interface GenerateActionsParams {
   currentDir: string;
+  homeDir: string;
 }
 
 export type HandleResolveResult =
@@ -104,12 +105,13 @@ export class ExtensionContext implements ExtensionContextIntf {
     return this.resolveHandler?.(params);
   }
 
-  generateActionMenuItems(data: ActionData):
+  generateActionMenuItems(homeDir: string, data: ActionData):
     | Promise<ActionMenuItemType[] | void | undefined>
     | ActionMenuItemType[]
     | undefined
     | void {
     return this.actionTriggerHandler?.({
+      homeDir,
       currentDir: this.#cachedParams!.currentDir,
       data,
     });

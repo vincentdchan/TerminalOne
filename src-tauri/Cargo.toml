@@ -34,7 +34,7 @@ log4rs = "1.2.0"
 polodb_core = "4.4.0"
 chrono = "0.4.26"
 base64 = "0.21.2"
-notify-debouncer-mini = "0.3.0"
+notify-debouncer-mini = { version = "0.3.0", features = ["serde"] }
 
 [features]
 # this feature is used for production builds or when `devPath` points to the filesystem

@@ -72,7 +72,7 @@ pub(crate) struct BatchTestFilesReq {
   pub files: Vec<String>,
 }
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
 pub(crate) struct TermOptions {
   pub path: String,
@@ -85,7 +85,15 @@ pub(crate) struct BatchTestFilesResp {
   pub files: Vec<i32>,
 }
 
+#[derive(Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub(crate) struct FsChangedMessage {
+  pub id: String,
+  pub paths: Vec<String>,
+} 
+
 pub(crate) mod push_event {
   pub static PTY_OUTPUT: &str = "pty-output";
   pub static PTY_EXIT: &str = "pty-exit";
+  pub static FS_CHANGED: &str = "fs-changed";
 }

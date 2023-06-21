@@ -17,6 +17,7 @@ mod updater;
 
 use crate::mac_ext::WindowExt;
 use app_state::AppState;
+use base64::{engine::general_purpose, Engine as _};
 pub use errors::Error;
 use log::{debug, info};
 use log4rs::append::console::ConsoleAppender;
@@ -29,6 +30,7 @@ use log4rs::encode::pattern::PatternEncoder;
 use messages::*;
 use polodb_core::bson::Bson;
 use portable_pty::ExitStatus;
+use std::collections::HashMap;
 use std::path::PathBuf;
 use std::{
     env, fs,
@@ -39,7 +41,6 @@ use std::{
 use sysinfo::{System, SystemExt};
 use tauri::{async_runtime, Manager, State};
 use terminal_delegate::TerminalDelegateEventHandler;
-use base64::{Engine as _, engine::general_purpose};
 // use portable_pty
 
 pub type Result<T> = std::result::Result<T, errors::Error>;
@@ -69,6 +70,14 @@ impl TerminalDelegateEventHandler for MainTerminalEventHandler {
     fn handle_exit(&self, id: String, _exit_code: ExitStatus) -> Result<()> {
         self.window
             .emit(messages::push_event::PTY_EXIT, PtyExitMessage { id })?;
+        Ok(())
+    }
+
+    fn handle_fs_changed(&self, id: String, paths: Vec<String>) -> Result<()> {
+        self.window.emit(
+            messages::push_event::FS_CHANGED,
+            FsChangedMessage { id, paths },
+        )?;
         Ok(())
     }
 }
@@ -226,13 +235,17 @@ fn ui_store(state: State<AppState>, doc: serde_json::Value) -> Result<()> {
 }
 
 #[tauri::command]
-async fn spawn_command(command: &str, cwd: &str, args: Option<Vec<String>>) -> Result<SpawnResult> {
-    debug!("spawn command: {:?}, cwd: {:?}", command, cwd);
+async fn spawn_command(command: &str, cwd: &str, args: Option<Vec<String>>, envs: Option<HashMap<String, String>>) -> Result<SpawnResult> {
+    debug!("spawn command: {:?}, cwd: {:?}, env: {:?}", command, cwd, envs);
 
     let mut command = tokio::process::Command::new(command);
 
     if let Some(args) = &args {
         command.args(args);
+    }
+
+    if let Some(envs) = &envs {
+        command.envs(envs);
     }
 
     command.current_dir(cwd);

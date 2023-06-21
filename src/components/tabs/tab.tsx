@@ -1,10 +1,9 @@
-import { useCallback, useContext, useMemo, memo } from "react";
+import { useCallback, useMemo } from "react";
 import { Session } from "@pkg/models/session";
 import { MdClose, MdFolder } from "react-icons/md";
 import { useBehaviorSubject } from "@pkg/hooks/observable";
 import className from "classnames";
-import { isUndefined } from "lodash-es";
-import { AppContext } from "@pkg/contexts/app_context";
+import { isString, isUndefined } from "lodash-es";
 import { CMD_CHAR } from "@pkg/chars";
 import { IconButton } from "@pkg/components/button";
 import "./tab.css";
@@ -50,7 +49,6 @@ export function Tab(props: TabProps) {
     ...restProps
   } = props;
 
-  const appState = useContext(AppContext)!;
   const title = useBehaviorSubject(session.title$);
   const cwd = useBehaviorSubject(session.cwd$);
 
@@ -66,10 +64,15 @@ export function Tab(props: TabProps) {
 
   const prettyCwd = useMemo(() => {
     if (isUndefined(cwd)) {
-      return cwd;
+      return undefined;
     }
-    return appState.prettyPath(cwd);
-  }, [cwd, appState]);
+    let result = cwd;
+    const lastPart = cwd.split("/").pop();
+    if (isString(lastPart)) {
+      result = lastPart;
+    }
+    return result;
+  }, [cwd]);
 
   const hintText = index <= 9 ? `${CMD_CHAR}${index}` : undefined;
 

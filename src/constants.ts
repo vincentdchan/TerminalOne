@@ -1,6 +1,7 @@
 export enum PushMessages {
   PTY_OUTPUT = "pty-output",
   PTY_EXIT = "pty-exit",
+  FS_CHANGED = "fs-changed",
 }
 
 export interface PtyResponse {
@@ -14,4 +15,9 @@ export enum StoreKeys {
   onboarding = "onboarding",
   collectUsageData = "collectUsageData",
   collectDiagnosticData = "collectDiagnosticData",
+}
+
+export interface FsChangedEvent {
+  id: string;
+  paths: string[];
 }

@@ -29,6 +29,41 @@ class ExtensionManager {
     });
   }
 
+  async regenerateFsChangedActions(currentDir: string, existPayloads: ActionPayload[]): Promise<ActionPayload[]> {
+    const params: GenerateActionsParams = {
+      homeDir: this.appState.homeDir$.value!,
+      currentDir,
+    };
+    const nextPromises = existPayloads.map(async (actionPayload) => {
+      if (!actionPayload.data.watchDir) {
+        return actionPayload;
+      }
+
+      const ext = this.extensionMap.get(actionPayload.extName);
+      if (!ext) {
+        return actionPayload;
+      }
+
+      try {
+        const actionData = await ext.generateActions(params);
+
+        if (actionData) {
+          return {
+            extName: ext.name,
+            data: actionData,
+          };
+        }
+      } catch (err) {
+        console.error("generate action error for: ", ext.name, err);
+        return undefined;
+      }
+    });
+
+    const nextPayloadsOptions = await Promise.all(nextPromises);
+    const nextPayloads = nextPayloadsOptions.filter((p) => p !== undefined) as ActionPayload[];
+    return nextPayloads;
+  }
+
   async generateActions(currentDir: string): Promise<ActionPayload[]> {
     const resultMap: Map<string, ActionPayload> = new Map();
 
@@ -48,7 +83,10 @@ class ExtensionManager {
       testFilesExts.map((ext) => ext.resolveConfig?.testFile!)
     );
 
-    const params: GenerateActionsParams = { currentDir };
+    const params: GenerateActionsParams = {
+      homeDir: this.appState.homeDir$.value!,
+      currentDir
+    };
 
     let index = 0;
     for (const ft of resp) {

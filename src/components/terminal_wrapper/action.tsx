@@ -60,7 +60,8 @@ function Action(props: ActionProps) {
               if (!ext) {
                 return;
               }
-              const result = await ext.generateActionMenuItems(payload.data);
+              const homeDir = appState.homeDir$.value!;
+              const result = await ext.generateActionMenuItems(homeDir, payload.data);
               if (!result) {
                 return;
               }

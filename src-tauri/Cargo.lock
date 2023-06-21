@@ -2058,6 +2058,7 @@ checksum = "e55ee272914f4563a2f8b8553eb6811f3c0caea81c756346bad15b7e3ef969f0"
 dependencies = [
  "crossbeam-channel",
  "notify",
+ "serde",
 ]
 
 [[package]]
