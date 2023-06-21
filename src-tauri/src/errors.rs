@@ -1,4 +1,5 @@
 use polodb_core::Error as DbError;
+use notify_debouncer_mini::notify;
 
 #[derive(Debug, thiserror::Error)]
 pub enum Error {

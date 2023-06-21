@@ -2051,6 +2051,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "notify-debouncer-mini"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e55ee272914f4563a2f8b8553eb6811f3c0caea81c756346bad15b7e3ef969f0"
+dependencies = [
+ "crossbeam-channel",
+ "notify",
+]
+
+[[package]]
 name = "ntapi"
 version = "0.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3415,7 +3425,7 @@ dependencies = [
  "log",
  "log4rs",
  "machine-uid",
- "notify",
+ "notify-debouncer-mini",
  "objc",
  "open 4.1.0",
  "polodb_core",

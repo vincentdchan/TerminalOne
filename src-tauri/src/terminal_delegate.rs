@@ -1,10 +1,11 @@
-use crate::Result;
 use crate::messages::TermOptions;
-use log::{error, info, warn, debug};
-use notify::{Watcher, RecursiveMode};
+use crate::Result;
+use log::{debug, error, info, warn};
+use notify_debouncer_mini::{new_debouncer, notify::*, DebounceEventResult, Debouncer};
 use portable_pty::{native_pty_system, Child, CommandBuilder, ExitStatus, MasterPty, PtySize};
-use std::sync::{Arc, Mutex};
 use std::path::Path;
+use std::sync::{Arc, Mutex};
+use std::time::Duration;
 
 pub(crate) trait TerminalDelegateEventHandler {
     fn handle_data(&self, terminal: &TerminalDelegate, data: &[u8]) -> Result<()>;
@@ -171,11 +172,14 @@ struct TerminalDelegateInner {
     master: Option<Box<dyn MasterPty + Send>>,
     writer: Option<Box<dyn std::io::Write + Send>>,
     options: Option<TermOptions>,
-    fs_watcher: Option<Box<dyn Watcher + Send>>,
+    fs_watcher: Option<Debouncer<FsEventWatcher>>,
 }
 
 impl TerminalDelegateInner {
-    fn new(id: String, shell_path: &Path) -> Result<(TerminalDelegateInner, Box<dyn Child + Send + Sync>)> {
+    fn new(
+        id: String,
+        shell_path: &Path,
+    ) -> Result<(TerminalDelegateInner, Box<dyn Child + Send + Sync>)> {
         // Use the native pty implementation for the system
         let pty_system = native_pty_system();
 
@@ -203,7 +207,7 @@ impl TerminalDelegateInner {
         let home_dir = dirs::home_dir().unwrap().to_str().unwrap().to_string();
 
         cmd.cwd(&home_dir);
-        
+
         let child = pair.slave.spawn_command(cmd)?;
 
         drop(pair.slave);
@@ -225,7 +229,7 @@ impl TerminalDelegateInner {
             master: Some(pair.master),
             writer: Some(writer),
             options: None,
-            fs_watcher: None,
+            fs_watcher: None::<Debouncer<FsEventWatcher>>,
         };
 
         Ok((inner, child))
@@ -238,17 +242,22 @@ impl TerminalDelegateInner {
         if !opt.watch_dirs {
             self.fs_watcher = None;
         } else {
-            let mut watcher = notify::recommended_watcher(|res| {
-                match res {
-                Ok(event) => println!("event: {:?}", event),
-                Err(e) => error!("watch error: {:?}", e),
-                }
-            })?;
+            let mut debouncer = new_debouncer(
+                Duration::from_secs(1),
+                None,
+                |res: DebounceEventResult| match res {
+                    Ok(event) => debug!("event: {:?}", event),
+                    Err(e) => error!("watch error: {:?}", e),
+                },
+            )?;
 
-            watcher.watch(Path::new(&opt.path), RecursiveMode::Recursive)?;
+            debouncer
+                .watcher()
+                .watch(Path::new(&opt.path), RecursiveMode::Recursive)
+                .unwrap();
 
-            self.fs_watcher = Some(Box::new(watcher));
-            
+            self.fs_watcher = Some(debouncer);
+
             debug!("watch: {:?}", &opt.path);
         }
 
