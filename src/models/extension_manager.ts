@@ -29,7 +29,10 @@ class ExtensionManager {
     });
   }
 
-  async regenerateFsChangedActions(currentDir: string, existPayloads: ActionPayload[]): Promise<ActionPayload[]> {
+  async regenerateFsChangedActions(
+    currentDir: string,
+    existPayloads: ActionPayload[]
+  ): Promise<ActionPayload[]> {
     const params: GenerateActionsParams = {
       homeDir: this.appState.homeDir$.value!,
       currentDir,
@@ -60,7 +63,9 @@ class ExtensionManager {
     });
 
     const nextPayloadsOptions = await Promise.all(nextPromises);
-    const nextPayloads = nextPayloadsOptions.filter((p) => p !== undefined) as ActionPayload[];
+    const nextPayloads = nextPayloadsOptions.filter(
+      (p) => p !== undefined
+    ) as ActionPayload[];
     return nextPayloads;
   }
 
@@ -85,7 +90,7 @@ class ExtensionManager {
 
     const params: GenerateActionsParams = {
       homeDir: this.appState.homeDir$.value!,
-      currentDir
+      currentDir,
     };
 
     let index = 0;

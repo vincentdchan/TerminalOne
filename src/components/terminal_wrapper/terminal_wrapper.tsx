@@ -27,8 +27,6 @@ interface TerminalWrapperState {
   loading: boolean;
 }
 
-const FILE_PREFIX = "file://";
-
 export class TerminalWrapper extends Component<
   TerminalWrapperProps,
   TerminalWrapperState
@@ -106,10 +104,7 @@ export class TerminalWrapper extends Component<
 
     terminal.onCurrentDirectoryChange((dir) => {
       const session = this.props.session;
-      if (dir.startsWith(FILE_PREFIX)) {
-        dir = dir.substring(FILE_PREFIX.length);
-      }
-      session.setCwd(dir);
+      session.setCwdRaw(dir);
     });
 
     terminal.onResize((size) => {
@@ -143,7 +138,6 @@ export class TerminalWrapper extends Component<
         searchAddon.findNext(content);
       })
     );
-
 
     // When the search box closed, clear the search result
     this.#subscriptions.push(

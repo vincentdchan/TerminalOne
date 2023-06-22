@@ -28,10 +28,10 @@ const explorerExt: ExtensionConfig = {
       return [
         {
           key: "go-up",
-          command: "cd .."
-        }
-      ]
-    })
+          command: "cd ..",
+        },
+      ];
+    });
   },
 };
 

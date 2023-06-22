@@ -22,7 +22,28 @@ prompt_t1_set_colors() {
 }
 
 prompt_t1_precmd() {
-  printf "\033]7;file://%s%s\033\\" "${HOSTNAME}" "${PWD}"
+  # Identify the directory using a "file:" scheme URL, including
+	# the host name to disambiguate local vs. remote paths.
+
+	# Percent-encode the pathname.
+	local url_path=''
+	{
+    # Use LC_CTYPE=C to process text byte-by-byte and
+    # LC_COLLATE=C to compare byte-for-byte. Ensure that
+    # LC_ALL and LANG are not set so they don't interfere.
+    local i ch hexch LC_CTYPE=C LC_COLLATE=C LC_ALL= LANG=
+    for ((i = 1; i <= ${#PWD}; ++i)); do
+      ch="$PWD[i]"
+      if [[ "$ch" =~ [/._~A-Za-z0-9-] ]]; then
+          url_path+="$ch"
+      else
+          printf -v hexch "%02X" "'$ch"
+          url_path+="%$hexch"
+      fi
+    done
+	}
+
+	printf '\e]7;%s\a' "file://$HOST$url_path"
 
   # Modify the colors if some have changed..
   prompt_t1_set_colors

@@ -1,9 +1,11 @@
 import { mkTabId } from "@pkg/utils/id_helper";
-import { Subject, BehaviorSubject, skip, map } from "rxjs";
+import { Subject, BehaviorSubject, skip } from "rxjs";
 import type { AppState } from "./app_state";
 import { invoke } from "@tauri-apps/api";
-import { isUndefined } from "lodash-es";
+import { isUndefined, isString } from "lodash-es";
 import { ActionPayload } from "./extension";
+
+const FILE_PATTERN = /file:\/\/([^\/]+)(.+)/;
 
 export class Session {
   id: string;
@@ -29,13 +31,13 @@ export class Session {
       if (isUndefined(path)) {
         return;
       }
-      invoke('terminal_set_options', {
+      invoke("terminal_set_options", {
         id: this.id,
         options: {
           path,
           watchDirs: shouldWatch,
-        }
-      })
+        },
+      });
     });
 
     this.fsChanged$.subscribe(async () => {
@@ -45,7 +47,10 @@ export class Session {
         return;
       }
       const actions = this.actions$.value;
-      const next = await extensionManager.regenerateFsChangedActions(currentDir, [...actions]);
+      const next = await extensionManager.regenerateFsChangedActions(
+        currentDir,
+        [...actions]
+      );
       this.actions$.next(next);
     });
   }
@@ -78,7 +83,14 @@ export class Session {
     this.title$.next(title);
   }
 
-  setCwd(cwd: string) {
-    this.cwd$.next(cwd);
+  setCwdRaw(cwd: string) {
+    const testResult = FILE_PATTERN.exec(cwd);
+    if (!testResult) {
+      return;
+    }
+    const path = testResult[2];
+    if (isString(path) && path !== this.cwd$.value) {
+      this.cwd$.next(path);
+    }
   }
 }
