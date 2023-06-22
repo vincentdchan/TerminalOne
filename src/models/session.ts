@@ -10,20 +10,29 @@ export class Session {
   title$ = new BehaviorSubject<string | undefined>(undefined);
   cwd$ = new BehaviorSubject<string | undefined>(undefined);
   actions$ = new BehaviorSubject<ActionPayload[]>([]);
+  showSearchBox$ = new BehaviorSubject<boolean>(false);
 
   shellInput$ = new Subject<string>();
   ptyOutput$ = new Subject<Uint8Array>();
   fsChanged$ = new Subject<string[]>();
+  termFocus$ = new Subject<void>();
+  searchBoxFocus$ = new Subject<void>();
+  searchNext$ = new Subject<string>();
 
   constructor(public appState: AppState) {
     this.id = mkTabId();
 
     this.cwd$.pipe(skip(1)).subscribe(() => this.generateActions());
-    this.shouldWatchFiles$.subscribe((shouldWatch) => {
+    this.actions$.pipe(skip(1)).subscribe((actions) => {
+      const shouldWatch = actions.some((action) => action.data.watchDir);
+      const path = this.cwd$.value;
+      if (isUndefined(path)) {
+        return;
+      }
       invoke('terminal_set_options', {
         id: this.id,
         options: {
-          path: this.cwd$.value!,
+          path,
           watchDirs: shouldWatch,
         }
       })
@@ -52,9 +61,18 @@ export class Session {
     this.actions$.next(actions);
   }
 
-  shouldWatchFiles$ = this.actions$.pipe(
-    map((actions) => actions.some((action) => action.data.watchDir))
-  );
+  showSearchBox() {
+    if (this.showSearchBox$.value) {
+      this.searchBoxFocus$.next();
+      return;
+    }
+    this.showSearchBox$.next(true);
+  }
+
+  closeSearchBox() {
+    this.showSearchBox$.next(false);
+    this.termFocus$.next();
+  }
 
   setTitle(title: string) {
     this.title$.next(title);

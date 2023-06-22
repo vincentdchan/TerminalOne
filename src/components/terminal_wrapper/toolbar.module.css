@@ -1,0 +1,24 @@
+:global(.t1-terminal-toolbar) {
+  height: 32px;
+  line-height: 32px;
+  min-height: 32px;
+
+  display: flex;
+}
+
+.actionsContainer {
+  flex: 1;
+  align-items: center;
+
+  overflow-y: hidden;
+  overflow-x: scroll;
+  display: block;
+}
+
+.searchBoxContainer {
+  flex-shrink: 0;
+  flex-grow: 0;
+  margin-right: 4px;
+  display: flex;
+  align-items: center;
+}

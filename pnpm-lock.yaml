@@ -40,16 +40,19 @@ dependencies:
     version: 7.8.1
   xterm-addon-fit.es:
     specifier: ^0.6.0
-    version: 0.6.0(xterm.es@5.1.1)
+    version: 0.6.0(xterm.es@5.1.2)
+  xterm-addon-search.es:
+    specifier: ^0.10.1
+    version: 0.10.1(xterm.es@5.1.2)
   xterm-addon-web-links.es:
     specifier: ^0.8.0
-    version: 0.8.0(xterm.es@5.1.1)
+    version: 0.8.0(xterm.es@5.1.2)
   xterm-addon-webgl.es:
     specifier: ^0.14.0
-    version: 0.14.0(xterm.es@5.1.1)
+    version: 0.14.0(xterm.es@5.1.2)
   xterm.es:
-    specifier: ^5.1.1
-    version: 5.1.1
+    specifier: ^5.1.2
+    version: 5.1.2
 
 devDependencies:
   '@tauri-apps/cli':
@@ -1113,32 +1116,40 @@ packages:
       fsevents: 2.3.2
     dev: true
 
-  /xterm-addon-fit.es@0.6.0(xterm.es@5.1.1):
+  /xterm-addon-fit.es@0.6.0(xterm.es@5.1.2):
     resolution: {integrity: sha512-P6St+IXuFNcfdYKat05fJU5tQTfjqyxuqjef1oCfaDSZpokrE+OXgWz8+FYEl8RCtpjSLY1I5eByT+i27xNGvg==}
     peerDependencies:
       xterm.es: ^5.0.0
     dependencies:
-      xterm.es: 5.1.1
+      xterm.es: 5.1.2
     dev: false
 
-  /xterm-addon-web-links.es@0.8.0(xterm.es@5.1.1):
+  /xterm-addon-search.es@0.10.1(xterm.es@5.1.2):
+    resolution: {integrity: sha512-/1SvqxYDAIWcAHPLXVexY862y7ex7Jx3QD0VhE0JmVmZuRKN6SUX2a08scdU8I5vCFogRx0uL4INAmJFbxTocA==}
+    peerDependencies:
+      xterm.es: ^5.0.0
+    dependencies:
+      xterm.es: 5.1.2
+    dev: false
+
+  /xterm-addon-web-links.es@0.8.0(xterm.es@5.1.2):
     resolution: {integrity: sha512-zR85e5YhP7+pvmFeCmyY/c0yOUMgbuSutHGRHii/rhqdWqmN57HItRXzFFDceM5273/7KCMnu8EdqQH25h27FA==}
     peerDependencies:
       xterm.es: ^5.0.0
     dependencies:
-      xterm.es: 5.1.1
+      xterm.es: 5.1.2
     dev: false
 
-  /xterm-addon-webgl.es@0.14.0(xterm.es@5.1.1):
+  /xterm-addon-webgl.es@0.14.0(xterm.es@5.1.2):
     resolution: {integrity: sha512-wu6rl3r1QveEOat/v2FCMJHtDDaaLgMA6uRQ0wKl1naHitKYwD6JRv9ZJuuqhTlkbMUUTxfbJPmufqMOFb5wvQ==}
     peerDependencies:
       xterm.es: ^5.0.0
     dependencies:
-      xterm.es: 5.1.1
+      xterm.es: 5.1.2
     dev: false
 
-  /xterm.es@5.1.1:
-    resolution: {integrity: sha512-pXhXdS9AtATI2465YVwWx78U0qbYLb+ech/YCO4l4jBf1QvWHbTxbU3BsvAIGC2jsDaNwNBqhOkY+WXUczLnug==}
+  /xterm.es@5.1.2:
+    resolution: {integrity: sha512-hpmVmrhBS0ZTzIGns5k4+9H//Ilazz9R79LHBebMc/vosy4y87fnsirub7yFkjt9jjJSLJ9vOLRC9U8vs0luyQ==}
     dev: false
 
   /yallist@3.1.1:

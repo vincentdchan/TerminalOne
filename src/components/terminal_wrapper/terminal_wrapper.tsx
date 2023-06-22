@@ -2,6 +2,7 @@ import { createRef, Component } from "react";
 import { Terminal } from "xterm.es";
 import { WebglAddon } from "xterm-addon-webgl.es";
 import { WebLinksAddon } from "xterm-addon-web-links.es";
+import { SearchAddon } from "xterm-addon-search.es";
 import { FitAddon } from "xterm-addon-fit.es";
 import { invoke } from "@tauri-apps/api/tauri";
 import { Session } from "@pkg/models/session";
@@ -78,6 +79,8 @@ export class TerminalWrapper extends Component<
     const fitAddon = new FitAddon();
     this.fitAddon = fitAddon;
     terminal.loadAddon(fitAddon);
+    const searchAddon = new SearchAddon();
+    terminal.loadAddon(searchAddon);
     terminal.loadAddon(new WebglAddon());
     terminal.loadAddon(
       new WebLinksAddon(async (_event, link) => {
@@ -128,6 +131,27 @@ export class TerminalWrapper extends Component<
     this.#subscriptions.push(
       session.ptyOutput$.subscribe((data: Uint8Array) => {
         terminal.write(data);
+      })
+    );
+
+    this.#subscriptions.push(
+      session.termFocus$.subscribe(() => this.delayFocus())
+    );
+
+    this.#subscriptions.push(
+      session.searchNext$.subscribe((content) => {
+        searchAddon.findNext(content);
+      })
+    );
+
+
+    // When the search box closed, clear the search result
+    this.#subscriptions.push(
+      session.showSearchBox$.subscribe((value) => {
+        if (!value) {
+          searchAddon.clearDecorations();
+          searchAddon.clearActiveDecoration();
+        }
       })
     );
 

@@ -1,0 +1,27 @@
+
+.searchIcon {
+  margin-right: 4px;
+}
+
+.searchBox {
+  display: flex;
+  font-size: 13px;
+  align-items: center;
+
+  height: 22px;
+  max-height: 22px;
+  border: solid 1px gray;
+  border-radius: 12px;
+
+  padding-left: 8px;
+  padding-right: 8px;
+
+  input {
+    background-color: transparent;
+    color: white;
+  }
+}
+
+.closeBtn {
+  cursor: pointer;
+}
