@@ -73,6 +73,14 @@ export class TerminalWrapper extends Component<
         extendedAnsi: theme.colors.ansi,
       },
     });
+    terminal.attachCustomKeyEventHandler((e) => {
+      if (e.key === "k" && e.metaKey) {
+        this.terminal?.clear();
+        return false;
+      }
+
+      return true;
+    });
     this.terminal = terminal;
     const fitAddon = new FitAddon();
     this.fitAddon = fitAddon;
