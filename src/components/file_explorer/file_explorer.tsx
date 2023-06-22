@@ -1,12 +1,4 @@
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-  memo,
-  useContext,
-  useRef,
-} from "react";
+import { useEffect, useMemo, useState, memo, useContext, useRef } from "react";
 import { escapeShellPath } from "@pkg/utils/shell";
 import { isString } from "lodash-es";
 import { FileItem as FileItemModel, LsFileResponse } from "@pkg/messages";
@@ -19,6 +11,7 @@ import { useObservable } from "@pkg/hooks/observable";
 import { AppContext } from "@pkg/contexts/app_context";
 import { FileItem } from "./file_item";
 import * as fs from "@pkg/utils/fs";
+import classNames from "classnames";
 import classes from "./file_explorer.module.css";
 
 function EmptyPlaceholder() {
@@ -32,6 +25,7 @@ export const FileExplorer = memo(() => {
   const currentDir = useObservable(appState.currentDir$, undefined);
   const favoriteDirs = useObservable(appState.favoriteDirs$, []);
 
+  const [scrollOffset, setScrollOffset] = useState(0);
   const [files, setFiles] = useState<FileItemModel[]>([]);
   const pathToFileMap = useRef<Map<string, FileItemModel> | null>(null);
 
@@ -137,7 +131,11 @@ export const FileExplorer = memo(() => {
           </div>
         </>
       )}
-      <div className={classes.header}>
+      <div
+        className={classNames(classes.header, {
+          "bottom-border": scrollOffset > 0,
+        })}
+      >
         <div className="main t1-noselect">{currentFolderName}</div>
         {/* <div className="right">
           <IconButton onClick={handleGoUp}>
@@ -154,6 +152,12 @@ export const FileExplorer = memo(() => {
                 height={height}
                 itemCount={files.length}
                 itemSize={ITEM_HEIGHT}
+                onScroll={(props) => {
+                  if (props.scrollOffset === scrollOffset) {
+                    return;
+                  }
+                  setScrollOffset(props.scrollOffset);
+                }}
               >
                 {Row}
               </List>

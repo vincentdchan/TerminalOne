@@ -30,6 +30,10 @@
     cursor: default;
   }
 
+  &:global(.bottom-border) {
+    border-bottom: solid 1px var(--t1-border-color);
+  }
+
   :global(.right) {
     flex-grow: 0;
     flex-shrink: 0;
