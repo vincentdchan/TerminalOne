@@ -65,6 +65,9 @@ impl<R: Runtime> WindowExt for Window<R> {
                 NSWindowTitleVisibility::NSWindowTitleVisible
             });
             id.setTitlebarAppearsTransparent_(if transparent { YES } else { NO });
+
+            id.setMovableByWindowBackground_(false);
+            id.setMovable_(false)
         }
     }
 

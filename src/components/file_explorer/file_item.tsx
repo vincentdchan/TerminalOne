@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback } from "react";
 import { FileItem as FileItemModule } from "@pkg/messages";
 import { MdInsertDriveFile, MdFolder, MdStarRate } from "react-icons/md";
 import className from "classnames";
@@ -15,10 +15,15 @@ export interface FileItemProps {
 export function FileItem(props: FileItemProps) {
   const { item, style, star, onStarClick, onDoubleClick } = props;
 
+  const handleContextMenu = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+  }, []);
+
   return (
     <div
       className={`${classes.fileItem} t1-noselect`}
       style={style}
+      onContextMenu={handleContextMenu}
       onDoubleClick={onDoubleClick}
     >
       <div className={classes.icon}>
