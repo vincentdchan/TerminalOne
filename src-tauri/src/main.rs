@@ -235,8 +235,16 @@ fn ui_store(state: State<AppState>, doc: serde_json::Value) -> Result<()> {
 }
 
 #[tauri::command]
-async fn spawn_command(command: &str, cwd: &str, args: Option<Vec<String>>, envs: Option<HashMap<String, String>>) -> Result<SpawnResult> {
-    debug!("spawn command: {:?}, cwd: {:?}, env: {:?}", command, cwd, envs);
+async fn spawn_command(
+    command: &str,
+    cwd: &str,
+    args: Option<Vec<String>>,
+    envs: Option<HashMap<String, String>>,
+) -> Result<SpawnResult> {
+    debug!(
+        "spawn command: {:?}, cwd: {:?}, env: {:?}",
+        command, cwd, envs
+    );
 
     let mut command = tokio::process::Command::new(command);
 
@@ -367,7 +375,7 @@ fn main() {
         .setup(move |app| {
             let win = app.get_window("main").unwrap();
             win.set_transparent_titlebar(true);
-            win.position_traffic_lights(15.0, 19.0);
+            win.position_traffic_lights(15.0, 14.0, 42.0);
 
             let mut sys = System::new_all();
             sys.refresh_all();
