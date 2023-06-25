@@ -25,8 +25,6 @@ import Tooltip from "@pkg/components/tooltip";
 import { CMD_CHAR, SHIFT_CHAR } from "@pkg/chars";
 import className from "classnames";
 import { AppContext } from "@pkg/contexts/app_context";
-import { PushMessages, UpdateAvailableEvent } from "@pkg/constants";
-import { UnlistenFn, listen } from "@tauri-apps/api/event";
 import { invoke } from "@tauri-apps/api"; 
 import classes from "./tabs.module.css";
 
@@ -111,22 +109,8 @@ interface RightPartProps {
 }
 
 const RightPart = memo((props: RightPartProps) => {
-  const [updateInfo, setUpdateInfo] = useState<
-    UpdateAvailableEvent | undefined
-  >(undefined);
+  const updateInfo = useBehaviorSubject(props.appState.updateInfo$);
   const [installing, setInstalling] = useState(false);
-  useEffect(() => {
-    let unlisten: UnlistenFn | undefined;
-    listen(PushMessages.UPDATE_AVAILABLE, (event) => {
-      const resp = event.payload as UpdateAvailableEvent;
-      setUpdateInfo(resp);
-    }).then((u) => {
-      unlisten = u;
-    });
-    return () => {
-      unlisten?.();
-    };
-  }, [setUpdateInfo]);
 
   const installUpdate = async () => {
     if (installing) {
@@ -138,7 +122,6 @@ const RightPart = memo((props: RightPartProps) => {
     } catch (err) {
       console.error("install update error", err);
     } finally {
-      setUpdateInfo(undefined);
       setInstalling(false);
     }
   }

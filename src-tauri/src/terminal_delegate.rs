@@ -3,6 +3,7 @@ use crate::Result;
 use log::{debug, error, info, warn};
 use notify_debouncer_mini::{new_debouncer, notify::*, DebounceEventResult, Debouncer};
 use portable_pty::{native_pty_system, Child, CommandBuilder, ExitStatus, MasterPty, PtySize};
+use std::collections::BTreeMap;
 use std::path::Path;
 use std::sync::{Arc, Mutex};
 use std::time::Duration;
@@ -34,9 +35,10 @@ impl TerminalDelegate {
     pub(crate) fn new(
         id: String,
         shell_path: &Path,
+        envs: BTreeMap<String, Option<String>>,
         event_handler: Box<dyn TerminalDelegateEventHandler + Send>,
     ) -> Result<TerminalDelegate> {
-        let (inner, mut child) = TerminalDelegateInner::new(id.clone(), shell_path)?;
+        let (inner, mut child) = TerminalDelegateInner::new(id.clone(), shell_path, envs)?;
 
         let event_handler = Arc::new(Mutex::new(event_handler));
         let delegate = TerminalDelegate {
@@ -181,6 +183,7 @@ impl TerminalDelegateInner {
     fn new(
         id: String,
         shell_path: &Path,
+        envs: BTreeMap<String, Option<String>>,
     ) -> Result<(TerminalDelegateInner, Box<dyn Child + Send + Sync>)> {
         // Use the native pty implementation for the system
         let pty_system = native_pty_system();
@@ -205,6 +208,14 @@ impl TerminalDelegateInner {
         cmd.env("TERM_PROGRAM", "Terminal_One.app");
         cmd.env("TERM_PROGRAM_VERSION", version);
         cmd.env("TERM", "xterm-256color");
+
+        for (key, value) in envs {
+            if let Some(value) = value {
+                cmd.env(key, value);
+            } else {
+                cmd.env_remove(key);
+            }
+        }
 
         let home_dir = dirs::home_dir().unwrap().to_str().unwrap().to_string();
 

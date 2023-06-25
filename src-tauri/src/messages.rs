@@ -92,16 +92,8 @@ pub(crate) struct FsChangedMessage {
   pub paths: Vec<String>,
 } 
 
-#[derive(Clone, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub(crate) struct UpdateAvailableMessage {
-  pub version: String,
-  pub body: Option<String>,
-} 
-
 pub(crate) mod push_event {
   pub static PTY_OUTPUT: &str = "pty-output";
   pub static PTY_EXIT: &str = "pty-exit";
   pub static FS_CHANGED: &str = "fs-changed";
-  pub static UPDATE_AVAILABLE: &str = "update-available";
 }

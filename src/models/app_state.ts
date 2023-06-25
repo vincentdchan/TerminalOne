@@ -8,9 +8,11 @@ import { isBoolean, isNumber, isString, once, debounce } from "lodash-es";
 import { objectToCamlCaseDeep } from "@pkg/utils/objects";
 import * as uiStore from "@pkg/utils/ui_store";
 import type { ThemeResponse } from "@pkg/messages";
-import { StoreKeys } from "@pkg/constants";
+import { PushMessages, StoreKeys, UpdateAvailableEvent } from "@pkg/constants";
 import { type AppTheme } from "./app_theme";
 import extensions from "@pkg/extensions";
+import { useBehaviorSubject } from "@pkg/hooks/observable";
+import { listen } from "@tauri-apps/api/event";
 
 export enum AppStatus {
   Loading,
@@ -47,6 +49,10 @@ export class AppState {
 
   theme$ = new BehaviorSubject<AppTheme | undefined>(undefined);
 
+  updateInfo$ = new BehaviorSubject<UpdateAvailableEvent | undefined>(
+    undefined
+  );
+
   constructor() {
     let lastSubscription: Subscription | undefined;
     this.sessionManager.activeSession$.subscribe((session) => {
@@ -64,7 +70,11 @@ export class AppState {
   }
 
   init = once(async () => {
-    await Promise.all([this.#fetchTheme(), this.#fetchInitData()]);
+    await Promise.all([
+      this.#fetchTheme(),
+      this.#fetchInitData(),
+      this.#listenUpdateInfo(),
+    ]);
   });
 
   prettyPath(path: string): string {
@@ -78,6 +88,13 @@ export class AppState {
     }
 
     return path;
+  }
+
+  async #listenUpdateInfo() {
+    await listen("tauri://update-available", (event) => {
+      const resp = event.payload as UpdateAvailableEvent;
+      this.updateInfo$.next(resp);
+    });
   }
 
   async #fetchTheme() {

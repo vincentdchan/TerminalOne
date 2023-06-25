@@ -2,8 +2,7 @@ use log::{error, info};
 use serde::{Deserialize, Serialize};
 use sysinfo::{System, SystemExt};
 use tauri::{AppHandle, Manager};
-
-use crate::{app_state::AppState, messages::{push_event, UpdateAvailableMessage}};
+use crate::AppState;
 
 #[derive(Debug, Serialize, Deserialize)]
 struct Version {
@@ -93,10 +92,10 @@ pub async fn check_update(app_handle: AppHandle) -> Result<(), Box<dyn std::erro
             info!("update available: {}, body: {:?}", version, body);
             let app_state = cloned_app_handle.state::<AppState>();
             app_state.inner().set_update(update);
-            cloned_app_handle.emit_all(push_event::UPDATE_AVAILABLE, UpdateAvailableMessage {
-              version,
-              body,
-            })?;
+            // cloned_app_handle.emit_all(push_event::UPDATE_AVAILABLE, UpdateAvailableMessage {
+            //   version,
+            //   body,
+            // })?;
           }
         }
         Err(err) => {

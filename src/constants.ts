@@ -25,5 +25,6 @@ export interface FsChangedEvent {
 
 export interface UpdateAvailableEvent {
   version: string;
+  date: string,
   body?: string;
 }

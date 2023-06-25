@@ -4,10 +4,12 @@ use crate::theme_context::{ThemeContext, ThemeItem};
 use crate::{Error, Result};
 use polodb_core::Database;
 use polodb_core::bson::{Document, doc};
-use log::{debug, warn};
+use log::{info, debug, warn};
+use serde_json::Value;
 use tauri::Wry;
 use tauri::updater::UpdateResponse;
-use std::collections::HashMap;
+use std::collections::{HashMap, BTreeMap};
+use crate::mac_ext::system_proxy_settings;
 use std::path::Path;
 use std::sync::{Arc, Mutex};
 
@@ -29,9 +31,14 @@ impl AppState {
         shell_path: &Path,
         event_handler: Box<dyn TerminalDelegateEventHandler + Send>,
     ) -> Result<TerminalDelegate> {
+        let envs = {
+            let inner = self.inner.lock().unwrap();
+            inner.preserved_envs.clone()
+        };
         let delegate: TerminalDelegate = TerminalDelegate::new(
             id,
             shell_path,
+            envs,
             event_handler,
         )?;
         {
@@ -191,19 +198,91 @@ impl AppState {
 
 struct AppStateInner {
     terminals: HashMap<String, TerminalDelegate>,
+    preserved_envs: BTreeMap<String, Option<String>>,
     theme_context: Option<ThemeContext>,
     database: Option<Database>,
     update: Option<UpdateResponse<Wry>>,
 }
 
+
+fn get_preserved_envs() -> BTreeMap<String, Option<String>> {
+    let preserved_envs_keys: Vec<&str> = vec![
+        "HTTP_PROXY",
+        "http_proxy",
+        "HTTPS_PROXY",
+        "https_proxy",
+        "NO_PROXY",
+        "no_proxy",
+        "ALL_PROXY",
+        "all_proxy",
+    ];
+    let mut result = BTreeMap::new();
+
+    for key in preserved_envs_keys {
+        let value = std::env::var(key).ok();
+        result.insert(key.to_string(), value);
+    }
+
+    return result;
+}
+
+fn try_set_http_proxy(system_proxy: &serde_json::Map<String, serde_json::Value>) {
+    match (system_proxy.get("HTTPEnable"), system_proxy.get("HTTPProxy"), system_proxy.get("HTTPPort")) {
+        (Some(Value::Number(n)), Some(Value::String(proxy)), Some(Value::Number(port))) => {
+            if n.as_u64().unwrap() != 1 {
+                return;
+            }
+            let value = format!("{}:{}", proxy, port);
+            info!("==> set HTTP_PROXY: {}", value);
+            std::env::set_var("HTTP_PROXY", value);
+        }
+        _ => ()
+    }
+}
+
+fn try_set_https_proxy(system_proxy: &serde_json::Map<String, serde_json::Value>) {
+    match (system_proxy.get("HTTPSEnable"), system_proxy.get("HTTPSProxy"), system_proxy.get("HTTPSPort")) {
+        (Some(Value::Number(n)), Some(Value::String(proxy)), Some(Value::Number(port))) => {
+            if n.as_u64().unwrap() != 1 {
+                return;
+            }
+            let value = format!("{}:{}", proxy, port);
+            info!("==> set HTTPS_PROXY: {}", value);
+            std::env::set_var("HTTPS_PROXY", value);
+        }
+        _ => ()
+    }
+}
+
 impl AppStateInner {
     fn new() -> AppStateInner {
-        AppStateInner {
+        let preserved_envs = get_preserved_envs();
+        debug!("preserved_envs: {:?}", preserved_envs);
+
+        let result = AppStateInner {
             terminals: HashMap::new(),
+            preserved_envs,
             theme_context: None,
             database: None,
             update: None,
+        };
+
+        result.init_proxy();
+
+        result
+    }
+
+    fn init_proxy(&self) {
+        let system_proxy = system_proxy_settings();
+        debug!("system: proxy setting: {:?}", system_proxy);
+        if system_proxy.is_none() {
+            return;
         }
+
+        let system_proxy = system_proxy.unwrap();
+
+        try_set_http_proxy(&system_proxy);
+        try_set_https_proxy(&system_proxy);
     }
 
     fn init_db(&mut self, data_path: &Path) -> Result<()> {
