@@ -66,8 +66,8 @@ impl<R: Runtime> WindowExt for Window<R> {
             });
             id.setTitlebarAppearsTransparent_(if transparent { YES } else { NO });
 
-            id.setMovableByWindowBackground_(false);
-            id.setMovable_(false)
+            id.setMovableByWindowBackground_(NO);
+            id.setMovable_(NO)
         }
     }
 
