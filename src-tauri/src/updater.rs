@@ -1,7 +1,9 @@
-use log::{debug, error, info};
+use log::{error, info};
 use serde::{Deserialize, Serialize};
 use sysinfo::{System, SystemExt};
-use tauri::AppHandle;
+use tauri::{AppHandle, Manager};
+
+use crate::{app_state::AppState, messages::{push_event, UpdateAvailableMessage}};
 
 #[derive(Debug, Serialize, Deserialize)]
 struct Version {
@@ -45,6 +47,7 @@ struct VersionResponse {
 // }
 
 pub async fn check_update(app_handle: AppHandle) -> Result<(), Box<dyn std::error::Error>> {
+    let cloned_app_handle = app_handle.clone();
     let machine_id = {
         let machine_id_opt = machine_uid::get();
         if machine_id_opt.is_err() {
@@ -83,8 +86,18 @@ pub async fn check_update(app_handle: AppHandle) -> Result<(), Box<dyn std::erro
 
     let builder = tauri::updater::builder(app_handle).header("User-Agent", user_agent)?;
     match builder.check().await {
-        Ok(_) => {
-            debug!("check update success");
+        Ok(update) => {
+          if update.is_update_available() {
+            let version = update.latest_version().to_string();
+            let body = update.body().map(|s| s.to_string());
+            info!("update available: {}, body: {:?}", version, body);
+            let app_state = cloned_app_handle.state::<AppState>();
+            app_state.inner().set_update(update);
+            cloned_app_handle.emit_all(push_event::UPDATE_AVAILABLE, UpdateAvailableMessage {
+              version,
+              body,
+            })?;
+          }
         }
         Err(err) => {
             error!("check update failed: {}", err);

@@ -318,6 +318,20 @@ fn batch_test_files(req: BatchTestFilesReq) -> Result<BatchTestFilesResp> {
     Ok(BatchTestFilesResp { files })
 }
 
+#[tauri::command]
+fn install_update(state: State<AppState>) {
+    let app_state: AppState = state.inner().clone().clone();
+    async_runtime::spawn(async move {
+        let update = app_state.take_update();
+        if let Some(update) = update {
+            let result = update.download_and_install().await;
+            if let Err(e) = result {
+                error!("install update error: {}", e);
+            }
+        }
+    });
+}
+
 fn main() {
     let app_log_dir = app_path::app_log_dir("Terminal One").expect("no log dirs");
 
@@ -442,6 +456,7 @@ fn main() {
             remove_favorite_folder,
             get_all_favorite_folders,
             batch_test_files,
+            install_update,
         ])
         .on_menu_event(|event| match event.menu_item_id() {
             "settings" => {

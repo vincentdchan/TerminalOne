@@ -5,10 +5,13 @@ use crate::{Error, Result};
 use polodb_core::Database;
 use polodb_core::bson::{Document, doc};
 use log::{debug, warn};
+use tauri::Wry;
+use tauri::updater::UpdateResponse;
 use std::collections::HashMap;
 use std::path::Path;
 use std::sync::{Arc, Mutex};
 
+#[derive(Clone)]
 pub(crate) struct AppState {
     inner: Arc<Mutex<AppStateInner>>,
 }
@@ -173,12 +176,24 @@ impl AppState {
         Ok(docs)
     }
 
+    pub(crate) fn set_update(&self, update: UpdateResponse<Wry>) {
+        let mut inner = self.inner.lock().unwrap();
+        inner.set_update(update)
+    }
+
+    pub(crate) fn take_update(&self) -> Option<UpdateResponse<Wry>> {
+        let mut inner = self.inner.lock().unwrap();
+        let update_opt = inner.update.take();
+        update_opt
+    }
+
 }
 
 struct AppStateInner {
     terminals: HashMap<String, TerminalDelegate>,
     theme_context: Option<ThemeContext>,
     database: Option<Database>,
+    update: Option<UpdateResponse<Wry>>,
 }
 
 impl AppStateInner {
@@ -187,6 +202,7 @@ impl AppStateInner {
             terminals: HashMap::new(),
             theme_context: None,
             database: None,
+            update: None,
         }
     }
 
@@ -254,6 +270,10 @@ impl AppStateInner {
             name: first.name.clone(),
             json_content: Some(toml_str_to_json_str(&content)?),
         })
+    }
+
+    pub(crate) fn set_update(&mut self, update: UpdateResponse<Wry>) {
+        self.update = Some(update);
     }
 }
 

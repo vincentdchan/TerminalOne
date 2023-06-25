@@ -2,6 +2,7 @@ export enum PushMessages {
   PTY_OUTPUT = "pty-output",
   PTY_EXIT = "pty-exit",
   FS_CHANGED = "fs-changed",
+  UPDATE_AVAILABLE = "update-available",
 }
 
 export interface PtyResponse {
@@ -20,4 +21,9 @@ export enum StoreKeys {
 export interface FsChangedEvent {
   id: string;
   paths: string[];
+}
+
+export interface UpdateAvailableEvent {
+  version: string;
+  body?: string;
 }
