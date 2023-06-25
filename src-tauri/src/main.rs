@@ -19,7 +19,7 @@ use crate::mac_ext::WindowExt;
 use app_state::AppState;
 use base64::{engine::general_purpose, Engine as _};
 pub use errors::Error;
-use log::{debug, info};
+use log::{debug, error, info};
 use log4rs::append::console::ConsoleAppender;
 use log4rs::append::rolling_file::policy::compound::roll::delete::DeleteRoller;
 use log4rs::append::rolling_file::policy::compound::trigger::size::SizeTrigger;
@@ -408,13 +408,18 @@ fn main() {
 
             state.inner().load_themes(&theme_path)?;
 
-            async_runtime::spawn(async {
+            let app_handle = app.handle();
+            async_runtime::spawn(async move {
                 use tokio::time::Duration;
 
                 tokio::time::sleep(Duration::from_secs(10)).await;
                 debug!("child thread");
 
-                let _ = updater::check_update().await;
+                let test = updater::check_update(app_handle).await;
+                match test {
+                    Ok(_) => (),
+                    Err(e) => error!("check update failed: {}", e),
+                }
             });
 
             return Ok(());
