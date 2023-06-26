@@ -22,3 +22,5 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+/scripts/t1-api-firebase-adminsdk.json
