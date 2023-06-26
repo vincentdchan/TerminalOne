@@ -39,3 +39,11 @@ jobs:
           rustup target add aarch64-apple-darwin
           rustup target add x86_64-apple-darwin
           pnpm tauri build --target universal-apple-darwin
+      
+      - name: Upload
+        env:
+          AIRTABLE_TOKEN: ${{ secrets.AIRTABLE_TOKEN }}
+          FIREBASE_ADMINSDK: ${{ secrets.FIREBASE_ADMINSDK }}
+        run: |
+          echo $FIREBASE_ADMINSDK > ./scripts/t1-api-firebase-adminsdk.json
+          pnpm run upload
