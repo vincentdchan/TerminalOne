@@ -62,6 +62,7 @@ async function createRecordOnAirtable(
   version: string,
   gitVersion: string,
   dmgDest: string,
+  dmgSize: number,
   updateDest: string,
   signature: string
 ) {
@@ -88,6 +89,7 @@ async function createRecordOnAirtable(
                 Arch: arch,
                 "Git Describe": gitVersion,
                 "Installer Path": dmgDest,
+                "Installer Size": dmgSize,
                 "Updater Path": updateDest,
                 "Signature": signature,
               },
@@ -130,6 +132,7 @@ async function uploadArtifacts() {
     const platform = process.platform;
 
     let dmgDest: string | undefined;
+    let dmgSize: number | undefined;
     let updateDest: string | undefined;
     let signature: string | undefined;
 
@@ -142,6 +145,9 @@ async function uploadArtifacts() {
       });
       if (destination.endsWith(".dmg")) {
         dmgDest = destination;
+
+        const fileStat = fs.statSync(file);
+        dmgSize = fileStat.size;
       } else if (destination.endsWith(".tar.gz")) {
         updateDest = destination;
       } else if (file.endsWith(".tar.gz.sig")) {
@@ -154,6 +160,7 @@ async function uploadArtifacts() {
       configVersion,
       gitDescribe,
       dmgDest!,
+      dmgSize!,
       updateDest!,
       signature!
     );
