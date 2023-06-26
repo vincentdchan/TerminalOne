@@ -8,16 +8,18 @@ import { isBoolean, isNumber, isString, once, debounce } from "lodash-es";
 import { objectToCamlCaseDeep } from "@pkg/utils/objects";
 import * as uiStore from "@pkg/utils/ui_store";
 import type { ThemeResponse } from "@pkg/messages";
-import { PushMessages, StoreKeys, UpdateAvailableEvent } from "@pkg/constants";
+import { StoreKeys, UpdateAvailableEvent } from "@pkg/constants";
 import { type AppTheme } from "./app_theme";
 import extensions from "@pkg/extensions";
-import { useBehaviorSubject } from "@pkg/hooks/observable";
 import { listen } from "@tauri-apps/api/event";
+import { relaunch } from "@tauri-apps/api/process";
 
 export enum AppStatus {
   Loading,
   Ready,
 }
+
+export type UpdateStatus = "PENDING" | "ERROR" | "DOWNLOADED" | "DONE" | "UPTODATE";
 
 export class AppState {
   #sessionManager = once(() => new SessionManager(this));
@@ -52,6 +54,7 @@ export class AppState {
   updateInfo$ = new BehaviorSubject<UpdateAvailableEvent | undefined>(
     undefined
   );
+  updateStatus$ = new BehaviorSubject<UpdateStatus | undefined>(undefined);
 
   constructor() {
     let lastSubscription: Subscription | undefined;
@@ -94,6 +97,21 @@ export class AppState {
     await listen("tauri://update-available", (event) => {
       const resp = event.payload as UpdateAvailableEvent;
       this.updateInfo$.next(resp);
+    });
+    await listen("tauri://update-status", async (event) => {
+      const status = (event.payload as any).status as UpdateStatus;
+      console.log("update status:", status);
+      this.updateStatus$.next(status);
+
+      if (status === "DONE") {
+        this.updateInfo$.next(undefined);
+        this.updateStatus$.next(undefined);
+        await relaunch();
+      } else if (status === "ERROR") {
+        console.log("update error:", event);
+        this.updateInfo$.next(undefined);
+        this.updateStatus$.next(undefined);
+      }
     });
   }
 

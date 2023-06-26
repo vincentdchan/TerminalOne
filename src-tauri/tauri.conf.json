@@ -30,6 +30,7 @@
       },
       "process": {
         "all": false,
+        "relaunch": true,
         "exit": true
       }
     },
