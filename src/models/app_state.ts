@@ -139,7 +139,7 @@ export class AppState {
       this.showGiftBox$.next(uiStores[StoreKeys.showGiftBox]);
     }
 
-    if (isNumber(uiStores[StoreKeys.onboarding])) {
+    if (isNumber(uiStores[StoreKeys.onboarding]) && !initData.forceOnboarding) {
       this.appStatus$.next(AppStatus.Ready);
     } else {
       this.showOnboarding$.next(true);

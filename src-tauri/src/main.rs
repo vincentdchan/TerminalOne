@@ -113,8 +113,15 @@ fn fetch_init_data(state: State<AppState>) -> Result<messages::InitMessage> {
         json_doc.insert(test_key, json_value);
     }
 
+    let mut force_onboarding = false;
+
+    if std::env::var("T1_FORCE_ONBOARDING").is_ok() {
+        force_onboarding = true;
+    }
+
     Ok(messages::InitMessage {
         home_dir,
+        force_onboarding,
         ui_stores: serde_json::Value::Object(json_doc),
     })
 }

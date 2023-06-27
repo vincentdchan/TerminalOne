@@ -1,6 +1,7 @@
 
 export interface InitMessage {
   homeDir: string;
+  forceOnboarding: boolean;
   uiStores: Record<string, any>;
 }
 
