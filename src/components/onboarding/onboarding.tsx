@@ -52,6 +52,10 @@ export const Onboarding = memo(() => {
         value: diagnosticDataChecked,
       });
       await invoke("install_script");
+      await uiStore.store({
+        _id: StoreKeys.onboarding,
+        value: 1,
+      });
     } catch (err) {
       console.error(err);
     } finally {
