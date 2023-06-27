@@ -1,6 +1,7 @@
 import { defineConfig } from "vite";
 import * as path from "path";
 import react from "@vitejs/plugin-react";
+import svgr from "vite-plugin-svgr";
 import postcssNesting from "postcss-nesting";
 
 export const projectRootDir = process.cwd();
@@ -17,7 +18,7 @@ export default defineConfig(async () => ({
     },
   },
 
-  plugins: [react()],
+  plugins: [react(), svgr()],
 
   css: {
     postcss: {

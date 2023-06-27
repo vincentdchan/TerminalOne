@@ -48,3 +48,14 @@
 .updateBtn {
   color: rgb(67, 184, 67);
 }
+
+.spinLogoContainer {
+  svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  path {
+    fill: white;
+  }
+}

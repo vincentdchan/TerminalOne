@@ -25,7 +25,9 @@ import Tooltip from "@pkg/components/tooltip";
 import { CMD_CHAR, SHIFT_CHAR } from "@pkg/chars";
 import className from "classnames";
 import { AppContext } from "@pkg/contexts/app_context";
-import { invoke } from "@tauri-apps/api"; 
+import { invoke } from "@tauri-apps/api";
+import { ReactComponent as SpinLogo } from "./loading-spin.svg";
+import { isUndefined, throttle } from "lodash-es";
 import classes from "./tabs.module.css";
 
 interface NeonBarProps {
@@ -109,26 +111,24 @@ interface RightPartProps {
 }
 
 const RightPart = memo((props: RightPartProps) => {
-  const updateInfo = useBehaviorSubject(props.appState.updateInfo$);
-  const [installing, setInstalling] = useState(false);
+  const { appState } = props;
+  const updateInfo = useBehaviorSubject(appState.updateInfo$);
+  const updateStatus = useBehaviorSubject(appState.updateStatus$);
 
-  const installUpdate = async () => {
-    if (installing) {
+  const installUpdate = throttle(async () => {
+    if (updateStatus !== undefined) {
       return;
     }
     try {
-      setInstalling(true);
-      await invoke('install_update');
+      await invoke("install_update");
     } catch (err) {
       console.error("install update error", err);
-    } finally {
-      setInstalling(false);
     }
-  }
+  }, 500);
 
   const handleUpdate = useCallback(() => {
     installUpdate();
-  }, [])
+  }, []);
 
   const style: CSSProperties = {};
 
@@ -149,8 +149,18 @@ const RightPart = memo((props: RightPartProps) => {
       )}
       {!!updateInfo && (
         <Tooltip content="Install update" direction="bottom">
-          <TabBtn disabled={installing} className={classes.updateBtn} onClick={handleUpdate}>
-            <MdOutlineDownloadForOffline />
+          <TabBtn
+            disabled={!isUndefined(updateStatus)}
+            className={classes.updateBtn}
+            onClick={handleUpdate}
+          >
+            {updateStatus === "PENDING" ? (
+              <div className={classes.spinLogoContainer}>
+                <SpinLogo />
+              </div>
+            ) : (
+              <MdOutlineDownloadForOffline />
+            )}
           </TabBtn>
         </Tooltip>
       )}
