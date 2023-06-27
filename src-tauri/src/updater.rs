@@ -98,6 +98,10 @@ pub async fn check_update(app_handle: AppHandle) -> Result<(), Box<dyn std::erro
             // })?;
           }
         }
+        Err(tauri::updater::Error::UpToDate) => {
+          info!("up to date");
+          return Ok(());
+        }
         Err(err) => {
             error!("check update failed: {}", err);
         }

@@ -1,17 +1,24 @@
-import React, { useContext, useCallback, memo, useState } from "react";
+import React, {
+  useContext,
+  useCallback,
+  memo,
+  useState,
+  lazy,
+  Suspense,
+} from "react";
 import classNames from "classnames";
 import { AppContext } from "@pkg/contexts/app_context";
 import { AppStatus } from "@pkg/models/app_state";
 import { PrimaryButton } from "@pkg/components/button";
 import Face from "./face.svg?url";
 import * as uiStore from "@pkg/utils/ui_store";
-import { StoreKeys } from "@pkg/constants"
+import { StoreKeys } from "@pkg/constants";
 import classes from "./onboarding.module.css";
 import { invoke } from "@tauri-apps/api";
 
 interface PrettyCheckBoxProps {
   content: string;
-  description: string;
+  description: React.ReactNode;
   checked?: boolean;
   onToggle?: () => void;
 }
@@ -28,6 +35,8 @@ function PrettyCheckBox(props: PrettyCheckBoxProps) {
     </div>
   );
 }
+
+const FancyBackground = lazy(() => import("@pkg/components/fancy_background"));
 
 export const Onboarding = memo(() => {
   const appState = useContext(AppContext)!;
@@ -63,7 +72,7 @@ export const Onboarding = memo(() => {
       setShowAni(true);
       setProcessing(false);
     }
-  }
+  };
 
   const handleStart = useCallback(() => {
     submit();
@@ -98,13 +107,23 @@ export const Onboarding = memo(() => {
         <div className={classes.checkboxContainer}>
           <PrettyCheckBox
             content="Allow Terminal One to collect anonymous usage data."
-            description="Help us improve Terminal One. We cannot track your identity from the collected data."
+            description={
+              <>
+                Help us improve Terminal One. We can <b>NOT</b> track your
+                identity from the collected data.
+              </>
+            }
             checked={usageDataChecked}
             onToggle={() => setUsageDataChecked(!usageDataChecked)}
           />
           <PrettyCheckBox
             content="Allow Terminal One to collect diagnostic and performance data."
-            description="Help us improve the performance and stability of Terminal One. We cannot track your identity from the collected data."
+            description={
+              <>
+                Help us improve the performance and stability of Terminal One.
+                We can <b>NOT</b> track your identity from the collected data.
+              </>
+            }
             checked={diagnosticDataChecked}
             onToggle={() => setDiagnosticDataChecked(!diagnosticDataChecked)}
           />
@@ -112,6 +131,9 @@ export const Onboarding = memo(() => {
         <PrimaryButton onClick={handleStart}>
           Install and Get started
         </PrimaryButton>
+        <Suspense>
+          <FancyBackground />
+        </Suspense>
       </div>
     </div>
   );
