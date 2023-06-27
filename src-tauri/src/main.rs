@@ -432,18 +432,7 @@ fn main() {
             state.inner().load_themes(&theme_path)?;
 
             let app_handle = app.handle();
-            async_runtime::spawn(async move {
-                use tokio::time::Duration;
-
-                tokio::time::sleep(Duration::from_secs(10)).await;
-                debug!("child thread");
-
-                let test = updater::check_update(app_handle).await;
-                match test {
-                    Ok(_) => (),
-                    Err(e) => error!("check update failed: {}", e),
-                }
-            });
+            updater::spawn_thread_to_check_update(app_handle);
 
             return Ok(());
         })

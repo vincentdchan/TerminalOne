@@ -27,6 +27,8 @@ pub enum Error {
   NotifyError(#[from] notify::Error),
   #[error(transparent)]
   ConvertPath(#[from] core::convert::Infallible),
+  #[error(transparent)]
+  TauriUpdateError(#[from] tauri::updater::Error),
 }
 
 impl serde::Serialize for Error {
