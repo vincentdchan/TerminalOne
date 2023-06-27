@@ -74,7 +74,7 @@ export function Tab(props: TabProps) {
     return result;
   }, [cwd]);
 
-  const hintText = index <= 9 ? `${CMD_CHAR}${index}` : undefined;
+  const hintText = index <= 9 ? `${CMD_CHAR}${index + 1}` : undefined;
 
   return (
     <div

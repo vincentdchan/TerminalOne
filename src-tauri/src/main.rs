@@ -8,18 +8,19 @@ extern crate objc;
 mod app_path;
 mod app_state;
 pub mod errors;
+mod install_script;
 mod mac_ext;
 mod menu;
 mod messages;
 mod terminal_delegate;
 mod theme_context;
-mod install_script;
 mod updater;
 
 use crate::mac_ext::WindowExt;
 use app_state::AppState;
 use base64::{engine::general_purpose, Engine as _};
 pub use errors::Error;
+use install_script::install_script;
 use log::{debug, error, info};
 use log4rs::append::console::ConsoleAppender;
 use log4rs::append::rolling_file::policy::compound::roll::delete::DeleteRoller;
@@ -42,7 +43,6 @@ use std::{
 use sysinfo::{System, SystemExt};
 use tauri::{async_runtime, Manager, State};
 use terminal_delegate::TerminalDelegateEventHandler;
-use install_script::install_script;
 // use portable_pty
 
 pub type Result<T> = std::result::Result<T, errors::Error>;
@@ -341,6 +341,11 @@ fn install_update(state: State<AppState>) {
     });
 }
 
+#[tauri::command]
+fn open_context_menu(window: tauri::Window, req: OpenContextMenuReq) {
+    window.open_context_menu(req)
+}
+
 fn main() {
     let app_log_dir = app_path::app_log_dir("Terminal One").expect("no log dirs");
 
@@ -391,6 +396,11 @@ fn main() {
     debug!("debug env");
 
     let menu = menu::generate_menu("Terminal One");
+
+    // print all envs
+    // std::env::vars().for_each(|(k, v)| {
+    //     info!("env: {}: {}", k, v);
+    // });
 
     tauri::Builder::default()
         .menu(menu)
@@ -456,6 +466,7 @@ fn main() {
             batch_test_files,
             install_update,
             install_script,
+            open_context_menu,
         ])
         .on_menu_event(|event| match event.menu_item_id() {
             "settings" => {

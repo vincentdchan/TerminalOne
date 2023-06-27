@@ -1,6 +1,7 @@
 import React, { useCallback } from "react";
 import { FileItem as FileItemModule } from "@pkg/messages";
 import { MdInsertDriveFile, MdFolder, MdStarRate } from "react-icons/md";
+import { invoke } from "@tauri-apps/api";
 import className from "classnames";
 import classes from "./file_item.module.css";
 
@@ -17,6 +18,22 @@ export function FileItem(props: FileItemProps) {
 
   const handleContextMenu = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
+
+    invoke('open_context_menu', {
+      req: {
+        position: [e.clientX, e.clientY],
+        items: [
+          {
+            key: "go-to",
+            title: "Go to",
+          },
+          {
+            key: "open-in-new-tab",
+            title: "Open in new tab",
+          }
+        ]
+      }
+    })
   }, []);
 
   return (

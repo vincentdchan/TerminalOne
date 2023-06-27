@@ -3482,6 +3482,7 @@ dependencies = [
  "core-foundation",
  "dirs",
  "dirs-next",
+ "lazy_static",
  "log",
  "log4rs",
  "machine-uid",

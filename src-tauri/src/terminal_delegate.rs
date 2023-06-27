@@ -192,11 +192,14 @@ impl TerminalDelegateInner {
 
         // Spawn a shell into the pty
         // add params to cmd
-        let mut cmd = CommandBuilder::new("zsh");
+        let mut cmd = CommandBuilder::new("/bin/zsh");
+        cmd.arg("--login");
         let version = env!("CARGO_PKG_VERSION");
         cmd.env("TERM_PROGRAM", "Terminal_One.app");
         cmd.env("TERM_PROGRAM_VERSION", version);
         cmd.env("TERM", "xterm-256color");
+        cmd.env("LANG", "en_US.UTF-8");
+        cmd.env_remove("PATH");
 
         for (key, value) in envs {
             if let Some(value) = value {

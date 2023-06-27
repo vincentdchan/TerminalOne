@@ -88,6 +88,20 @@ pub(crate) struct BatchTestFilesResp {
 
 #[derive(Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
+pub struct MenuItem {
+  pub title: String,
+  pub key: String,
+}
+
+#[derive(Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct  OpenContextMenuReq {
+  pub items: Vec<MenuItem>,
+  pub position: Vec<f64>,
+}
+
+#[derive(Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub(crate) struct FsChangedMessage {
   pub id: String,
   pub paths: Vec<String>,

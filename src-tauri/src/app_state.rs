@@ -220,7 +220,12 @@ fn get_preserved_envs() -> BTreeMap<String, Option<String>> {
 
     for key in preserved_envs_keys {
         let value = std::env::var(key).ok();
+        let exists = value.is_some();
         result.insert(key.to_string(), value);
+
+        if exists {
+            std::env::remove_var(key);
+        }
     }
 
     return result;
@@ -232,7 +237,7 @@ fn try_set_http_proxy(system_proxy: &serde_json::Map<String, serde_json::Value>)
             if n.as_u64().unwrap() != 1 {
                 return;
             }
-            let value = format!("{}:{}", proxy, port);
+            let value = format!("http://{}:{}", proxy, port);
             info!("==> set HTTP_PROXY: {}", value);
             std::env::set_var("HTTP_PROXY", value);
         }
@@ -246,7 +251,7 @@ fn try_set_https_proxy(system_proxy: &serde_json::Map<String, serde_json::Value>
             if n.as_u64().unwrap() != 1 {
                 return;
             }
-            let value = format!("{}:{}", proxy, port);
+            let value = format!("https://{}:{}", proxy, port);
             info!("==> set HTTPS_PROXY: {}", value);
             std::env::set_var("HTTPS_PROXY", value);
         }

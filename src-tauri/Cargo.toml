@@ -35,6 +35,7 @@ polodb_core = "4.4.0"
 chrono = "0.4.26"
 base64 = "0.21.2"
 notify-debouncer-mini = { version = "0.3.0", features = ["serde"] }
+lazy_static = "1.4.0"
 
 [target.'cfg(target_os = "macos")'.dependencies]
 core-foundation = "*"
