@@ -13,6 +13,7 @@ mod menu;
 mod messages;
 mod terminal_delegate;
 mod theme_context;
+mod install_script;
 mod updater;
 
 use crate::mac_ext::WindowExt;
@@ -41,6 +42,7 @@ use std::{
 use sysinfo::{System, SystemExt};
 use tauri::{async_runtime, Manager, State};
 use terminal_delegate::TerminalDelegateEventHandler;
+use install_script::install_script;
 // use portable_pty
 
 pub type Result<T> = std::result::Result<T, errors::Error>;
@@ -457,6 +459,7 @@ fn main() {
             get_all_favorite_folders,
             batch_test_files,
             install_update,
+            install_script,
         ])
         .on_menu_event(|event| match event.menu_item_id() {
             "settings" => {

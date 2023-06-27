@@ -20,17 +20,6 @@ pub(crate) struct TerminalDelegate {
     _event_handler: Arc<Mutex<Box<dyn TerminalDelegateEventHandler + Send>>>,
 }
 
-fn make_precommit_dir(shell_path: &Path) -> Result<String> {
-    let mut shell_path_buf = shell_path.to_path_buf();
-    shell_path_buf.push("t1.sh");
-
-    Ok(shell_path_buf.to_str().unwrap().to_string())
-}
-
-fn escape_shell_path(path: &str) -> String {
-    path.replace(" ", "\\ ")
-}
-
 impl TerminalDelegate {
     pub(crate) fn new(
         id: String,
@@ -182,7 +171,7 @@ struct TerminalDelegateInner {
 impl TerminalDelegateInner {
     fn new(
         id: String,
-        shell_path: &Path,
+        _shell_path: &Path,
         envs: BTreeMap<String, Option<String>>,
     ) -> Result<(TerminalDelegateInner, Box<dyn Child + Send + Sync>)> {
         // Use the native pty implementation for the system
@@ -225,17 +214,7 @@ impl TerminalDelegateInner {
 
         drop(pair.slave);
 
-        let mut writer = pair.master.take_writer()?;
-
-        let precommit_str = {
-            let mut result = "source ".to_string();
-            let precommit_dir = make_precommit_dir(shell_path)?;
-            let escaped_path = escape_shell_path(precommit_dir.as_str());
-            result += escaped_path.as_str();
-            result
-        };
-        writer.write(precommit_str.as_bytes())?;
-        writer.write("\r".as_bytes())?;
+        let writer = pair.master.take_writer()?;
 
         let inner = TerminalDelegateInner {
             id: id.clone(),

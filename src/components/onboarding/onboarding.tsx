@@ -7,6 +7,7 @@ import Face from "./face.svg?url";
 import * as uiStore from "@pkg/utils/ui_store";
 import { StoreKeys } from "@pkg/constants"
 import classes from "./onboarding.module.css";
+import { invoke } from "@tauri-apps/api";
 
 interface PrettyCheckBoxProps {
   content: string;
@@ -50,6 +51,7 @@ export const Onboarding = memo(() => {
         _id: StoreKeys.collectDiagnosticData,
         value: diagnosticDataChecked,
       });
+      await invoke("install_script");
     } catch (err) {
       console.error(err);
     } finally {
