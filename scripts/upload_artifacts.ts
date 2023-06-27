@@ -92,6 +92,7 @@ async function createRecordOnAirtable(
                 "Installer Size": dmgSize,
                 "Updater Path": updateDest,
                 "Signature": signature,
+                Range: "Testing",
               },
             },
           ],
