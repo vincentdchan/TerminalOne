@@ -7,6 +7,7 @@ extern crate objc;
 
 mod app_path;
 mod app_state;
+mod context_menu;
 pub mod errors;
 mod install_script;
 mod mac_ext;
@@ -15,7 +16,6 @@ mod messages;
 mod terminal_delegate;
 mod theme_context;
 mod updater;
-mod context_menu;
 
 use crate::mac_ext::WindowExt;
 use app_state::AppState;
@@ -42,7 +42,7 @@ use std::{
     vec,
 };
 use sysinfo::{System, SystemExt};
-use tauri::{async_runtime, Manager, State};
+use tauri::{async_runtime, Manager, State, AppHandle};
 use terminal_delegate::TerminalDelegateEventHandler;
 // use portable_pty
 
@@ -86,7 +86,10 @@ impl TerminalDelegateEventHandler for MainTerminalEventHandler {
 }
 
 #[tauri::command]
-fn fetch_init_data(state: State<AppState>) -> Result<messages::InitMessage> {
+fn fetch_init_data(app: AppHandle, state: State<AppState>) -> Result<messages::InitMessage> {
+    let win = app.get_window("main").unwrap();
+    set_debug_icon(win, app);
+
     let home_dir = dirs::home_dir().unwrap().to_str().unwrap().to_string();
 
     let docs = state.inner().fetch_all_ui_stores()?;
@@ -345,6 +348,21 @@ fn install_update(state: State<AppState>) {
 #[tauri::command]
 fn open_context_menu(window: tauri::Window, req: OpenContextMenuReq) {
     context_menu::open(window, req)
+}
+
+#[cfg(debug_assertions)]
+fn set_debug_icon(win: tauri::Window, app_handle: tauri::AppHandle) {
+    let debug_icon_path = app_handle
+        .path_resolver()
+        .resolve_resource("static/icon-debug.png")
+        .expect("no shell integration found");
+    let debug_icon_path = debug_icon_path.to_str().unwrap().to_string();
+    win.set_app_icon_image(&debug_icon_path);
+}
+
+#[cfg(not(debug_assertions))]
+fn set_debug_icon(_win: tauri::Window, _app_handle: tauri::AppHandle) {
+    // nothing
 }
 
 fn main() {

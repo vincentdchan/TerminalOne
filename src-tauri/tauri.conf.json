@@ -47,7 +47,8 @@
       ],
       "resources": [
         "themes",
-        "shell_integration"
+        "shell_integration",
+        "static"
       ]
     },
     "security": {

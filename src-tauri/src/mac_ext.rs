@@ -1,8 +1,9 @@
 use std::ffi::{c_char, c_long, c_void};
 
-use cocoa::appkit::{NSWindow, NSWindowStyleMask};
+use cocoa::appkit::{NSWindow, NSWindowStyleMask, NSApplication, NSImage};
 use cocoa::base::{NO, YES};
 use cocoa::base::nil;
+use cocoa::foundation::NSString;
 use core_foundation::array::CFArrayGetTypeID;
 use core_foundation::array::*;
 use core_foundation::base::{CFGetTypeID, CFRelease};
@@ -151,6 +152,8 @@ pub trait WindowExt {
     fn set_transparent_titlebar(&self, transparent: bool);
     #[cfg(target_os = "macos")]
     fn position_traffic_lights(&self, x: f64, y: f64, height: f64);
+    #[cfg(target_os = "macos")]
+    fn set_app_icon_image(&self, image_path: &str);
 }
 
 #[allow(non_upper_case_globals)]
@@ -259,6 +262,14 @@ impl<R: Runtime> WindowExt for Window<R> {
             //     rect.origin.x = x + (i as f64 * space_between);
             //     button.setFrameOrigin(rect.origin);
             // }
+        }
+    }
+
+    fn set_app_icon_image(&self, image_path: &str) {
+        unsafe {
+            let app: *mut Object = NSApplication::sharedApplication(nil);
+            let image = NSImage::alloc(nil).initWithContentsOfFile_(NSString::alloc(nil).init_str(image_path));
+            app.setApplicationIconImage_(image)
         }
     }
 
