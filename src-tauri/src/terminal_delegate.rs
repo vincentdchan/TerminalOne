@@ -23,11 +23,11 @@ pub(crate) struct TerminalDelegate {
 impl TerminalDelegate {
     pub(crate) fn new(
         id: String,
-        shell_path: &Path,
+        path: Option<String>,
         envs: BTreeMap<String, Option<String>>,
         event_handler: Box<dyn TerminalDelegateEventHandler + Send>,
     ) -> Result<TerminalDelegate> {
-        let (inner, mut child) = TerminalDelegateInner::new(id.clone(), shell_path, envs)?;
+        let (inner, mut child) = TerminalDelegateInner::new(id.clone(), path, envs)?;
 
         let event_handler = Arc::new(Mutex::new(event_handler));
         let delegate = TerminalDelegate {
@@ -171,7 +171,7 @@ struct TerminalDelegateInner {
 impl TerminalDelegateInner {
     fn new(
         id: String,
-        _shell_path: &Path,
+        path: Option<String>,
         envs: BTreeMap<String, Option<String>>,
     ) -> Result<(TerminalDelegateInner, Box<dyn Child + Send + Sync>)> {
         // Use the native pty implementation for the system
@@ -209,9 +209,12 @@ impl TerminalDelegateInner {
             }
         }
 
-        let home_dir = dirs::home_dir().unwrap().to_str().unwrap().to_string();
-
-        cmd.cwd(&home_dir);
+        if let Some(path) = path.as_ref() {
+            cmd.cwd(path);
+        } else {
+            let home_dir = dirs::home_dir().unwrap().to_str().unwrap().to_string();
+            cmd.cwd(&home_dir);
+        }
 
         let child = pair.slave.spawn_command(cmd)?;
 

@@ -65,6 +65,7 @@ export class TerminalWrapper extends Component<
     const { id } = session;
     await invoke("new_terminal", {
       id,
+      path: session.initPath,
     });
     const terminal = new Terminal({
       theme: {

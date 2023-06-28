@@ -28,7 +28,7 @@ impl AppState {
     pub(crate) fn new_terminal(
         &self,
         id: String,
-        shell_path: &Path,
+        path: Option<String>,
         event_handler: Box<dyn TerminalDelegateEventHandler + Send>,
     ) -> Result<TerminalDelegate> {
         let envs = {
@@ -37,7 +37,7 @@ impl AppState {
         };
         let delegate: TerminalDelegate = TerminalDelegate::new(
             id,
-            shell_path,
+            path,
             envs,
             event_handler,
         )?;

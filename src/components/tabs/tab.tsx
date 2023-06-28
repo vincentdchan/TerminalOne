@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from "react";
+import { useCallback, useContext, useMemo } from "react";
 import { Session } from "@pkg/models/session";
 import { MdClose, MdFolder } from "react-icons/md";
 import { useBehaviorSubject } from "@pkg/hooks/observable";
@@ -6,21 +6,10 @@ import className from "classnames";
 import { isString, isUndefined } from "lodash-es";
 import { CMD_CHAR } from "@pkg/chars";
 import { IconButton } from "@pkg/components/button";
-import "./tab.css";
 import { openContextMenu } from "@pkg/utils/context_menu";
 import { mkMenuId } from "@pkg/utils/id_helper";
-
-// const NeonBar = memo(() => {
-//   const appState = useContext(AppContext)!;
-//   const winActive = useBehaviorSubject(appState.windowActive$);
-//   return (
-//     <div
-//       className={className("t1-neon-bar", {
-//         "win-active": winActive,
-//       })}
-//     ></div>
-//   );
-// });
+import { AppContext } from "@pkg/contexts/app_context";
+import "./tab.css";
 
 export interface TabProps {
   session: Session;
@@ -51,6 +40,7 @@ export function Tab(props: TabProps) {
     ...restProps
   } = props;
 
+  const appState = useContext(AppContext)!;
   const title = useBehaviorSubject(session.title$);
   const cwd = useBehaviorSubject(session.cwd$);
 
@@ -76,31 +66,47 @@ export function Tab(props: TabProps) {
     return result;
   }, [cwd]);
 
-  const handleContextMenu = useCallback((e: React.MouseEvent) => {
-    e.preventDefault();
-    if (!showCloseBtn) {
-      return;
-    }
+  const handleContextMenu = useCallback(
+    (e: React.MouseEvent) => {
+      e.preventDefault();
+      const items: Record<string, any>[] = [];
 
-    openContextMenu({
-      id: mkMenuId(),
-      position: [e.clientX, e.clientY],
-      items: [
-        {
-          key: "close",
-          title: "Close",
-        }
-      ]
-    }, (key) => {
-      switch (key) {
-        case "close":
-          onClose?.();
-          break;
-        default: {}
+      if (showCloseBtn) {
+        items.push({
+          key: "close-tab",
+          title: "Close Tab",
+        });
       }
-    });
 
-  }, [showCloseBtn]);
+      items.push({
+        key: "duplicate-tab",
+        title: "Duplicate Tab",
+      });
+
+      openContextMenu(
+        {
+          id: mkMenuId(),
+          position: [e.clientX, e.clientY],
+          items: items,
+        },
+        (key) => {
+          switch (key) {
+            case "close-tab":
+              onClose?.();
+              break;
+            case "duplicate-tab": {
+              const currentPath = session.cwd$.value;
+              appState.sessionManager.newTab(currentPath);
+              break;
+            }
+            default: {
+            }
+          }
+        }
+      );
+    },
+    [showCloseBtn]
+  );
 
   const hintText = index <= 9 ? `${CMD_CHAR}${index + 1}` : undefined;
 

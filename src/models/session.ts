@@ -22,7 +22,7 @@ export class Session {
   searchBoxFocus$ = new Subject<void>();
   searchNext$ = new Subject<string>();
 
-  constructor(public appState: AppState) {
+  constructor(public appState: AppState, public initPath?: string) {
     this.id = mkTabId();
 
     this.cwd$.pipe(skip(1)).subscribe(() => this.generateActions());

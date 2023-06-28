@@ -38,8 +38,8 @@ export class SessionManager {
     })
   }
 
-  newTab(): Session {
-    const session = new Session(this.appState);
+  newTab(initPath?: string): Session {
+    const session = new Session(this.appState, initPath);
     this.sessionsMap.set(session.id, session);
 
     const len = this.sessions$.value.length;

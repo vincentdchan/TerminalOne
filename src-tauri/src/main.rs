@@ -133,23 +133,18 @@ fn fetch_init_data(app: AppHandle, state: State<AppState>) -> Result<messages::I
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 #[tauri::command]
 fn new_terminal(
-    app_handle: tauri::AppHandle,
     window: tauri::Window,
     state: State<AppState>,
     id: String,
+    path: Option<String>,
 ) -> Result<()> {
-    let shell_path = app_handle
-        .path_resolver()
-        .resolve_resource("shell_integration")
-        .expect("no shell integration found");
-
     let events_handler: Box<dyn TerminalDelegateEventHandler + Send + Sync> =
         Box::new(MainTerminalEventHandler {
             window: window.clone(),
         });
     let _delegate = state
         .inner()
-        .new_terminal(id, &shell_path, events_handler)?;
+        .new_terminal(id, path, events_handler)?;
     Ok(())
 }
 

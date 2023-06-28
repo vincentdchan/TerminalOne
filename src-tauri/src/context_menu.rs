@@ -3,7 +3,7 @@ use std::sync::Mutex;
 use crate::messages::{push_event, OpenContextMenuClickedMessage, OpenContextMenuReq};
 use cocoa::appkit::CGPoint;
 use cocoa::appkit::{NSMenu, NSMenuItem, NSWindow};
-use cocoa::base::{nil, Class};
+use cocoa::base::nil;
 use cocoa::foundation::NSPoint;
 use cocoa::foundation::NSString;
 use lazy_static::lazy_static;

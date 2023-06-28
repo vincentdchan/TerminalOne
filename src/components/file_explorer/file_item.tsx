@@ -49,15 +49,15 @@ export function FileItem(props: FileItemProps) {
             appState.sessionManager.executeCommand(`cd "${item.path}"\r`);
             break;
           case "open-in-new-tab": {
-            const newSession = appState.sessionManager.newTab();
-            newSession.uiReady$
-              .pipe(
-                filter((value) => !!value),
-                take(1)
-              )
-              .subscribe(() => {
-                newSession.shellInput$.next(`cd "${item.path}"\r`);
-              });
+            appState.sessionManager.newTab(item.path);
+            // newSession.uiReady$
+            //   .pipe(
+            //     filter((value) => !!value),
+            //     take(1)
+            //   )
+            //   .subscribe(() => {
+            //     newSession.shellInput$.next(`cd "${item.path}"\r`);
+            //   });
             break;
           }
           case "reveal-in-finder":
