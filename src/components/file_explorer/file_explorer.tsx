@@ -52,9 +52,11 @@ export const FileExplorer = memo(() => {
         return a.filename.localeCompare(b.filename);
       });
 
+      const parentPath = currentDir.split("/").slice(0, -1).join("/");
+
       newFiles.splice(0, 0, {
         filename: "..",
-        path: "..",
+        path: parentPath,
         isDir: true,
       });
 
