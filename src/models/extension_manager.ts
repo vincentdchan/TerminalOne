@@ -19,7 +19,7 @@ class ExtensionManager {
         console.error("Extension name duplicated: ", extConfig.name);
         return;
       }
-      const ctx = new ExtensionContext(extConfig);
+      const ctx = new ExtensionContext(appState, extConfig);
       this.extensionMap.set(ctx.name, ctx);
       this.extensions.push(ctx);
     });

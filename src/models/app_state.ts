@@ -206,6 +206,20 @@ export class AppState {
     }
   }
 
+  addOrRemoveFavoriteDirByPath(path: string) {
+    const dirPathToFileItem = this.dirPathToFileItem.get(path);
+    if (dirPathToFileItem) {  // exist remove it
+      this.addOrRemoveFavoriteDir(dirPathToFileItem);
+    } else {
+      const newItem: FileItemModel = {
+        filename: path.split("/").pop() || "",
+        path,
+        isDir: true,
+      }
+      this.addOrRemoveFavoriteDir(newItem);
+    }
+  }
+
   favoriteDirs$ = this.favoriteDirsPath$.pipe(
     map((paths) => {
       return paths

@@ -1,3 +1,5 @@
+import type { AppState } from "./app_state";
+
 export interface ActionPayload {
   extName: string;
   data: ActionData;
@@ -5,8 +7,9 @@ export interface ActionPayload {
 
 export interface ActionMenuItem {
   key: string;
-  command: string;
+  command?: string;
   title?: string;
+  onClick?: () => void;
 }
 
 export interface ActionMenuDivider {
@@ -61,6 +64,8 @@ export interface ExtensionContextIntf {
       | undefined
       | void
   ): void;
+  getFavoriteDirsPath(): string[];
+  addOrRemoveFavoriteDirByPath(path: string): void;
 }
 
 export interface ActionTriggerHandlerParams extends GenerateActionsParams {
@@ -78,7 +83,11 @@ export class ExtensionContext implements ExtensionContextIntf {
     | undefined
     | void;
 
-  constructor(public config: ExtensionConfig) {}
+  #appState: AppState;
+
+  constructor(appState: AppState, public config: ExtensionConfig) {
+    this.#appState = appState;
+  }
 
   onResolve(
     config: ExtensionResolveConfig,
@@ -99,6 +108,14 @@ export class ExtensionContext implements ExtensionContextIntf {
   }
 
   #cachedParams?: GenerateActionsParams | void | undefined;
+
+  getFavoriteDirsPath(): string[] {
+    return this.#appState.favoriteDirsPath$.value?.toArray() ?? [];
+  }
+
+  addOrRemoveFavoriteDirByPath(path: string) {
+    this.#appState.addOrRemoveFavoriteDirByPath(path);
+  }
 
   generateActions(params: GenerateActionsParams): HandleResolveResult {
     this.#cachedParams = params;

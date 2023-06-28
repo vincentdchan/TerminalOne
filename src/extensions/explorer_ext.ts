@@ -1,4 +1,4 @@
-import type { ExtensionConfig } from "@pkg/models/extension";
+import type { ActionMenuItemType, ExtensionConfig } from "@pkg/models/extension";
 
 function prettyPath(homeDir: string, path: string): string {
   if (path.startsWith(homeDir)) {
@@ -24,13 +24,38 @@ const explorerExt: ExtensionConfig = {
         color: "rgb(138, 206, 247)",
       };
     });
-    context.onActionTrigger(() => {
-      return [
-        {
-          key: "go-up",
-          command: "cd ..",
-        },
-      ];
+    context.onActionTrigger(({ currentDir }) => {
+      const favoriteDirs = context.getFavoriteDirsPath();
+      const result: ActionMenuItemType[] = [];
+
+      if (favoriteDirs.includes(currentDir)) {
+        result.push({
+          key: "remove-from-favorite",
+          title: "Remove from Favorites",
+          onClick: () => {
+            context.addOrRemoveFavoriteDirByPath(currentDir);
+          }, 
+        });
+      } else {
+        result.push({
+          key: "add-to-favorite",
+          title: "Add to Favorites",
+          onClick: () => {
+            context.addOrRemoveFavoriteDirByPath(currentDir);
+          },
+        });
+      }
+
+      result.push({
+        type: "divider",
+      })
+
+      result.push({
+        key: "go-up",
+        title: "Go to parent directory",
+        command: "cd ..",
+      });
+      return result;
     });
   },
 };
