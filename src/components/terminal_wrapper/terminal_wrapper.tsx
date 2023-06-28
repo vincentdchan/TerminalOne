@@ -165,6 +165,7 @@ export class TerminalWrapper extends Component<
     });
     this.resizeObserver.observe(this.containerRef.current!);
     this.delayFocus();
+    session.uiReady$.next(true);
   }
 
   delayFocus() {

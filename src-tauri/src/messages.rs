@@ -96,8 +96,16 @@ pub struct MenuItem {
 #[derive(Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct  OpenContextMenuReq {
+  pub id: String,
   pub items: Vec<MenuItem>,
   pub position: Vec<f64>,
+}
+
+#[derive(Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct  OpenContextMenuClickedMessage {
+  pub id: String,
+  pub key: String,
 }
 
 #[derive(Clone, Serialize, Deserialize)]
@@ -111,4 +119,5 @@ pub(crate) mod push_event {
   pub static PTY_OUTPUT: &str = "pty-output";
   pub static PTY_EXIT: &str = "pty-exit";
   pub static FS_CHANGED: &str = "fs-changed";
+  pub static CONTEXT_MENU_CLICKED: &str = "context-menu-clicked";
 }

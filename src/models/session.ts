@@ -13,6 +13,7 @@ export class Session {
   cwd$ = new BehaviorSubject<string | undefined>(undefined);
   actions$ = new BehaviorSubject<ActionPayload[]>([]);
   showSearchBox$ = new BehaviorSubject<boolean>(false);
+  uiReady$ = new BehaviorSubject<boolean>(false);
 
   shellInput$ = new Subject<string>();
   ptyOutput$ = new Subject<Uint8Array>();

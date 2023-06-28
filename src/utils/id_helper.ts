@@ -30,3 +30,7 @@ function randomStr(count: number) {
 export function mkTabId(): string {
   return "Tab-" + randomStr(12);
 }
+
+export function mkMenuId(): string {
+  return "Mnu-" + randomStr(12);
+}

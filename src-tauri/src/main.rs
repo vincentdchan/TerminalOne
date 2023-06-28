@@ -15,6 +15,7 @@ mod messages;
 mod terminal_delegate;
 mod theme_context;
 mod updater;
+mod context_menu;
 
 use crate::mac_ext::WindowExt;
 use app_state::AppState;
@@ -343,7 +344,7 @@ fn install_update(state: State<AppState>) {
 
 #[tauri::command]
 fn open_context_menu(window: tauri::Window, req: OpenContextMenuReq) {
-    window.open_context_menu(req)
+    context_menu::open(window, req)
 }
 
 fn main() {

@@ -1,4 +1,3 @@
-
 export interface InitMessage {
   homeDir: string;
   forceOnboarding: boolean;
@@ -30,4 +29,9 @@ export interface SpawnResult {
   output: string;
   success: boolean;
   code?: number;
+}
+
+export interface OpenContextMenuClickedMessage {
+  id: string;
+  key: string;
 }

@@ -38,7 +38,7 @@ export class SessionManager {
     })
   }
 
-  newTab() {
+  newTab(): Session {
     const session = new Session(this.appState);
     this.sessionsMap.set(session.id, session);
 
@@ -46,6 +46,8 @@ export class SessionManager {
     this.sessions$.next([...this.sessions$.value, session]);
 
     this.activeSessionIndex$.next(len);
+
+    return session;
   }
 
   closeTab() {

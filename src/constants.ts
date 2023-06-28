@@ -3,6 +3,7 @@ export enum PushMessages {
   PTY_EXIT = "pty-exit",
   FS_CHANGED = "fs-changed",
   UPDATE_AVAILABLE = "update-available",
+  CONTEXT_MENU_CLICKED = "context-menu-clicked",
 }
 
 export interface PtyResponse {

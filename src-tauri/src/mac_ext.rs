@@ -1,8 +1,5 @@
 use std::ffi::{c_char, c_long, c_void};
 
-use log::{debug, info};
-use objc::declare::ClassDecl;
-use crate::messages::OpenContextMenuReq;
 use cocoa::appkit::{NSWindow, NSWindowStyleMask};
 use cocoa::base::{NO, YES};
 use cocoa::base::nil;
@@ -12,10 +9,9 @@ use core_foundation::base::{CFGetTypeID, CFRelease};
 use core_foundation::dictionary::*;
 use core_foundation::number::{kCFNumberLongType, CFNumberGetTypeID, CFNumberGetValue};
 use core_foundation::string::*;
-use objc::runtime::{Object, Sel};
+use objc::runtime::{Object};
 use serde_json::Value;
 use tauri::{Runtime, Window};
-use lazy_static::lazy_static;
 
 #[allow(dead_code)]
 pub type CFTypeID = ::core::ffi::c_ulong;
@@ -29,29 +25,6 @@ pub type CFArrayRef = *const __CFArray;
 #[link(name = "CFNetwork", kind = "framework")]
 extern "C" {
     pub fn CFNetworkCopySystemProxySettings() -> CFDictionaryRef;
-
-}
-
-struct ObjectWrapper(*mut Object);
-
-// imple send for ObjectWrapper
-unsafe impl Send for ObjectWrapper {}
-unsafe impl Sync for ObjectWrapper {}
-
-lazy_static! {
-    static ref MY_DELEGATE: ObjectWrapper = {
-        unsafe {
-            // Create NSWindowDelegate
-            let superclass = class!(NSObject);
-            let mut decl = ClassDecl::new("MyWindowDelegate", superclass).unwrap();
-
-            decl.add_method(sel!(onContextMenuItemClicked:), context_menu_item_clicked as extern fn(&Object, Sel, cocoa::base::id) -> ());
-
-            let delegate_class = decl.register();
-            let delegate_object: *mut Object = msg_send![delegate_class, new];
-            ObjectWrapper(delegate_object)
-        }
-    };
 
 }
 
@@ -178,8 +151,6 @@ pub trait WindowExt {
     fn set_transparent_titlebar(&self, transparent: bool);
     #[cfg(target_os = "macos")]
     fn position_traffic_lights(&self, x: f64, y: f64, height: f64);
-    #[cfg(target_os = "macos")]
-    fn open_context_menu(&self, req: OpenContextMenuReq);
 }
 
 #[allow(non_upper_case_globals)]
@@ -291,51 +262,4 @@ impl<R: Runtime> WindowExt for Window<R> {
         }
     }
 
-    #[cfg(target_os = "macos")]
-    fn open_context_menu(&self, req: OpenContextMenuReq) {
-        use cocoa::appkit::{CGPoint};
-        use cocoa::foundation::NSPoint;
-        use cocoa::{
-            appkit::{NSMenu, NSMenuItem},
-            foundation::NSString,
-        };
-
-        unsafe {
-            let window = self.ns_window().unwrap() as cocoa::base::id;
-            let window_content_view = window.contentView();
-            let window_content_view_frame = window_content_view.frame();
-
-            let delegate_object = MY_DELEGATE.0.clone();
-
-            let menu = NSMenu::new(nil);
-
-            for item in req.items {
-                let title = NSString::alloc(nil).init_str(&item.title);
-                let action = sel!(onContextMenuItemClicked:);
-                let menu_item = NSMenuItem::alloc(nil).initWithTitle_action_keyEquivalent_(
-                    title,
-                    action,
-                    NSString::alloc(cocoa::base::nil).init_str(""),
-                );
-                menu_item.setTarget_(delegate_object);
-                let _: () = msg_send![menu_item, setTag:NSString::alloc(nil).init_str(&item.key)];
-                menu.addItem_(menu_item);
-            }
-
-            let x = req.position[0];
-            let y = req.position[1];
-            // popup the menu
-            let cg_point = CGPoint::new(x, window_content_view_frame.size.height - y);
-            debug!("open_context_menu: x={}, y={}", cg_point.x, cg_point.y);
-
-            let convert_point: CGPoint =
-                msg_send![window_content_view, convertPoint:cg_point fromView:nil];
-            let _: () = msg_send![menu, popUpMenuPositioningItem: nil atLocation: NSPoint::new(convert_point.x, convert_point.y) inView: window_content_view];
-        }
-    }
 }
-
-extern fn context_menu_item_clicked(_: &Object, _: Sel, _: cocoa::base::id) {
-    info!("context_menu_item_clicked");
-}
-
