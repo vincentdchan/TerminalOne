@@ -20,6 +20,20 @@ jobs:
       - uses: actions/setup-node@v2
         with:
           node-version: '18'
+      
+      - run: |
+          rustup target add aarch64-apple-darwin
+          rustup target add x86_64-apple-darwin
+
+      - uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            src-tauri/target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
 
       - uses: pnpm/action-setup@v2
         name: Install pnpm
@@ -35,6 +49,4 @@ jobs:
           TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
           TAURI_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
         run: |
-          rustup target add aarch64-apple-darwin
-          rustup target add x86_64-apple-darwin
           pnpm tauri build --target universal-apple-darwin
