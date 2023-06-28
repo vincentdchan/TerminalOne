@@ -84,7 +84,7 @@ async function createRecordOnAirtable(
             {
               fields: {
                 Name: version,
-                "Release Date": `${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}`,
+                "Release Date": now.toISOString(),
                 Platform: "darwin",
                 Arch: arch,
                 "Git Describe": gitVersion,
