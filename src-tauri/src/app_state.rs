@@ -251,7 +251,7 @@ fn try_set_https_proxy(system_proxy: &serde_json::Map<String, serde_json::Value>
             if n.as_u64().unwrap() != 1 {
                 return;
             }
-            let value = format!("https://{}:{}", proxy, port);
+            let value = format!("http://{}:{}", proxy, port);
             info!("==> set HTTPS_PROXY: {}", value);
             std::env::set_var("HTTPS_PROXY", value);
         }
