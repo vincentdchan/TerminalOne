@@ -16,7 +16,7 @@ const FileExplorer = lazy(() => import("@pkg/components/file_explorer"));
 const GiftBox = lazy(() => import("@pkg/components/gift_box"));
 
 const MIN_WIDTH = 80;
-const DEFAULT_WIDTH = 240;
+const DEFAULT_WIDTH = 190;
 const RIGHT_DEFAULT_WIDTH = 248;
 
 export function MainContentLayout(props: MainContentLayoutProps) {
