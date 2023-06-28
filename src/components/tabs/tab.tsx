@@ -7,6 +7,8 @@ import { isString, isUndefined } from "lodash-es";
 import { CMD_CHAR } from "@pkg/chars";
 import { IconButton } from "@pkg/components/button";
 import "./tab.css";
+import { openContextMenu } from "@pkg/utils/context_menu";
+import { mkMenuId } from "@pkg/utils/id_helper";
 
 // const NeonBar = memo(() => {
 //   const appState = useContext(AppContext)!;
@@ -74,6 +76,32 @@ export function Tab(props: TabProps) {
     return result;
   }, [cwd]);
 
+  const handleContextMenu = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    if (!showCloseBtn) {
+      return;
+    }
+
+    openContextMenu({
+      id: mkMenuId(),
+      position: [e.clientX, e.clientY],
+      items: [
+        {
+          key: "close",
+          title: "Close",
+        }
+      ]
+    }, (key) => {
+      switch (key) {
+        case "close":
+          onClose?.();
+          break;
+        default: {}
+      }
+    });
+
+  }, [showCloseBtn]);
+
   const hintText = index <= 9 ? `${CMD_CHAR}${index + 1}` : undefined;
 
   return (
@@ -84,6 +112,7 @@ export function Tab(props: TabProps) {
         dragging: !!dragging,
       })}
       draggable
+      onContextMenu={handleContextMenu}
       {...restProps}
     >
       <div className="left">
