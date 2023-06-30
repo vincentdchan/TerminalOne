@@ -1,5 +1,5 @@
 use crate::messages::TermOptions;
-use crate::process_statistics::{fetch_process_statistics_by_pid, CpuMemResult};
+use crate::process_statistics::{fetch_process_statistics_by_pid, StatResult};
 use crate::Result;
 use log::{debug, error, info, warn};
 use notify_debouncer_mini::{new_debouncer, notify::*, DebounceEventResult, Debouncer};
@@ -133,7 +133,7 @@ impl TerminalDelegate {
         inner.set_options(options, event_handler)
     }
 
-    pub(crate) fn fetch_statistics(&self) -> Option<CpuMemResult> {
+    pub(crate) fn fetch_statistics(&self) -> Option<StatResult> {
         let process_id = {
             let inner = self.inner.lock().unwrap();
             inner.process_id
@@ -141,7 +141,6 @@ impl TerminalDelegate {
 
         process_id
             .map(|pid| fetch_process_statistics_by_pid(pid))
-            .flatten()
     }
 
     #[allow(unused)]

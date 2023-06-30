@@ -34,7 +34,7 @@ use log4rs::encode::pattern::PatternEncoder;
 use messages::*;
 use polodb_core::bson::Bson;
 use portable_pty::ExitStatus;
-use process_statistics::CpuMemResult;
+use process_statistics::StatResult;
 use std::collections::HashMap;
 use std::path::PathBuf;
 use std::{
@@ -170,7 +170,7 @@ fn send_terminal_data(state: State<AppState>, id: &str, data: &str) -> Result<()
 }
 
 #[tauri::command]
-fn get_terminal_statistics(state: State<AppState>, id: &str) -> Option<CpuMemResult> {
+fn get_terminal_statistics(state: State<AppState>, id: &str) -> Option<StatResult> {
     let delegate = state.inner().get_terminal_by_id(id);
 
     delegate.fetch_statistics()
