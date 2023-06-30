@@ -45,6 +45,7 @@ impl StatResultBuilder {
         let output = Command::new("pgrep")
             .arg("-P")
             .arg(pid.to_string())
+            .arg("-l")
             .output()
             .ok();
         if output.is_none() {
@@ -59,22 +60,35 @@ impl StatResultBuilder {
             return;
         }
 
-        let test_pid = output_str.trim().parse::<u32>();
-        if test_pid.is_err() {
-            warn!("parse error: {}", output_str);
-            return;
+        let lines = output_str.split("\n");
+
+        for line in lines {
+            let columns = line.split(" ").collect::<Vec<&str>>();
+            if columns.len() < 2 {
+                continue;
+            }
+            let test_pid = columns[0].trim().parse::<u32>();
+            if test_pid.is_err() {
+                warn!("parse error: {}", columns[0]);
+                continue;
+            }
+            let process_name = columns[1].trim();
+
+            if level == 1 {
+                self.first_level_children_names.push(process_name.to_string());
+            }
+
+            let pid = test_pid.unwrap();
+
+            let stat = fetch_cpu_mem_by_pid(pid);
+
+            self.total_children_count += 1;
+            self.first_level_children_names.push(pid.to_string());
+            self.cpu_usage += stat.cpu_usage;
+            self.mem_usage += stat.mem_usage;
+
+            self.build_statistics_by_pid(pid, level + 1);
         }
-
-        let pid = test_pid.unwrap();
-
-        let stat = fetch_cpu_mem_by_pid(pid);
-
-        self.total_children_count += 1;
-        self.first_level_children_names.push(pid.to_string());
-        self.cpu_usage += stat.cpu_usage;
-        self.mem_usage += stat.mem_usage;
-
-        self.build_statistics_by_pid(pid, level + 1);
     }
 }
 

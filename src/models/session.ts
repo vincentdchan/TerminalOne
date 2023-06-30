@@ -17,7 +17,7 @@ export class Session {
   actions$ = new BehaviorSubject<ActionPayload[]>([]);
   showSearchBox$ = new BehaviorSubject<boolean>(false);
   uiReady$ = new BehaviorSubject<boolean>(false);
-  statistics$: BehaviorSubject<ImmutableList<TerminalStatistic | undefined>> = new BehaviorSubject(ImmutableList());
+  statistics$: BehaviorSubject<ImmutableList<TerminalStatistic>> = new BehaviorSubject(ImmutableList());
 
   shellInput$ = new Subject<string>();
   ptyOutput$ = new Subject<Uint8Array>();
@@ -60,7 +60,7 @@ export class Session {
     });
   }
 
-  pushStatistic(statistic: TerminalStatistic | undefined) {
+  pushStatistic(statistic: TerminalStatistic) {
     if (!statistic && this.statistics$.value.count() === 0) {
       return;
     }

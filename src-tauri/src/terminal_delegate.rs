@@ -133,7 +133,7 @@ impl TerminalDelegate {
         inner.set_options(options, event_handler)
     }
 
-    pub(crate) fn fetch_statistics(&self) -> Option<StatResult> {
+    pub(crate) fn fetch_statistics(&self) -> StatResult {
         let process_id = {
             let inner = self.inner.lock().unwrap();
             inner.process_id
@@ -141,6 +141,7 @@ impl TerminalDelegate {
 
         process_id
             .map(|pid| fetch_process_statistics_by_pid(pid))
+            .unwrap_or_default()
     }
 
     #[allow(unused)]

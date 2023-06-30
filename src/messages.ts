@@ -39,4 +39,5 @@ export interface OpenContextMenuClickedMessage {
 export interface TerminalStatistic {
   cpuUsage: number;
   memUsage: number;
+  totalChildrenCount: number;
 }

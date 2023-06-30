@@ -45,7 +45,7 @@ const Toolbar = memo((props: ToolbarProps) => {
         {actions.map((action) => {
           return <Action key={action.extName} payload={action} />;
         })}
-        {!!(statistics.count() > 0 && statistics.last()) && (
+        {(statistics.last()?.totalChildrenCount ?? 0) > 0 && (
           <StatAction session={session} />
         )}
       </div>

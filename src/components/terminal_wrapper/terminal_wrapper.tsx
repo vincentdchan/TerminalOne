@@ -176,7 +176,7 @@ export class TerminalWrapper extends Component<
     const event$ = interval(2000);
     const { session } = this.props;
     const s = event$.subscribe(async () => {
-      const statistic: TerminalStatistic | undefined = await invoke("get_terminal_statistics", {
+      const statistic: TerminalStatistic = await invoke("get_terminal_statistics", {
         id: session.id,
       });
 

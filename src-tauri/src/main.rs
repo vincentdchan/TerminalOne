@@ -170,7 +170,7 @@ fn send_terminal_data(state: State<AppState>, id: &str, data: &str) -> Result<()
 }
 
 #[tauri::command]
-fn get_terminal_statistics(state: State<AppState>, id: &str) -> Option<StatResult> {
+fn get_terminal_statistics(state: State<AppState>, id: &str) -> StatResult {
     let delegate = state.inner().get_terminal_by_id(id);
 
     delegate.fetch_statistics()
