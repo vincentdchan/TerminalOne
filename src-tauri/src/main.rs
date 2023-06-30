@@ -49,6 +49,9 @@ use terminal_delegate::TerminalDelegateEventHandler;
 // use portable_pty
 
 pub type Result<T> = std::result::Result<T, errors::Error>;
+const CHANGELOG_LINK: &str = "https://www.terminalone.app/changelog";
+const DISCORD_LINK: &str = "https://discord.gg/8vmYtHSP5m";
+const TWITTER_LINK: &str = "https://twitter.com/terminalone_app";
 
 struct MainTerminalEventHandler {
     window: tauri::Window,
@@ -495,6 +498,24 @@ fn main() {
         .on_menu_event(|event| match event.menu_item_id() {
             "settings" => {
                 info!("settings")
+            }
+            "changelog" => {
+                let result = open::that(CHANGELOG_LINK);
+                if let Err(err) = result {
+                    error!("open changelog error: {}", err);
+                }
+            }
+            "join-discord" => {
+                let result = open::that(DISCORD_LINK);
+                if let Err(err) = result {
+                    error!("open discord error: {}", err);
+                }
+            }
+            "follow-twitter" => {
+                let result = open::that(TWITTER_LINK);
+                if let Err(err) = result {
+                    error!("open twitter error: {}", err);
+                }
             }
             _ => {}
         })

@@ -142,5 +142,15 @@ pub fn generate_menu(#[allow(unused)] app_name: &str) -> Menu {
     window_menu = window_menu.add_native_item(MenuItem::CloseWindow);
     menu = menu.add_submenu(Submenu::new("Window", window_menu));
 
+    let mut help_menu = Menu::new();
+    #[cfg(target_os = "macos")]
+    {
+        help_menu = help_menu.add_item(CustomMenuItem::new("changelog", "Changelog"));
+        help_menu = help_menu.add_native_item(MenuItem::Separator);
+        help_menu = help_menu.add_item(CustomMenuItem::new("join-discord", "Join our Discord"));
+        help_menu = help_menu.add_item(CustomMenuItem::new("follow-twitter", "Follow us on Twitter"));
+    }
+    menu = menu.add_submenu(Submenu::new("Help", help_menu));
+
     menu
 }
