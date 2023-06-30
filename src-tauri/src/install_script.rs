@@ -22,11 +22,12 @@ pub fn install_script(app_handle: tauri::AppHandle) -> Result<()> {
         .expect("no shell integration found");
   info!("begin install script");
 
-  let precommit_str = {
+  let post_commit_str = {
       let mut result = "\n# Terminal One\nsource ".to_string();
       let precommit_dir = make_precommit_dir(&shell_path)?;
       let escaped_path = escape_shell_path(precommit_dir.as_str());
       result += escaped_path.as_str();
+      result += "\n";
       result
   };
 
@@ -41,13 +42,13 @@ pub fn install_script(app_handle: tauri::AppHandle) -> Result<()> {
   let content = std::fs::read_to_string(&path).unwrap_or("".to_string());
 
   // check if the precommit_str is already in the content
-  let already_exist = content.contains(precommit_str.as_str());
+  let already_exist = content.contains(post_commit_str.as_str());
   if already_exist {
     info!("precommit already exist");
     return Ok(());
   }
 
-  let new_content = precommit_str + "\n" + content.as_str();
+  let new_content = content + post_commit_str.as_str();
   if exist {
     let backup_path = path.to_str().unwrap().to_string() + ".bak";
     // move path to backup_path

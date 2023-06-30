@@ -94,6 +94,9 @@ export class Session {
   }
 
   closeSearchBox() {
+    if (!this.showSearchBox$.value) {
+      return;
+    }
     this.showSearchBox$.next(false);
     this.termFocus$.next();
   }
