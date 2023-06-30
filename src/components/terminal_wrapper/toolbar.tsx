@@ -18,7 +18,7 @@ const Toolbar = memo((props: ToolbarProps) => {
   const { session } = props;
   const actions = useBehaviorSubject(session.actions$);
   const showSearchBox = useBehaviorSubject(session.showSearchBox$);
-  const statLen = useBehaviorSubject(session.statisticsLength$);
+  const statistics = useBehaviorSubject(session.statistics$);
 
   const handleSearchBoxClose = useCallback(() => {
     session.closeSearchBox();
@@ -45,7 +45,7 @@ const Toolbar = memo((props: ToolbarProps) => {
         {actions.map((action) => {
           return <Action key={action.extName} payload={action} />;
         })}
-        {!!(statLen > 0 && session.lastStatistic) && (
+        {!!(statistics.count() > 0 && statistics.last()) && (
           <StatAction session={session} />
         )}
       </div>

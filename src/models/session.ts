@@ -5,6 +5,7 @@ import { invoke } from "@tauri-apps/api";
 import { isUndefined, isString } from "lodash-es";
 import { ActionPayload } from "./extension";
 import { TerminalStatistic } from "@pkg/messages";
+import { List as ImmutableList } from "immutable";
 
 const FILE_PATTERN = /file:\/\/([^\/]+)(.+)/;
 const MAX_STATISTICS = 100;
@@ -16,7 +17,7 @@ export class Session {
   actions$ = new BehaviorSubject<ActionPayload[]>([]);
   showSearchBox$ = new BehaviorSubject<boolean>(false);
   uiReady$ = new BehaviorSubject<boolean>(false);
-  statisticsLength$ = new BehaviorSubject<number>(0);
+  statistics$: BehaviorSubject<ImmutableList<TerminalStatistic | undefined>> = new BehaviorSubject(ImmutableList());
 
   shellInput$ = new Subject<string>();
   ptyOutput$ = new Subject<Uint8Array>();
@@ -24,9 +25,6 @@ export class Session {
   termFocus$ = new Subject<void>();
   searchBoxFocus$ = new Subject<void>();
   searchNext$ = new Subject<string>();
-  statisticsUpdated$ = new Subject<void>();
-
-  #statistics: (TerminalStatistic | undefined)[] = [];
 
   constructor(public appState: AppState, public initPath?: string) {
     this.id = mkTabId();
@@ -62,30 +60,18 @@ export class Session {
     });
   }
 
-  get statistics() {
-    return this.#statistics;
-  }
-
-  get lastStatistic() {
-    return this.statistics[this.statistics.length - 1];
-  }
-
   pushStatistic(statistic: TerminalStatistic | undefined) {
-    if (!statistic && this.#statistics.length === 0) {
+    if (!statistic && this.statistics$.value.count() === 0) {
       return;
-    }
-    this.statistics.push(statistic);
-    // limit to 100
-    if (this.statistics.length > MAX_STATISTICS) {
-      this.statistics.shift();
     }
 
-    this.statisticsUpdated$.next();
-    const newLen = this.statistics.length;
-    if (newLen === this.statisticsLength$.value) {
-      return;
+    let next = this.statistics$.value.push(statistic);
+    // limit to 100
+    if (next.count() > MAX_STATISTICS) {
+      next = next.shift();
     }
-    this.statisticsLength$.next(newLen);
+
+    this.statistics$.next(next);
   }
 
   async generateActions() {

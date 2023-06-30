@@ -45,7 +45,6 @@ export function Tab(props: TabProps) {
   const appState = useContext(AppContext)!;
   const title = useBehaviorSubject(session.title$);
   const cwd = useBehaviorSubject(session.cwd$);
-  const statLen = useBehaviorSubject(session.statisticsLength$);
 
   const handleClose = useCallback(
     (e: React.MouseEvent) => {
