@@ -14,7 +14,7 @@ pub async fn check_update(app_handle: AppHandle) -> Result<bool> {
         machine_id_opt.unwrap()
     };
 
-    info!("Device ID: {:?}", machine_id);
+    debug!("Device ID: {:?}", machine_id);
 
     let mut sys = System::new_all();
     sys.refresh_all();
@@ -41,7 +41,9 @@ pub async fn check_update(app_handle: AppHandle) -> Result<bool> {
         version, platform, arch, os_version
     );
 
-    let builder = tauri::updater::builder(app_handle).header("User-Agent", user_agent)?;
+    let builder = tauri::updater::builder(app_handle)
+        .header("user-agent", user_agent)?
+        .header("x-device-id", machine_id)?;
     match builder.check().await {
         Ok(update) => {
             if update.is_update_available() {
