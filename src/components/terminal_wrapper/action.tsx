@@ -3,15 +3,13 @@ import {
   type ActionMenuItemType,
   type ActionPayload,
 } from "@pkg/models/extension";
-import { OUTLINE_DEFAULT_COLOR } from "./toolbar";
 import Dropdown from "@pkg/components/dropdown";
 import { Menu, MenuItem, MenuDivider } from "@pkg/components/menu";
-import classNames from "classnames";
 import { Ref, useCallback, useContext, useState } from "react";
 import { AppContext } from "@pkg/contexts/app_context";
 import { isString } from "lodash-es";
-import classes from "./action.module.css";
 import { take } from "rxjs";
+import { ActionUI } from "./action_ui";
 
 export interface ActionProps {
   payload: ActionPayload;
@@ -69,14 +67,10 @@ function Action(props: ActionProps) {
     >
       {(options) => {
         return (
-          <div
+          <ActionUI
             ref={options.ref}
-            className={classNames(`${classes.action} t1-noselect`, {
-              clickable: !!ext?.actionTriggerHandler,
-            })}
-            style={{
-              border: `solid 2px ${color ?? OUTLINE_DEFAULT_COLOR}`,
-            }}
+            clickable={!!ext?.actionTriggerHandler}
+            color={color}
             onClick={async () => {
               if (!ext) {
                 return;
@@ -94,7 +88,7 @@ function Action(props: ActionProps) {
             }}
           >
             {title}
-          </div>
+          </ActionUI>
         );
       }}
     </Dropdown>

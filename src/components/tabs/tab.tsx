@@ -1,4 +1,4 @@
-import { useCallback, useContext, useMemo } from "react";
+import { useCallback, useContext, useMemo, lazy, Suspense } from "react";
 import { Session } from "@pkg/models/session";
 import { MdClose, MdFolder } from "react-icons/md";
 import { useBehaviorSubject } from "@pkg/hooks/observable";
@@ -27,6 +27,8 @@ export interface TabProps {
   onClose?: () => void;
 }
 
+const TabChart = lazy(() => import("./tab_chart"));
+
 export function Tab(props: TabProps) {
   const {
     session,
@@ -43,6 +45,7 @@ export function Tab(props: TabProps) {
   const appState = useContext(AppContext)!;
   const title = useBehaviorSubject(session.title$);
   const cwd = useBehaviorSubject(session.cwd$);
+  const statLen = useBehaviorSubject(session.statisticsLength$);
 
   const handleClose = useCallback(
     (e: React.MouseEvent) => {
@@ -143,6 +146,11 @@ export function Tab(props: TabProps) {
         </div>
       </div>
       {hintText && <div className="right">{hintText}</div>}
+      {/* {statLen > 1 && (
+        <Suspense>
+          <TabChart session={session} />
+        </Suspense>
+      )} */}
       {/* {active && showNeonBar && <NeonBar />} */}
     </div>
   );

@@ -1,4 +1,5 @@
 use crate::messages::TermOptions;
+use crate::process_statistics::{fetch_process_statistics_by_pid, CpuMemResult};
 use crate::Result;
 use log::{debug, error, info, warn};
 use notify_debouncer_mini::{new_debouncer, notify::*, DebounceEventResult, Debouncer};
@@ -35,6 +36,7 @@ impl TerminalDelegate {
             _event_handler: event_handler.clone(),
         };
 
+        // <-- thread to read from the child process and send to the terminal
         let delegate_clone = delegate.clone();
         let mut reader = delegate_clone.try_clone_reader()?;
         let reader_id = id.clone();
@@ -131,6 +133,23 @@ impl TerminalDelegate {
         inner.set_options(options, event_handler)
     }
 
+    pub(crate) fn fetch_statistics(&self) -> Option<CpuMemResult> {
+        let process_id = {
+            let inner = self.inner.lock().unwrap();
+            inner.process_id
+        };
+
+        process_id
+            .map(|pid| fetch_process_statistics_by_pid(pid))
+            .flatten()
+    }
+
+    #[allow(unused)]
+    pub(crate) fn is_closed(&self) -> bool {
+        let inner = self.inner.lock().unwrap();
+        inner.is_closed
+    }
+
     pub(crate) fn close(&self) {
         let mut inner = self.inner.lock().unwrap();
         inner.close();
@@ -162,6 +181,8 @@ impl std::io::Write for TerminalDelegate {
 
 struct TerminalDelegateInner {
     id: String,
+    process_id: Option<u32>,
+    is_closed: bool,
     master: Option<Box<dyn MasterPty + Send>>,
     writer: Option<Box<dyn std::io::Write + Send>>,
     options: Option<TermOptions>,
@@ -217,6 +238,7 @@ impl TerminalDelegateInner {
         }
 
         let child = pair.slave.spawn_command(cmd)?;
+        let process_id = child.process_id();
 
         drop(pair.slave);
 
@@ -224,6 +246,8 @@ impl TerminalDelegateInner {
 
         let inner = TerminalDelegateInner {
             id: id.clone(),
+            process_id,
+            is_closed: false,
             master: Some(pair.master),
             writer: Some(writer),
             options: None,

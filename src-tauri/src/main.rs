@@ -16,6 +16,7 @@ mod messages;
 mod terminal_delegate;
 mod theme_context;
 mod updater;
+mod process_statistics;
 
 use crate::mac_ext::WindowExt;
 use app_state::AppState;
@@ -33,6 +34,7 @@ use log4rs::encode::pattern::PatternEncoder;
 use messages::*;
 use polodb_core::bson::Bson;
 use portable_pty::ExitStatus;
+use process_statistics::CpuMemResult;
 use std::collections::HashMap;
 use std::path::PathBuf;
 use std::{
@@ -162,6 +164,13 @@ fn send_terminal_data(state: State<AppState>, id: &str, data: &str) -> Result<()
     delegate.write(data.as_bytes())?;
 
     Ok(())
+}
+
+#[tauri::command]
+fn get_terminal_statistics(state: State<AppState>, id: &str) -> Option<CpuMemResult> {
+    let delegate = state.inner().get_terminal_by_id(id);
+
+    delegate.fetch_statistics()
 }
 
 #[tauri::command]
@@ -464,6 +473,7 @@ fn main() {
             fetch_init_data,
             new_terminal,
             send_terminal_data,
+            get_terminal_statistics,
             terminal_set_options,
             remove_terminal,
             get_a_theme,

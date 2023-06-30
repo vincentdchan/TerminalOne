@@ -4,6 +4,7 @@ import { useBehaviorSubject } from "@pkg/hooks/observable";
 import Action from "./action";
 import classes from "./toolbar.module.css";
 import { fromEvent } from "rxjs";
+import StatAction from "./stat_action";
 
 export const OUTLINE_DEFAULT_COLOR = "rgb(250, 127, 86)";
 
@@ -17,6 +18,7 @@ const Toolbar = memo((props: ToolbarProps) => {
   const { session } = props;
   const actions = useBehaviorSubject(session.actions$);
   const showSearchBox = useBehaviorSubject(session.showSearchBox$);
+  const statLen = useBehaviorSubject(session.statisticsLength$);
 
   const handleSearchBoxClose = useCallback(() => {
     session.closeSearchBox();
@@ -43,6 +45,9 @@ const Toolbar = memo((props: ToolbarProps) => {
         {actions.map((action) => {
           return <Action key={action.extName} payload={action} />;
         })}
+        {!!(statLen > 0 && session.lastStatistic) && (
+          <StatAction session={session} />
+        )}
       </div>
       <div className={classes.searchBoxContainer}>
         {showSearchBox && (

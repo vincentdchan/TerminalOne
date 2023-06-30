@@ -35,3 +35,8 @@ export interface OpenContextMenuClickedMessage {
   id: string;
   key: string;
 }
+
+export interface TerminalStatistic {
+  cpuUsage: number;
+  memUsage: number;
+}

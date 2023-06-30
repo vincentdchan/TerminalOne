@@ -8,13 +8,14 @@ import { invoke } from "@tauri-apps/api/tauri";
 import { Session } from "@pkg/models/session";
 import { AppTheme } from "@pkg/models/app_theme";
 import { debounce } from "lodash-es";
-import { type Subscription } from "rxjs";
+import { interval, type Subscription } from "rxjs";
 import classNames from "classnames";
 import classes from "./terminal_wrapper.module.css";
 import Toolbar from "./toolbar";
 import { UnlistenFn, listen } from "@tauri-apps/api/event";
 import type { AppState } from "@pkg/models/app_state";
 import "xterm.es/css/xterm.css";
+import { TerminalStatistic } from "@pkg/messages";
 
 export interface TerminalWrapperProps {
   appState: AppState;
@@ -158,6 +159,8 @@ export class TerminalWrapper extends Component<
       })
     );
 
+    this.#initMonitor();
+
     this.resizeObserver = new ResizeObserver(() => {
       if (!this.props.active) {
         return;
@@ -167,6 +170,20 @@ export class TerminalWrapper extends Component<
     this.resizeObserver.observe(this.containerRef.current!);
     this.delayFocus();
     session.uiReady$.next(true);
+  }
+
+  #initMonitor() {
+    const event$ = interval(2000);
+    const { session } = this.props;
+    const s = event$.subscribe(async () => {
+      const statistic: TerminalStatistic | undefined = await invoke("get_terminal_statistics", {
+        id: session.id,
+      });
+
+      session.pushStatistic(statistic);
+    });
+
+    this.#subscriptions.push(s);
   }
 
   delayFocus() {
