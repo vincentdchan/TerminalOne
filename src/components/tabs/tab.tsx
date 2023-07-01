@@ -1,4 +1,4 @@
-import { useCallback, useContext, useMemo, lazy, Suspense } from "react";
+import { useCallback, useContext, useMemo } from "react";
 import { Session } from "@pkg/models/session";
 import { MdClose, MdFolder } from "react-icons/md";
 import { useBehaviorSubject } from "@pkg/hooks/observable";
@@ -131,13 +131,14 @@ export function Tab(props: TabProps) {
       onContextMenu={handleContextMenu}
       {...restProps}
     >
-      <div className="left">
+      {/* <div className="left">
         {showCloseBtn && (
           <IconButton onClick={handleClose}>
             <MdClose />
           </IconButton>
         )}
-      </div>
+      </div> */}
+      <div className="left">{hintText}</div>
       <div className="main">
         <div className="inner t1-ellipsis">
           {prettyCwd ? (
@@ -152,7 +153,13 @@ export function Tab(props: TabProps) {
           )}
         </div>
       </div>
-      {hintText && <div className="right">{hintText}</div>}
+      {showCloseBtn && (
+        <div className="right">
+          <IconButton onClick={handleClose}>
+            <MdClose />
+          </IconButton>
+        </div>
+      )}
       {/* {statLen > 1 && (
         <Suspense>
           <TabChart session={session} />

@@ -11,8 +11,8 @@
   /* add border to left righ */
   border-right: solid 1px var(--t1-border-color);
 
-  padding-left: 4px;
-  padding-right: 12px;
+  padding-left: 12px;
+  padding-right: 4px;
 
   /* for dnd */
   background-color: var(--t1-background);
@@ -72,6 +72,13 @@
   }
 
   .left {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: 400;
+  }
+
+  .right {
     flex-grow: 0;
     flex-shrink: 0;
 
@@ -90,15 +97,8 @@
     }
   }
 
-  .right {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-weight: 400;
-  }
-
   &:hover {
-    .left {
+    .right {
       button {
         color: gray;
       }
