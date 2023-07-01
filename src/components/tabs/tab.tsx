@@ -1,6 +1,6 @@
 import { useCallback, useContext, useMemo } from "react";
 import { Session } from "@pkg/models/session";
-import { MdClose, MdFolder } from "react-icons/md";
+import { MdClose, MdFolder, MdHome } from "react-icons/md";
 import { useBehaviorSubject } from "@pkg/hooks/observable";
 import className from "classnames";
 import { isString, isUndefined } from "lodash-es";
@@ -144,7 +144,7 @@ export function Tab(props: TabProps) {
           {prettyCwd ? (
             <>
               <span className="icon">
-                <MdFolder />
+                {prettyCwd === "~" ? <MdHome /> : <MdFolder />}
               </span>
               <span className="content">{prettyCwd}</span>
             </>
