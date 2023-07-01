@@ -27,7 +27,7 @@ export interface TabProps {
   onClose?: () => void;
 }
 
-const TabChart = lazy(() => import("./tab_chart"));
+// const TabChart = lazy(() => import("./tab_chart"));
 
 export function Tab(props: TabProps) {
   const {
@@ -45,6 +45,7 @@ export function Tab(props: TabProps) {
   const appState = useContext(AppContext)!;
   const title = useBehaviorSubject(session.title$);
   const cwd = useBehaviorSubject(session.cwd$);
+  const statistics = useBehaviorSubject(session.statistics$);
 
   const handleClose = useCallback(
     (e: React.MouseEvent) => {
@@ -60,13 +61,20 @@ export function Tab(props: TabProps) {
     if (isUndefined(cwd)) {
       return undefined;
     }
-    let result = cwd;
-    const lastPart = cwd.split("/").pop();
+    let result = appState.prettyPath(cwd);
+    const lastPart = result.split("/").pop();
     if (isString(lastPart)) {
       result = lastPart;
     }
+
+    const last = statistics.last();
+    if (last && last.firstLevelChildrenNames.length === 1) {
+      result += "(";
+      result += last.firstLevelChildrenNames[0];
+      result += ")";
+    }
     return result;
-  }, [cwd]);
+  }, [appState, cwd, statistics]);
 
   const handleContextMenu = useCallback(
     (e: React.MouseEvent) => {
@@ -132,7 +140,7 @@ export function Tab(props: TabProps) {
       </div>
       <div className="main">
         <div className="inner t1-ellipsis">
-          {cwd ? (
+          {prettyCwd ? (
             <>
               <span className="icon">
                 <MdFolder />

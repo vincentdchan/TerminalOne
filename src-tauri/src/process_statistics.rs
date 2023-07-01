@@ -83,7 +83,6 @@ impl StatResultBuilder {
             let stat = fetch_cpu_mem_by_pid(pid);
 
             self.total_children_count += 1;
-            self.first_level_children_names.push(pid.to_string());
             self.cpu_usage += stat.cpu_usage;
             self.mem_usage += stat.mem_usage;
 

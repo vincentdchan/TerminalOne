@@ -40,4 +40,5 @@ export interface TerminalStatistic {
   cpuUsage: number;
   memUsage: number;
   totalChildrenCount: number;
+  firstLevelChildrenNames: string[];
 }
