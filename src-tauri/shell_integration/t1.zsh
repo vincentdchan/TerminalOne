@@ -106,7 +106,7 @@ prompt_t1_setup() {
 		git:action           yellow
 		git:dirty            218
 		host                 242
-		path                 blue
+		path                 cyan
 		prompt:error         red
 		prompt:success       magenta
 		prompt:continuation  242
@@ -127,6 +127,9 @@ prompt_t1_setup() {
   # Prompt turns red if the previous command didn't exit with 0.
 	local prompt_indicator='%(?.%F{$prompt_t1_colors[prompt:success]}.%F{$prompt_t1_colors[prompt:error]})${prompt_t1_state[prompt]}%f '
 	PROMPT=$prompt_indicator
+
+	# print cwd base name with path color
+	PROMPT+='%F{$prompt_t1_colors[path]}%1~%f '
 }
 
 prompt_t1_setup "$@"
