@@ -1,6 +1,6 @@
 import { SessionManager } from "./session_manager";
 import ExtensionManager from "./extension_manager";
-import { BehaviorSubject, Subject, Subscription, map } from "rxjs";
+import { BehaviorSubject, Subject, Subscription, map, take } from "rxjs";
 import { FileItem as FileItemModel, InitMessage } from "@pkg/messages";
 import type { Settings } from "@pkg/settings";
 import { List as ImmutableList } from "immutable";
@@ -80,6 +80,7 @@ export class AppState {
       this.#fetchTheme(),
       this.#fetchInitData(),
       this.#listenUpdateInfo(),
+      this.#listenFileDrop(),
     ]);
   });
 
@@ -115,6 +116,23 @@ export class AppState {
         this.updateInfo$.next(undefined);
         this.updateStatus$.next(undefined);
       }
+    });
+  }
+
+  async #listenFileDrop() {
+    await listen("tauri://file-drop", (event) => {
+      const payload = event.payload as string[];
+      if (payload.length === 0) {
+        return;
+      }
+      const first = payload[0];
+
+      this.sessionManager.activeSession$.pipe(take(1)).subscribe((session) => {
+        if (!session) {
+          return;
+        }
+        session.shellInput$.next(`"${first}"`);
+      })
     });
   }
 

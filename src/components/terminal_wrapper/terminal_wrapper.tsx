@@ -235,9 +235,14 @@ export class TerminalWrapper extends Component<
     this.terminal = undefined;
   }
 
+  #handleFileDropEvent = (e: React.MouseEvent) => {
+    console.log("Drop:", e);
+  }
+
   override render() {
     return (
       <div
+        onDrop={this.#handleFileDropEvent}
         className={classNames("t1-term-instance-container", {
           unactive: !this.props.active,
         })}
