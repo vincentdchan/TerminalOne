@@ -5,4 +5,5 @@ export interface Settings {
 
 export interface TerminalSettings {
   "font-size": number;
+  scrollback: number;
 }

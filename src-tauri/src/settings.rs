@@ -11,12 +11,14 @@ pub struct Settings {
 #[serde(rename_all = "kebab-case")]
 pub struct TerminalSettings {
   pub font_size: u32,
+  pub scrollback: u32,
 }
 
 impl Default for TerminalSettings {
   fn default() -> Self {
     TerminalSettings {
       font_size: 15,
+      scrollback: 1000,
     }
   }
 }

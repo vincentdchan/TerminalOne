@@ -67,6 +67,7 @@ export class TerminalWrapper extends Component<
     const { terminal: terminalSettings } = settings;
     return {
       fontSize: terminalSettings["font-size"],
+      scrollback: terminalSettings.scrollback,
       theme: {
         foreground: theme.colors.foreground,
         background: theme.colors.background,
