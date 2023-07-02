@@ -21,6 +21,22 @@ function lerpColor(a: number[], b: number[], t: number) {
   });
 }
 
+const _1TB = 1024 * 1024 * 1024;
+const _1GB = 1024 * 1024;
+const _1MB = 1024;
+
+function bytesToHumanReadable(kilobytes: number) {
+  if (kilobytes > _1TB) {
+    return `${(kilobytes / _1TB).toFixed(2)} TB`;
+  } else if (kilobytes > _1GB) {
+    return `${(kilobytes / _1GB).toFixed(2)} GB`;
+  } else if (kilobytes > _1MB) {
+    return `${(kilobytes / _1MB).toFixed(2)} MB`;
+  } else {
+    return `${kilobytes} KB`;
+  }
+}
+
 const StatAction = memo((props: StatActionProps) => {
   const { session } = props;
   const statistics = useBehaviorSubject(session.statistics$);
@@ -30,9 +46,11 @@ const StatAction = memo((props: StatActionProps) => {
   const cpuT = cpu / 100.0;
   const color = lerpColor(coldestColor, hottestColor, cpuT);
 
+  const mem = lastStat?.memUsage ?? 0;
+
   return (
     <ActionUI color={`rgb(${color[0]}, ${color[1]}, ${color[2]})`}>
-      cpu:{cpu.toFixed(1)}%
+      cpu:{cpu.toFixed(1)}% mem:{bytesToHumanReadable(mem)}
     </ActionUI>
   );
 });

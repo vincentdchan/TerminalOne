@@ -109,11 +109,11 @@ struct CpuMemResult {
 fn fetch_cpu_mem_by_pid(pid: u32) -> CpuMemResult {
     let output = Command::new("ps")
         .arg("-o")
-        .arg("%cpu,%mem")
+        .arg("%cpu,rss")
         .arg("-p")
         .arg(pid.to_string())
         .output();
-    debug!("<==== output: {:?}", output);
+    debug!("<==== pid: {} output: {:?}", pid, output);
     if output.is_err() {
         return CpuMemResult::default();
     }
