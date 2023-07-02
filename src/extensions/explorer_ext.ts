@@ -1,4 +1,7 @@
-import type { ActionMenuItemType, ExtensionConfig } from "@pkg/models/extension";
+import type {
+  ActionMenuItemType,
+  ExtensionConfig,
+} from "@pkg/models/extension";
 
 function prettyPath(homeDir: string, path: string): string {
   if (path.startsWith(homeDir)) {
@@ -34,7 +37,7 @@ const explorerExt: ExtensionConfig = {
           title: "Remove from Favorites",
           onClick: () => {
             context.addOrRemoveFavoriteDirByPath(currentDir);
-          }, 
+          },
         });
       } else {
         result.push({
@@ -46,9 +49,23 @@ const explorerExt: ExtensionConfig = {
         });
       }
 
+      if (favoriteDirs.length !== 0) {
+        result.push({
+          type: "divider",
+        });
+        for (const dir of favoriteDirs) {
+          const basename = dir.split("/").pop();
+          result.push({
+            key: `goto:${dir}`,
+            title: basename,
+            command: `cd ${dir}`,
+          });
+        }
+      }
+
       result.push({
         type: "divider",
-      })
+      });
 
       result.push({
         key: "go-up",
