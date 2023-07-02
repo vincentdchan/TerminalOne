@@ -1,5 +1,5 @@
 import { createRef, Component } from "react";
-import { Terminal } from "xterm.es";
+import { ITerminalInitOnlyOptions, ITerminalOptions, Terminal } from "xterm.es";
 import { WebglAddon } from "xterm-addon-webgl.es";
 import { WebLinksAddon } from "xterm-addon-web-links.es";
 import { SearchAddon } from "xterm-addon-search.es";
@@ -14,8 +14,8 @@ import classes from "./terminal_wrapper.module.css";
 import Toolbar from "./toolbar";
 import { UnlistenFn, listen } from "@tauri-apps/api/event";
 import type { AppState } from "@pkg/models/app_state";
+import type { TerminalStatistic } from "@pkg/messages";
 import "xterm.es/css/xterm.css";
-import { TerminalStatistic } from "@pkg/messages";
 
 export interface TerminalWrapperProps {
   appState: AppState;
@@ -61,20 +61,29 @@ export class TerminalWrapper extends Component<
     }
   }
 
-  async initTerminal() {
-    const { session, theme } = this.props;
-    const { id } = session;
-    await invoke("new_terminal", {
-      id,
-      path: session.initPath,
-    });
-    const terminal = new Terminal({
+  generateTermOptions(): ITerminalOptions & ITerminalInitOnlyOptions {
+    const { theme, appState } = this.props;
+    const settings = appState.settings$.value!;
+    const { terminal: terminalSettings } = settings;
+    return {
+      fontSize: terminalSettings["font-size"],
       theme: {
         foreground: theme.colors.foreground,
         background: theme.colors.background,
         extendedAnsi: theme.colors.ansi,
       },
+    };
+  }
+
+  async initTerminal() {
+    const { session } = this.props;
+    const { id } = session;
+    await invoke("new_terminal", {
+      id,
+      path: session.initPath,
     });
+    const initOptions = this.generateTermOptions();
+    const terminal = new Terminal(initOptions);
     terminal.attachCustomKeyEventHandler((e) => {
       if (e.key === "k" && e.metaKey) {
         this.terminal?.clear();
@@ -176,9 +185,12 @@ export class TerminalWrapper extends Component<
     const event$ = interval(2000);
     const { session } = this.props;
     const s = event$.subscribe(async () => {
-      const statistic: TerminalStatistic = await invoke("get_terminal_statistics", {
-        id: session.id,
-      });
+      const statistic: TerminalStatistic = await invoke(
+        "get_terminal_statistics",
+        {
+          id: session.id,
+        }
+      );
 
       session.pushStatistic(statistic);
     });

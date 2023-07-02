@@ -2,6 +2,7 @@ import { SessionManager } from "./session_manager";
 import ExtensionManager from "./extension_manager";
 import { BehaviorSubject, Subject, Subscription, map } from "rxjs";
 import { FileItem as FileItemModel, InitMessage } from "@pkg/messages";
+import type { Settings } from "@pkg/settings";
 import { List as ImmutableList } from "immutable";
 import { invoke } from "@tauri-apps/api";
 import { isBoolean, isNumber, isString, once, debounce } from "lodash-es";
@@ -55,6 +56,8 @@ export class AppState {
     undefined
   );
   updateStatus$ = new BehaviorSubject<UpdateStatus | undefined>(undefined);
+
+  settings$ = new BehaviorSubject<Settings | undefined>(undefined);
 
   constructor() {
     let lastSubscription: Subscription | undefined;
@@ -128,8 +131,9 @@ export class AppState {
   async #fetchInitData() {
     const initData: InitMessage = await invoke("fetch_init_data");
     console.log("initData:", initData);
-    const { homeDir, uiStores } = initData;
+    const { homeDir, uiStores, settings } = initData;
     this.homeDir$.next(homeDir);
+    this.settings$.next(settings);
 
     if (isBoolean(uiStores[StoreKeys.showFileExplorer])) {
       this.showFileExplorer$.next(uiStores[StoreKeys.showFileExplorer]);

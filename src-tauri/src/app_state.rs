@@ -12,6 +12,7 @@ use std::collections::{HashMap, BTreeMap};
 use crate::mac_ext::system_proxy_settings;
 use std::path::Path;
 use std::sync::{Arc, Mutex};
+use crate::settings::Settings;
 
 #[derive(Clone)]
 pub(crate) struct AppState {
@@ -19,9 +20,10 @@ pub(crate) struct AppState {
 }
 
 impl AppState {
-    pub(crate) fn new() -> AppState {
+    pub(crate) fn new(settings: Settings) -> AppState {
+        let settings_arc = Arc::new(settings);
         AppState {
-            inner: Arc::new(Mutex::new(AppStateInner::new())),
+            inner: Arc::new(Mutex::new(AppStateInner::new(settings_arc))),
         }
     }
 
@@ -194,9 +196,15 @@ impl AppState {
         update_opt
     }
 
+    pub(crate) fn settings(&self) -> Arc<Settings> {
+        let inner = self.inner.lock().unwrap();
+        inner.settings.clone()
+    }
+
 }
 
 struct AppStateInner {
+    settings: Arc<Settings>,
     terminals: HashMap<String, TerminalDelegate>,
     preserved_envs: BTreeMap<String, Option<String>>,
     theme_context: Option<ThemeContext>,
@@ -260,11 +268,12 @@ fn try_set_https_proxy(system_proxy: &serde_json::Map<String, serde_json::Value>
 }
 
 impl AppStateInner {
-    fn new() -> AppStateInner {
+    fn new(settings: Arc<Settings>) -> AppStateInner {
         let preserved_envs = get_preserved_envs();
         debug!("preserved_envs: {:?}", preserved_envs);
 
         let result = AppStateInner {
+            settings,
             terminals: HashMap::new(),
             preserved_envs,
             theme_context: None,

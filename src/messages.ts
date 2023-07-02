@@ -1,7 +1,10 @@
+import type { Settings } from "./settings";
+
 export interface InitMessage {
   homeDir: string;
   forceOnboarding: boolean;
   uiStores: Record<string, any>;
+  settings: Settings;
 }
 
 export interface ThemeResponse {

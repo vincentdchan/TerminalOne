@@ -1,4 +1,5 @@
 use serde::{Serialize, Deserialize};
+use crate::settings::Settings;
 
 #[derive(Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -6,6 +7,7 @@ pub(crate) struct InitMessage {
   pub home_dir: String,
   pub force_onboarding: bool,
   pub ui_stores: serde_json::Value,
+  pub settings: Settings,
 }
 
 #[derive(Clone, Serialize)]

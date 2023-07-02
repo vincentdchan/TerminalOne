@@ -17,6 +17,7 @@ mod terminal_delegate;
 mod theme_context;
 mod updater;
 mod process_statistics;
+pub mod settings;
 
 use crate::mac_ext::WindowExt;
 use app_state::AppState;
@@ -97,6 +98,7 @@ fn fetch_init_data(app: AppHandle, state: State<AppState>) -> Result<messages::I
 
     let home_dir = dirs::home_dir().unwrap().to_str().unwrap().to_string();
 
+    let settings = state.inner().settings();
     let docs = state.inner().fetch_all_ui_stores()?;
 
     debug!("init ui stores: {:?}", docs);
@@ -132,6 +134,7 @@ fn fetch_init_data(app: AppHandle, state: State<AppState>) -> Result<messages::I
         home_dir,
         force_onboarding,
         ui_stores: serde_json::Value::Object(json_doc),
+        settings: settings.as_ref().clone(),
     })
 }
 
@@ -423,6 +426,9 @@ fn main() {
 
     let menu = menu::generate_menu("Terminal One");
 
+    let settings = settings::Settings::default();
+    debug!("settings: {:?}", settings);
+
     // print all envs
     // std::env::vars().for_each(|(k, v)| {
     //     info!("env: {}: {}", k, v);
@@ -430,7 +436,7 @@ fn main() {
 
     tauri::Builder::default()
         .menu(menu)
-        .manage(AppState::new())
+        .manage(AppState::new(settings))
         .setup(move |app| {
             let win = app.get_window("main").unwrap();
             win.set_transparent_titlebar(true);
