@@ -63,6 +63,7 @@
   --t1-font: "Open Sans", Arial, Helvetica, sans-serif;
   --t1-font-mono: "SF Mono", "Roboto Mono", "PT Mono", "Monaco", "Menlo",
     monospace;
+  --t1-scrollbar-thumb-color: rgb(143, 143, 143);
   --tooltip-bg-color: rgb(47, 47, 47);
   --tooltip-text-color: rgb(207, 207, 207);
 }

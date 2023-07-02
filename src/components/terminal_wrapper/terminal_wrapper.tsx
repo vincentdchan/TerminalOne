@@ -10,11 +10,11 @@ import { AppTheme } from "@pkg/models/app_theme";
 import { debounce } from "lodash-es";
 import { interval, type Subscription } from "rxjs";
 import classNames from "classnames";
-import classes from "./terminal_wrapper.module.css";
 import Toolbar from "./toolbar";
 import { UnlistenFn, listen } from "@tauri-apps/api/event";
 import type { AppState } from "@pkg/models/app_state";
 import type { TerminalStatistic } from "@pkg/messages";
+import "./terminal_wrapper.css";
 import "xterm.es/css/xterm.css";
 
 export interface TerminalWrapperProps {
@@ -237,12 +237,12 @@ export class TerminalWrapper extends Component<
   override render() {
     return (
       <div
-        className={classNames(classes.instanceContainer, {
+        className={classNames("t1-term-instance-container", {
           unactive: !this.props.active,
         })}
       >
         <Toolbar session={this.props.session} />
-        <div ref={this.containerRef} className={classes.mainContent}></div>
+        <div ref={this.containerRef} className="t1-term-main-content"></div>
       </div>
     );
   }
