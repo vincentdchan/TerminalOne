@@ -7,7 +7,7 @@ import { FitAddon } from "xterm-addon-fit.es";
 import { invoke } from "@tauri-apps/api/tauri";
 import { Session } from "@pkg/models/session";
 import { AppTheme } from "@pkg/models/app_theme";
-import { debounce } from "lodash-es";
+import { debounce, isString } from "lodash-es";
 import { interval, type Subscription } from "rxjs";
 import classNames from "classnames";
 import Toolbar from "./toolbar";
@@ -235,14 +235,26 @@ export class TerminalWrapper extends Component<
     this.terminal = undefined;
   }
 
-  #handleFileDropEvent = (e: React.MouseEvent) => {
-    console.log("Drop:", e);
+  #handleFileDropEvent = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const content = e.dataTransfer?.getData("text/plain");
+
+    if (content && content.startsWith("file://")) {
+      const path = content.replace("file://", "");
+      this.props.session.shellInput$.next(`"${path}"`);
+    }
+  }
+
+  #handleDragOver = (e: React.MouseEvent) => {
+    e.preventDefault();
   }
 
   override render() {
     return (
       <div
         onDrop={this.#handleFileDropEvent}
+        onDragOver={this.#handleDragOver}
         className={classNames("t1-term-instance-container", {
           unactive: !this.props.active,
         })}

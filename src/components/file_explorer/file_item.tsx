@@ -73,12 +73,18 @@ export function FileItem(props: FileItemProps) {
     appState.sessionManager.focusActiveSession();
   }, [appState]);
 
+  const handleDragStart = useCallback((e: React.DragEvent) => {
+    e.dataTransfer.setData("text/plain", "file://" + item.path);
+  }, [appState]);
+
   return (
     <div
       className={`${classes.fileItem} t1-noselect`}
       style={style}
+      draggable
       onContextMenu={handleContextMenu}
       onClick={handleClick}
+      onDragStart={handleDragStart}
       onDoubleClick={onDoubleClick}
     >
       <div className={classes.icon}>

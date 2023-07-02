@@ -34,6 +34,7 @@ export function SortableList(props: SortableListProps) {
   const handleDragEnd = useCallback(
     (e: React.DragEvent) => {
       e.preventDefault();
+      console.log("drag end");
 
       if (draggingContext) {
         onMove?.(

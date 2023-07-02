@@ -234,7 +234,7 @@ export function Tabs(props: TabsProps) {
 
             return (
               <Tab
-                key={`${index}`}
+                key={session.id}
                 session={session}
                 showCloseBtn={sessionsMoreThanOne}
                 showNeonBar={sessionsMoreThanOne}

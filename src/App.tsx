@@ -109,6 +109,19 @@ function App() {
     appState.toggleShowSettings();
   }, [appState]);
 
+  useEffect(() => {
+    window.addEventListener("drop", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+    });
+
+    window.addEventListener("dragover", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+    });
+
+  }, []);
+
   return (
     <AppContext.Provider value={appState}>
       {showOnboarding && (

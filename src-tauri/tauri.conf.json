@@ -62,7 +62,8 @@
         "width": 860,
         "height": 600,
         "minWidth": 402,
-        "minHeight": 280
+        "minHeight": 280,
+        "fileDropEnabled": false
       }
     ],
     "updater": {
