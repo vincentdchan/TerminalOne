@@ -81,8 +81,10 @@ export const FileExplorer = memo(() => {
     }
   };
 
-  const handleStarClick = (item: FileItemModel) => () =>
+  const handleStarClick = (item: FileItemModel) => (e: React.MouseEvent) => {
+    e.preventDefault();
     appState.addOrRemoveFavoriteDir(item);
+  }
 
   const Row = (props: ListChildComponentProps<any>) => {
     const { index, style } = props;

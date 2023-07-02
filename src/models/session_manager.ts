@@ -109,4 +109,10 @@ export class SessionManager {
       }
     });
   }
+
+  focusActiveSession() {
+    this.activeSession$.pipe(take(1)).subscribe((session) => {
+      session?.termFocus$.next();
+    });
+  }
 }

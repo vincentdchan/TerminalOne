@@ -7,7 +7,6 @@ import classes from "./file_item.module.css";
 import { mkMenuId } from "@pkg/utils/id_helper";
 import { openContextMenu } from "@pkg/utils/context_menu";
 import { AppContext } from "@pkg/contexts/app_context";
-import { filter, take } from "rxjs";
 
 export interface FileItemProps {
   style?: React.CSSProperties;
@@ -70,11 +69,16 @@ export function FileItem(props: FileItemProps) {
     );
   }, []);
 
+  const handleClick = useCallback(() => {
+    appState.sessionManager.focusActiveSession();
+  }, [appState]);
+
   return (
     <div
       className={`${classes.fileItem} t1-noselect`}
       style={style}
       onContextMenu={handleContextMenu}
+      onClick={handleClick}
       onDoubleClick={onDoubleClick}
     >
       <div className={classes.icon}>

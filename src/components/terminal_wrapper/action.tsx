@@ -8,7 +8,6 @@ import { Menu, MenuItem, MenuDivider } from "@pkg/components/menu";
 import { Ref, useCallback, useContext, useState } from "react";
 import { AppContext } from "@pkg/contexts/app_context";
 import { isString } from "lodash-es";
-import { take } from "rxjs";
 import { ActionUI } from "./action_ui";
 
 export interface ActionProps {
@@ -22,9 +21,7 @@ function Action(props: ActionProps) {
     []
   );
   const handleMenuClick = useCallback(() => {
-    appState.sessionManager.activeSession$.pipe(take(1)).subscribe((session) => {
-      session?.termFocus$.next();
-    });
+    appState.sessionManager.focusActiveSession();
   }, [appState]);
   const ext = appState.extensionManager.extensionMap.get(payload.extName);
   const { title, color } = payload.data;

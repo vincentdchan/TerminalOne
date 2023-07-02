@@ -14,6 +14,7 @@ export const ExplorerBtn = forwardRef(
 
     const handleClick = useCallback(() => {
       appState.toggleShowFileExplorer();
+      appState.sessionManager.focusActiveSession();
     }, [appState]);
 
     const showFileExplorer = useBehaviorSubject(appState.showFileExplorer$);
