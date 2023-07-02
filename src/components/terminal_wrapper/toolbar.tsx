@@ -40,7 +40,7 @@ const Toolbar = memo((props: ToolbarProps) => {
   }, []);
 
   return (
-    <div className="t1-terminal-toolbar">
+    <div className="t1-terminal-toolbar t1-noselect">
       <div className={classes.actionsContainer}>
         {actions.map((action) => {
           return <Action key={action.extName} payload={action} />;
