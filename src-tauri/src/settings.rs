@@ -7,22 +7,52 @@ use log::error;
 pub struct Settings {
   #[serde(default)]
   pub terminal: TerminalSettings,
+  #[serde(default)]
+  pub app: AppSettings,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "kebab-case")]
-pub struct TerminalSettings {
-  pub font_size: u32,
-  pub scrollback: u32,
+pub struct FontSize(pub u32);
+
+impl Default for FontSize {
+  fn default() -> Self {
+    FontSize(15)
+  } 
 }
 
-impl Default for TerminalSettings {
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Scrollback(pub u32);
+
+impl Default for Scrollback {
   fn default() -> Self {
-    TerminalSettings {
-      font_size: 15,
-      scrollback: 1000,
-    }
-  }
+    Scrollback(1000)
+  } 
+}
+
+
+#[derive(Default, Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub struct TerminalSettings {
+  #[serde(default)]
+  pub font_size: FontSize,
+  #[serde(default)]
+  pub scrollback: Scrollback,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct AutoUpdate(pub bool);
+
+impl Default for AutoUpdate {
+  fn default() -> Self {
+    AutoUpdate(true)
+  } 
+}
+
+#[derive(Default, Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub struct AppSettings {
+  #[serde(default)]
+  pub auto_update: AutoUpdate,
 }
 
 pub(crate) fn read_init_settings(app_dir: &Path) -> Settings {

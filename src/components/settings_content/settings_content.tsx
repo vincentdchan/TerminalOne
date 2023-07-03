@@ -1,21 +1,24 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useContext } from "react";
 import { RoundButton } from "./round_button";
 import { SettingsGroup } from "./settings_group";
 import Toggle from "@pkg/components/toggle";
 import className from "classnames";
+import { AppContext } from "@pkg/contexts/app_context";
 import classes from "./settings_content.module.css";
+import { useBehaviorSubject } from "@pkg/hooks/observable";
+import type { Settings } from "@pkg/settings";
 
 interface SettingTabs {
   key: string;
   name: string;
-  content: () => React.ReactNode;
+  content: (settings: Settings) => React.ReactNode;
 }
 
 const settingTabs: SettingTabs[] = [
   {
     key: "general",
     name: "General",
-    content: () => (
+    content: (settings: Settings) => (
       <div className="inner">
         <SettingsGroup
           title="Language"
@@ -25,7 +28,7 @@ const settingTabs: SettingTabs[] = [
         <SettingsGroup
           title="Auto update"
           description="Auto update Terminal One when a new version is available."
-          right={<Toggle />}
+          right={<Toggle checked={settings.app["auto-update"]} />}
           paddingRight={12}
         />
       </div>
@@ -34,20 +37,40 @@ const settingTabs: SettingTabs[] = [
   {
     key: "appearance",
     name: "Appearance",
-    content: () => (
+    content: (settings: Settings) => (
       <div className="inner">
         <SettingsGroup
           title="Theme"
           description="Customize how Terminal One looks on your device."
           right={<RoundButton>Dark</RoundButton>}
         />
+        <SettingsGroup
+          title="Font size"
+          description="Change the font size used in the terminal."
+          right={<RoundButton>{settings.terminal["font-size"]}</RoundButton>}
+        />
       </div>
     ),
+  },
+  {
+    key: "terminal",
+    name: "Terminal",
+    content: (settings: Settings) => (
+      <div className="inner">
+        <SettingsGroup
+          title="Scrollback"
+          description="Change the number of lines that can be scrolled back in the terminal." 
+          right={<RoundButton>{settings.terminal.scrollback}</RoundButton>}
+        />
+      </div>
+    )
   },
 ];
 
 export default function SettingsContent() {
   const [selectedKey, setSelectedKey] = useState(settingTabs[0].key);
+  const appState = useContext(AppContext)!;
+  const settings = useBehaviorSubject(appState.settings$)!;
 
   const tabContentMap = useMemo(() => {
     const result = new Map<string, SettingTabs>();
@@ -75,7 +98,7 @@ export default function SettingsContent() {
           ))}
         </div>
         <div className={classes.navTabContent}>
-          {tabContentMap.get(selectedKey)?.content()}
+          {tabContentMap.get(selectedKey)?.content(settings)}
         </div>
       </div>
     </div>
