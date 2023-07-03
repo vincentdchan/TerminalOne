@@ -1,5 +1,13 @@
-use polodb_core::Error as DbError;
+use std::backtrace;
+
+use log::error;
 use notify_debouncer_mini::notify;
+
+#[derive(Debug)]
+pub struct SQLiteErrorWrapper {
+  pub content: rusqlite::Error,
+  pub backtrace: backtrace::Backtrace,
+}
 
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
@@ -18,17 +26,13 @@ pub enum Error {
   #[error(transparent)]
   SystemTimeError(#[from] std::time::SystemTimeError),
   #[error(transparent)]
-  DbError(#[from] DbError),
-  #[error(transparent)]
-  BsonDeError(#[from] polodb_core::bson::de::Error),
-  #[error(transparent)]
-  BsonSeError(#[from] polodb_core::bson::ser::Error),
-  #[error(transparent)]
   NotifyError(#[from] notify::Error),
   #[error(transparent)]
   ConvertPath(#[from] core::convert::Infallible),
   #[error(transparent)]
   TauriUpdateError(#[from] tauri::updater::Error),
+  #[error("io error: {}, backtrace: {:?}", .0.content, .0.backtrace)]
+  SQLiteError(Box<SQLiteErrorWrapper>),
 }
 
 impl serde::Serialize for Error {
@@ -45,5 +49,16 @@ impl serde::Serialize for Error {
         serializer.serialize_str(self.to_string().as_ref())
       }
     }
+  }
+}
+
+impl From<rusqlite::Error> for Error {
+  fn from(err: rusqlite::Error) -> Self {
+    let result = SQLiteErrorWrapper {
+      content: err,
+      backtrace: backtrace::Backtrace::capture(),
+    };
+    error!("sqlite error: {:?}", result);
+    Self::SQLiteError(Box::new(result))
   }
 }

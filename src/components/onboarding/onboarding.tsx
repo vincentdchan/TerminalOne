@@ -52,19 +52,13 @@ export const Onboarding = memo(() => {
     }
     setProcessing(true);
     try {
-      await uiStore.store({
-        _id: StoreKeys.collectUsageData,
-        value: usageDataChecked,
-      });
-      await uiStore.store({
-        _id: StoreKeys.collectDiagnosticData,
-        value: diagnosticDataChecked,
-      });
+      await uiStore.store(StoreKeys.collectUsageData, usageDataChecked);
+      await uiStore.store(
+        StoreKeys.collectDiagnosticData,
+        diagnosticDataChecked
+      );
       await invoke("install_script");
-      await uiStore.store({
-        _id: StoreKeys.onboarding,
-        value: 1,
-      });
+      await uiStore.store(StoreKeys.onboarding, 1);
     } catch (err) {
       console.error(err);
     } finally {

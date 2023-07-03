@@ -2,8 +2,6 @@ use crate::messages::ThemeResponse;
 use crate::terminal_delegate::{TerminalDelegate, TerminalDelegateEventHandler};
 use crate::theme_context::{ThemeContext, ThemeItem};
 use crate::{Error, Result};
-use polodb_core::Database;
-use polodb_core::bson::{Document, doc};
 use log::{info, debug, warn};
 use serde_json::Value;
 use tauri::Wry;
@@ -79,7 +77,7 @@ impl AppState {
         inner.init_db(data_path)
     }
 
-    pub(crate) fn ui_store(&self, doc: Document) -> Result<()> {
+    pub(crate) fn ui_store(&self, key: String, value: serde_json::Value) -> Result<()> {
         let inner = self.inner.lock().unwrap();
         let db_opt = inner.database.as_ref();
         if db_opt.is_none() {
@@ -88,16 +86,24 @@ impl AppState {
         }
         let db = db_opt.unwrap();
 
-        let ui_store = db.collection::<Document>("ui_store");
+        // warp value into json object
+        let value_obj = serde_json::json!({
+            "value": value,
+        });
+        let value_str = serde_json::to_string(&value_obj)?;
 
-        debug!("ui store insert doc: {:?}", doc);
+        // inert to update
+        db.execute(
+            "INSERT OR REPLACE INTO ui_store (key, value) VALUES (?, ?)",
+            (&key, &value_str),
+        )?;
 
-        ui_store.insert_one(doc)?;
+        debug!("ui store insert key: {}, value: {:?}", key, value_str);
 
         Ok(())
     }
 
-    pub (crate) fn fetch_all_ui_stores(&self) -> Result<Vec<Document>> {
+    pub (crate) fn fetch_all_ui_stores(&self) -> Result<Vec<(String, String)>> {
         let inner = self.inner.lock().unwrap();
         let db_opt = inner.database.as_ref();
 
@@ -108,13 +114,17 @@ impl AppState {
 
         let db = db_opt.unwrap();
 
-        let ui_store = db.collection::<Document>("ui_store");
+        let mut stmt = db.prepare("SELECT key, value FROM ui_store")?;
 
-        let docs = ui_store
-            .find(None)?
-            .collect::<polodb_core::Result<Vec<Document>>>()?;
+        let tuple_iter = stmt.query_map([], |row| {
+            let key = row.get(0)?;
+            let value = row.get(1)?;
+            Ok((key, value))
+        })?;
 
-        Ok(docs)
+        let result = tuple_iter.collect::<rusqlite::Result<Vec<(String, String)>>>()?;
+
+        Ok(result)
     }
 
     pub(crate) fn add_favorite_folder(&self, path: &str) -> Result<()> {
@@ -128,17 +138,11 @@ impl AppState {
 
         let db = db_opt.unwrap();
         
-        let favorite_folders = db.collection::<Document>("favorite_folders");
+        let query = "INSERT INTO favorite_folders (path) VALUES (?)";
 
-        let timestamp_ms = chrono::Utc::now().timestamp_millis();
-        let timestamp_str = timestamp_ms.to_string();
+        db.execute(query, [&path])?;
 
-        favorite_folders.insert_one(doc! {
-            "id": timestamp_str.clone(),
-            "path": path.clone(),
-        })?;
-
-        debug!("insert favorite folder: {} {}", timestamp_str, path);
+        debug!("insert favorite folder: {}", path);
 
         Ok(())
     }
@@ -154,18 +158,16 @@ impl AppState {
 
         let db = db_opt.unwrap();
         
-        let favorite_folders = db.collection::<Document>("favorite_folders");
+        let query = "DELETE FROM favorite_folders WHERE path = ?";
 
-        let delete_result = favorite_folders.delete_many(doc! {
-            "path": path.clone(),
-        })?;
+        db.execute(query, [&path])?;
 
-        debug!("delete favorite folder: {} count: {:?}", path, delete_result.deleted_count);
+        debug!("delete favorite folder: {}", path);
 
         Ok(())
     }
 
-    pub(crate) fn get_all_favorite_folders(&self) -> Result<Vec<Document>> {
+    pub(crate) fn get_all_favorite_folders(&self) -> Result<Vec<String>> {
         let inner = self.inner.lock().unwrap();
         let db_opt = inner.database.as_ref();
 
@@ -176,13 +178,16 @@ impl AppState {
 
         let db = db_opt.unwrap();
         
-        let favorite_folders = db.collection::<Document>("favorite_folders");
+        let mut stmt = db.prepare("SELECT id, path FROM favorite_folders")?;
 
-        let docs = favorite_folders
-            .find(None)?
-            .collect::<polodb_core::Result<Vec<Document>>>()?;
+        let path_iter = stmt.query_map([], |row| {
+            let path: String = row.get(1)?;
+            Ok(path)
+        })?;
 
-        Ok(docs)
+        let result = path_iter.collect::<rusqlite::Result<Vec<String>>>()?;
+
+        Ok(result)
     }
 
     pub(crate) fn set_update(&self, update: UpdateResponse<Wry>) {
@@ -208,7 +213,7 @@ struct AppStateInner {
     terminals: HashMap<String, TerminalDelegate>,
     preserved_envs: BTreeMap<String, Option<String>>,
     theme_context: Option<ThemeContext>,
-    database: Option<Database>,
+    database: Option<rusqlite::Connection>,
     update: Option<UpdateResponse<Wry>>,
 }
 
@@ -303,12 +308,12 @@ impl AppStateInner {
         let mut data_path_buf = data_path.to_path_buf();
 
         if cfg!(dev) {
-            data_path_buf.push("users_dev.db");
+            data_path_buf.push("users_dev.sqlite");
         } else {
-            data_path_buf.push("users.db");
+            data_path_buf.push("users.sqlite");
         }
 
-        let database = Database::open_file(data_path_buf.as_path())?;
+        let database = crate::database::open_database(data_path_buf.as_path())?;
 
         self.database = Some(database);
 
