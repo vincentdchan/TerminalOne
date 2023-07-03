@@ -47,6 +47,7 @@ pub type Result<T> = std::result::Result<T, errors::Error>;
 const CHANGELOG_LINK: &str = "https://www.terminalone.app/changelog";
 const DISCORD_LINK: &str = "https://discord.gg/8vmYtHSP5m";
 const TWITTER_LINK: &str = "https://twitter.com/terminalone_app";
+const APP_NAME: &str = "Terminal One";
 
 struct MainTerminalEventHandler {
     window: tauri::Window,
@@ -351,15 +352,18 @@ fn set_debug_icon(_win: tauri::Window, _app_handle: tauri::AppHandle) {
 }
 
 fn main() {
-    let app_log_dir = app_path::app_log_dir("Terminal One").expect("no log dirs");
+    let app_log_dir = app_path::app_log_dir(APP_NAME).expect("no log dirs");
+    let app_data_dir = app_path::app_data_dir(APP_NAME).expect("no data dirs");
 
     logs::init_logs(app_log_dir.as_path());
 
     debug!("debug env");
 
-    let menu = menu::generate_menu("Terminal One");
+    let menu = menu::generate_menu(APP_NAME);
 
-    let settings = settings::Settings::default();
+    let _ = std::fs::create_dir(&app_data_dir);
+
+    let settings = settings::read_init_settings(&app_data_dir);
     debug!("settings: {:?}", settings);
 
     // print all envs
@@ -377,11 +381,6 @@ fn main() {
 
             let mut sys = System::new_all();
             sys.refresh_all();
-
-            let config = app.config();
-            let app_data_dir = app_path::app_data_dir(&config).expect("no app data");
-
-            let _ = std::fs::create_dir(&app_data_dir);
 
             info!("Terminal One started ~");
             // Display system information:

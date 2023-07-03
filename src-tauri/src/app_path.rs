@@ -1,10 +1,7 @@
 
 use std::path::PathBuf;
 
-use tauri::Config;
-
-pub fn app_data_dir(config: &Config) -> Option<PathBuf> {
-  let product_name = config.package.product_name.clone().expect("no product name");
+pub fn app_data_dir(product_name: &str) -> Option<PathBuf> {
   dirs_next::data_local_dir().map(|dir| dir.join(&product_name))
 }
 
