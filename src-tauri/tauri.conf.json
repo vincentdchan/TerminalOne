@@ -8,7 +8,7 @@
   },
   "package": {
     "productName": "Terminal One",
-    "version": "0.0.10"
+    "version": "0.0.11"
   },
   "tauri": {
     "allowlist": {
