@@ -1,7 +1,7 @@
 import { invoke } from "@tauri-apps/api";
 
-export async function store(obj: any) {
-  await invoke('ui_store', { doc: obj });
+export async function store(key: string, value: any) {
+  await invoke('ui_store', { key, value });
 }
 
 export async function addFavoriteFolder(path: string) {
@@ -12,11 +12,6 @@ export async function removeFavoriteFolder(path: string) {
   await invoke('remove_favorite_folder', { path });
 }
 
-export interface FavoriteFolderData {
-  _id: string,
-  path: string,
-}
-
-export async function getAllFavoriteFolders(): Promise<FavoriteFolderData[]> {
+export async function getAllFavoriteFolders(): Promise<string[]> {
   return await invoke('get_all_favorite_folders');
 }

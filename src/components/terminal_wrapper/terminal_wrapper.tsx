@@ -243,6 +243,20 @@ export class TerminalWrapper extends Component<
     if (content && content.startsWith("file://")) {
       const path = content.replace("file://", "");
       this.props.session.shellInput$.next(`"${path}"`);
+    // } else if (e.dataTransfer.items) {
+    //   // Use DataTransferItemList interface to access the file(s)
+    //   [...e.dataTransfer.items].forEach((item, i) => {
+    //     // If dropped items aren't files, reject them
+    //     if (item.kind === "file") {
+    //       const file = item.getAsFile();
+    //       console.log(`… file[${i}].name = ${file?.name}`);
+    //     }
+    //   });
+    } else {
+      // Use DataTransfer interface to access the file(s)
+      [...e.dataTransfer.files].forEach((file, i) => {
+        console.log(`… file[${i}].name = ${file.name}`, file);
+      });
     }
   }
 

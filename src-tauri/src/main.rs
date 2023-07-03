@@ -17,6 +17,7 @@ mod terminal_delegate;
 mod theme_context;
 mod updater;
 mod process_statistics;
+mod database;
 pub mod settings;
 
 use crate::mac_ext::WindowExt;
@@ -33,7 +34,6 @@ use log4rs::append::rolling_file::RollingFileAppender;
 use log4rs::config::{Appender, Config, Root};
 use log4rs::encode::pattern::PatternEncoder;
 use messages::*;
-use polodb_core::bson::Bson;
 use portable_pty::ExitStatus;
 use process_statistics::StatResult;
 use std::collections::HashMap;
@@ -105,23 +105,10 @@ fn fetch_init_data(app: AppHandle, state: State<AppState>) -> Result<messages::I
 
     let mut json_doc = serde_json::map::Map::new();
 
-    for doc in &docs {
-        let test_key = match doc.get("_id") {
-            Some(Bson::String(str)) => str.clone(),
-            _ => {
-                continue;
-            }
-        };
-
-        let test_value = match doc.get("value") {
-            Some(v) => v.clone(),
-            _ => {
-                continue;
-            }
-        };
-
-        let json_value = serde_json::to_value(test_value)?;
-        json_doc.insert(test_key, json_value);
+    for (key, value) in &docs {
+        let json = serde_json::from_str::<serde_json::Value>(value)?;
+        let json_value = json.as_object().unwrap().get("value").unwrap();
+        json_doc.insert(key.clone(), json_value.clone());
     }
 
     let mut force_onboarding = false;
@@ -251,9 +238,8 @@ fn fs_stat(path: &str) -> Result<FsStatResponse> {
 }
 
 #[tauri::command]
-fn ui_store(state: State<AppState>, doc: serde_json::Value) -> Result<()> {
-    let bson_doc = polodb_core::bson::to_document(&doc)?;
-    state.ui_store(bson_doc)?;
+fn ui_store(state: State<AppState>, key: String, value: serde_json::Value) -> Result<()> {
+    state.ui_store(key, value)?;
     Ok(())
 }
 
@@ -305,15 +291,10 @@ fn remove_favorite_folder(state: State<AppState>, path: &str) -> Result<()> {
 }
 
 #[tauri::command]
-fn get_all_favorite_folders(state: State<AppState>) -> Result<Vec<serde_json::Value>> {
+fn get_all_favorite_folders(state: State<AppState>) -> Result<Vec<String>> {
     let docs = state.inner().get_all_favorite_folders()?;
-    let mut result = Vec::new();
 
-    for doc in docs {
-        result.push(serde_json::to_value(doc)?);
-    }
-
-    Ok(result)
+    Ok(docs)
 }
 
 #[tauri::command]

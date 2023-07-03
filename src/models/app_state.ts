@@ -20,7 +20,12 @@ export enum AppStatus {
   Ready,
 }
 
-export type UpdateStatus = "PENDING" | "ERROR" | "DOWNLOADED" | "DONE" | "UPTODATE";
+export type UpdateStatus =
+  | "PENDING"
+  | "ERROR"
+  | "DOWNLOADED"
+  | "DONE"
+  | "UPTODATE";
 
 export class AppState {
   #sessionManager = once(() => new SessionManager(this));
@@ -132,7 +137,7 @@ export class AppState {
           return;
         }
         session.shellInput$.next(`"${first}"`);
-      })
+      });
     });
   }
 
@@ -173,13 +178,13 @@ export class AppState {
 
     const paths: string[] = [];
 
-    for (const folderItem of data) {
-      this.dirPathToFileItem.set(folderItem.path, {
-        path: folderItem.path,
+    for (const folderItemPath of data) {
+      this.dirPathToFileItem.set(folderItemPath, {
+        path: folderItemPath,
         isDir: true,
-        filename: folderItem.path.split("/").pop() || "",
+        filename: folderItemPath.split("/").pop() || "",
       });
-      paths.push(folderItem.path);
+      paths.push(folderItemPath);
     }
 
     this.favoriteDirsPath$.next(ImmutableList(paths));
@@ -196,19 +201,13 @@ export class AppState {
   toggleShowFileExplorer() {
     const next = !this.showFileExplorer$.value;
     this.showFileExplorer$.next(next);
-    uiStore.store({
-      _id: StoreKeys.showFileExplorer,
-      value: next,
-    });
+    uiStore.store(StoreKeys.showFileExplorer, next);
   }
 
   toggleShowGiftBox() {
     const next = !this.showGiftBox$.value;
     this.showGiftBox$.next(next);
-    uiStore.store({
-      _id: StoreKeys.showGiftBox,
-      value: next,
-    });
+    uiStore.store(StoreKeys.showGiftBox, next);
   }
 
   addOrRemoveFavoriteDir(dirModel: FileItemModel) {
@@ -230,14 +229,15 @@ export class AppState {
 
   addOrRemoveFavoriteDirByPath(path: string) {
     const dirPathToFileItem = this.dirPathToFileItem.get(path);
-    if (dirPathToFileItem) {  // exist remove it
+    if (dirPathToFileItem) {
+      // exist remove it
       this.addOrRemoveFavoriteDir(dirPathToFileItem);
     } else {
       const newItem: FileItemModel = {
         filename: path.split("/").pop() || "",
         path,
         isDir: true,
-      }
+      };
       this.addOrRemoveFavoriteDir(newItem);
     }
   }
