@@ -6,6 +6,7 @@ import className from "classnames";
 import { AppContext } from "@pkg/contexts/app_context";
 import classes from "./settings_content.module.css";
 import { useBehaviorSubject } from "@pkg/hooks/observable";
+import KeysSettingsTable from "./keys_setting_table";
 import type { Settings } from "@pkg/settings";
 
 interface SettingTabs {
@@ -63,8 +64,17 @@ const settingTabs: SettingTabs[] = [
           right={<RoundButton>{settings.terminal.scrollback}</RoundButton>}
         />
       </div>
-    )
+    ),
   },
+  {
+    key: "keys",
+    name: "Keys",
+    content: (settings: Settings) => (
+      <div className="inner">
+        <KeysSettingsTable settings={settings.keys} />
+      </div>
+    ),
+  }
 ];
 
 export default function SettingsContent() {

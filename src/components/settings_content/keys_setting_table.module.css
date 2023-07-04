@@ -1,0 +1,19 @@
+
+.bindingItemTitle {
+  font-weight: 500;
+  display: flex;
+  margin-bottom: 8px;
+}
+
+.bindingItem {
+  display: flex;
+  color: rgb(190, 188, 188);
+
+  .key {
+    flex: 1;
+  }
+
+  .value {
+    flex: 1;
+  }
+}
