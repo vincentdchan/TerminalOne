@@ -17,6 +17,9 @@ dependencies:
   immutable:
     specifier: ^4.3.0
     version: 4.3.0
+  is-hotkey:
+    specifier: ^0.2.0
+    version: 0.2.0
   lodash-es:
     specifier: ^4.17.21
     version: 4.17.21
@@ -61,6 +64,9 @@ devDependencies:
   '@tauri-apps/cli':
     specifier: ^1.3.1
     version: 1.3.1
+  '@types/is-hotkey':
+    specifier: ^0.1.7
+    version: 0.1.7
   '@types/lodash-es':
     specifier: ^4.17.7
     version: 4.17.7
@@ -1462,6 +1468,10 @@ packages:
     resolution: {integrity: sha512-/K3ds8TRAfBvi5vfjuz8y6+GiAYBZ0x4tXv1Av6CWBWn0IlADc+ZX9pMq7oU0fNQPnBwIZl3rmeLp6SBApbxSQ==}
     dev: true
 
+  /@types/is-hotkey@0.1.7:
+    resolution: {integrity: sha512-yB5C7zcOM7idwYZZ1wKQ3pTfjA9BbvFqRWvKB46GFddxnJtHwi/b9y84ykQtxQPg5qhdpg4Q/kWU3EGoCTmLzQ==}
+    dev: true
+
   /@types/jsonwebtoken@9.0.2:
     resolution: {integrity: sha512-drE6uz7QBKq1fYqqoFKTDRdFCPHd5TCub75BM+D+cMx7NU9hUz7SESLfC2fSCXVFMO5Yj8sOWHuGqPgjc+fz0Q==}
     dependencies:
@@ -2454,6 +2464,10 @@ packages:
     engines: {node: '>=8'}
     dev: true
     optional: true
+
+  /is-hotkey@0.2.0:
+    resolution: {integrity: sha512-UknnZK4RakDmTgz4PI1wIph5yxSs/mvChWs9ifnlXsKuXgWmOkY/hAE0H/k2MIqH0RlRye0i1oC07MCRSD28Mw==}
+    dev: false
 
   /is-stream-ended@0.1.4:
     resolution: {integrity: sha512-xj0XPvmr7bQFTvirqnFr50o0hQIh6ZItDqloxt5aJrR4NQsYeSsyFQERYGCAzfindAcnKjINnwEEgLx4IqVzQw==}

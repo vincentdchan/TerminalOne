@@ -1,4 +1,5 @@
 use serde::{Serialize, Deserialize};
+use toml::Table;
 use std::path::{PathBuf, Path};
 use log::error;
 
@@ -9,6 +10,10 @@ pub struct Settings {
   pub terminal: TerminalSettings,
   #[serde(default)]
   pub app: AppSettings,
+  #[serde(default)]
+  pub extensions: Option<Table>,
+  #[serde(default)]
+  pub keys: KeysSettings,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -53,6 +58,13 @@ impl Default for AutoUpdate {
 pub struct AppSettings {
   #[serde(default)]
   pub auto_update: AutoUpdate,
+}
+
+#[derive(Default, Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub struct KeysSettings {
+  #[serde(default)]
+  pub bindings: Option<Table>,
 }
 
 pub(crate) fn read_init_settings(app_dir: &Path) -> Settings {

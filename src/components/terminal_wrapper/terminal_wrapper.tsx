@@ -7,13 +7,14 @@ import { FitAddon } from "xterm-addon-fit.es";
 import { invoke } from "@tauri-apps/api/tauri";
 import { Session } from "@pkg/models/session";
 import { AppTheme } from "@pkg/models/app_theme";
-import { debounce, isString } from "lodash-es";
+import { debounce } from "lodash-es";
 import { interval, type Subscription } from "rxjs";
 import classNames from "classnames";
 import Toolbar from "./toolbar";
 import { UnlistenFn, listen } from "@tauri-apps/api/event";
 import type { AppState } from "@pkg/models/app_state";
 import type { TerminalStatistic } from "@pkg/messages";
+import HotKeysHandler, { TerminalProxy } from "./hotkeys_handler";
 import "./terminal_wrapper.css";
 import "xterm.es/css/xterm.css";
 
@@ -28,16 +29,26 @@ interface TerminalWrapperState {
   loading: boolean;
 }
 
-export class TerminalWrapper extends Component<
-  TerminalWrapperProps,
-  TerminalWrapperState
-> {
+export class TerminalWrapper
+  extends Component<TerminalWrapperProps, TerminalWrapperState>
+  implements TerminalProxy
+{
   private containerRef = createRef<HTMLDivElement>();
   private terminal?: Terminal;
   private fitAddon?: FitAddon;
   private resizeObserver?: ResizeObserver;
+  #hotKeysHandler: HotKeysHandler;
   #subscriptions: Subscription[] = [];
   #unlistens: UnlistenFn[] = [];
+
+  constructor(props: TerminalWrapperProps) {
+    super(props);
+
+    const { appState } = props;
+    const settings = appState.settings$.value!;
+
+    this.#hotKeysHandler = new HotKeysHandler(settings.keys);
+  }
 
   override componentDidMount(): void {
     listen("tauri://move", () => {
@@ -76,6 +87,15 @@ export class TerminalWrapper extends Component<
     };
   }
 
+  #customKeyEventHandler = (e: KeyboardEvent): boolean => {
+    const terminal = this.terminal;
+    if (!terminal) {
+      return true;
+    }
+
+    return this.#hotKeysHandler.handle(e, this);
+  };
+
   async initTerminal() {
     const { session } = this.props;
     const { id } = session;
@@ -85,14 +105,7 @@ export class TerminalWrapper extends Component<
     });
     const initOptions = this.generateTermOptions();
     const terminal = new Terminal(initOptions);
-    terminal.attachCustomKeyEventHandler((e) => {
-      if (e.key === "k" && e.metaKey) {
-        this.terminal?.clear();
-        return false;
-      }
-
-      return true;
-    });
+    terminal.attachCustomKeyEventHandler(this.#customKeyEventHandler);
     this.terminal = terminal;
     const fitAddon = new FitAddon();
     this.fitAddon = fitAddon;
@@ -114,7 +127,7 @@ export class TerminalWrapper extends Component<
     });
 
     terminal.onData((data) => {
-      this.sendTerminalData(id, data);
+      this.sendTerminalData(data);
     });
 
     terminal.onTitleChange((title) => {
@@ -138,7 +151,7 @@ export class TerminalWrapper extends Component<
 
     this.#subscriptions.push(
       session.shellInput$.subscribe((content: string) => {
-        this.sendTerminalData(id, content);
+        this.sendTerminalData(content);
         this.delayFocus();
       })
     );
@@ -213,11 +226,16 @@ export class TerminalWrapper extends Component<
     this.fitAddon?.fit();
   }, 100);
 
-  async sendTerminalData(id: string, data: string) {
+  async sendTerminalData(data: string) {
+    const id = this.props.session.id;
     await invoke("send_terminal_data", {
       id,
       data,
     });
+  }
+
+  clearTerminal(): void {
+    this.terminal?.clear();
   }
 
   override componentWillUnmount(): void {
@@ -243,26 +261,26 @@ export class TerminalWrapper extends Component<
     if (content && content.startsWith("file://")) {
       const path = content.replace("file://", "");
       this.props.session.shellInput$.next(`"${path}"`);
-    // } else if (e.dataTransfer.items) {
-    //   // Use DataTransferItemList interface to access the file(s)
-    //   [...e.dataTransfer.items].forEach((item, i) => {
-    //     // If dropped items aren't files, reject them
-    //     if (item.kind === "file") {
-    //       const file = item.getAsFile();
-    //       console.log(`… file[${i}].name = ${file?.name}`);
-    //     }
-    //   });
+      // } else if (e.dataTransfer.items) {
+      //   // Use DataTransferItemList interface to access the file(s)
+      //   [...e.dataTransfer.items].forEach((item, i) => {
+      //     // If dropped items aren't files, reject them
+      //     if (item.kind === "file") {
+      //       const file = item.getAsFile();
+      //       console.log(`… file[${i}].name = ${file?.name}`);
+      //     }
+      //   });
     } else {
       // Use DataTransfer interface to access the file(s)
       [...e.dataTransfer.files].forEach((file, i) => {
         console.log(`… file[${i}].name = ${file.name}`, file);
       });
     }
-  }
+  };
 
   #handleDragOver = (e: React.MouseEvent) => {
     e.preventDefault();
-  }
+  };
 
   override render() {
     return (
