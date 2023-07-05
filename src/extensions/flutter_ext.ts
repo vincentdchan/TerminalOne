@@ -14,7 +14,7 @@ const flutterExt: ExtensionConfig = {
         };
       }
     );
-    context.onActionTrigger(() => {
+    context.onToolbarButtonTrigger(() => {
       return [
         {
           key: "flutter-run",

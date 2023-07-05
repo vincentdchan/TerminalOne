@@ -75,7 +75,7 @@ const gitExt: ExtensionConfig = {
         watchDir: true,
       };
     });
-    context.onActionTrigger(() => {
+    context.onToolbarButtonTrigger(() => {
       return [
         {
           key: "git-add",

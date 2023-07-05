@@ -1,6 +1,6 @@
 import { memo } from "react";
 import { Session } from "@pkg/models/session";
-import { ActionUI } from "./action_ui";
+import ToolbarButtonUI from "./toolbar_button_ui";
 import { useBehaviorSubject } from "@pkg/hooks/observable";
 
 export interface StatActionProps {
@@ -21,7 +21,7 @@ function lerpColor(a: number[], b: number[], t: number) {
   });
 }
 
-const StatAction = memo((props: StatActionProps) => {
+const StatToolbarButton = memo((props: StatActionProps) => {
   const { session } = props;
   const statistics = useBehaviorSubject(session.statistics$);
   const lastStat = statistics.last();
@@ -31,10 +31,12 @@ const StatAction = memo((props: StatActionProps) => {
   const color = lerpColor(coldestColor, hottestColor, cpuT);
 
   return (
-    <ActionUI color={`rgb(${color[0]}, ${color[1]}, ${color[2]})`}>
+    <ToolbarButtonUI color={`rgb(${color[0]}, ${color[1]}, ${color[2]})`}>
       cpu:{cpu.toFixed(1)}%
-    </ActionUI>
+    </ToolbarButtonUI>
   );
 });
 
-export default StatAction;
+StatToolbarButton.displayName = "StatToolbarButton";
+
+export default StatToolbarButton;

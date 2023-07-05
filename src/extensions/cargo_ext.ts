@@ -14,7 +14,7 @@ const cargoExt: ExtensionConfig = {
         };
       }
     );
-    context.onActionTrigger(() => {
+    context.onToolbarButtonTrigger(() => {
       return [
         {
           key: "cargo-run",

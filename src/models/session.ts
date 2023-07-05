@@ -3,7 +3,7 @@ import { Subject, BehaviorSubject, skip } from "rxjs";
 import type { AppState } from "./app_state";
 import { invoke } from "@tauri-apps/api";
 import { isUndefined, isString } from "lodash-es";
-import { ActionPayload } from "./extension";
+import { ToolbarButtonExtPayload } from "./extension";
 import { TerminalStatistic } from "@pkg/messages";
 import { List as ImmutableList } from "immutable";
 
@@ -14,10 +14,11 @@ export class Session {
   id: string;
   title$ = new BehaviorSubject<string | undefined>(undefined);
   cwd$ = new BehaviorSubject<string | undefined>(undefined);
-  actions$ = new BehaviorSubject<ActionPayload[]>([]);
+  toolbarButtons$ = new BehaviorSubject<ToolbarButtonExtPayload[]>([]);
   showSearchBox$ = new BehaviorSubject<boolean>(false);
   uiReady$ = new BehaviorSubject<boolean>(false);
   statistics$: BehaviorSubject<ImmutableList<TerminalStatistic>> = new BehaviorSubject(ImmutableList());
+  activeToolbarButtonIndex$ = new BehaviorSubject<number>(-1);
 
   shellInput$ = new Subject<string>();
   ptyOutput$ = new Subject<Uint8Array>();
@@ -30,7 +31,7 @@ export class Session {
     this.id = mkTabId();
 
     this.cwd$.pipe(skip(1)).subscribe(() => this.generateActions());
-    this.actions$.pipe(skip(1)).subscribe((actions) => {
+    this.toolbarButtons$.pipe(skip(1)).subscribe((actions) => {
       const shouldWatch = actions.some((action) => action.data.watchDir);
       const path = this.cwd$.value;
       if (isUndefined(path)) {
@@ -51,13 +52,20 @@ export class Session {
       if (isUndefined(currentDir)) {
         return;
       }
-      const actions = this.actions$.value;
+      const actions = this.toolbarButtons$.value;
       const next = await extensionManager.regenerateFsChangedActions(
         currentDir,
         [...actions]
       );
-      this.actions$.next(next);
+      this.toolbarButtons$.next(next);
     });
+  }
+
+  resetActiveToolbarButtonIndex() {
+    if (this.activeToolbarButtonIndex$.value < 0) {
+      return;
+    }
+    this.activeToolbarButtonIndex$.next(-1);
   }
 
   pushStatistic(statistic: TerminalStatistic) {
@@ -82,7 +90,7 @@ export class Session {
 
     const { extensionManager } = this.appState;
     const actions = await extensionManager.generateActions(cwd);
-    this.actions$.next(actions);
+    this.toolbarButtons$.next(actions);
   }
 
   showSearchBox() {

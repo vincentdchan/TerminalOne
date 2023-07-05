@@ -1,13 +1,13 @@
 import React, { forwardRef } from "react";
 import { OUTLINE_DEFAULT_COLOR } from "./toolbar";
-import classes from "./action_ui.module.css";
+import classes from "./toolbar_button_ui.module.css";
 
-export interface ActionUIProps extends React.HTMLAttributes<HTMLDivElement> {
+export interface ToolbarButtonUIProps extends React.HTMLAttributes<HTMLDivElement> {
   color?: string;
   clickable?: boolean;
 }
 
-export const ActionUI = forwardRef((props: ActionUIProps, ref) => {
+const ToolbarButtonUI = forwardRef((props: ToolbarButtonUIProps, ref) => {
   let { className = "", style, color, clickable, ...restProps } = props;
   className += " ";
   className += classes.actionUI;
@@ -28,3 +28,7 @@ export const ActionUI = forwardRef((props: ActionUIProps, ref) => {
     />
   );
 });
+
+ToolbarButtonUI.displayName = "ToolbarButtonUI";
+
+export default ToolbarButtonUI;

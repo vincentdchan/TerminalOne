@@ -1,5 +1,5 @@
 import type {
-  ActionMenuItemType,
+  ToolbarButtonDropdownMenuItemType,
   ExtensionConfig,
 } from "@pkg/models/extension";
 
@@ -27,9 +27,9 @@ const explorerExt: ExtensionConfig = {
         color: "rgb(138, 206, 247)",
       };
     });
-    context.onActionTrigger(({ currentDir }) => {
+    context.onToolbarButtonTrigger(({ currentDir }) => {
       const favoriteDirs = context.getFavoriteDirsPath();
-      const result: ActionMenuItemType[] = [];
+      const result: ToolbarButtonDropdownMenuItemType[] = [];
 
       if (favoriteDirs.includes(currentDir)) {
         result.push({

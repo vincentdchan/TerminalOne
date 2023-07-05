@@ -1,5 +1,5 @@
 import type {
-  ActionMenuItemType,
+  ToolbarButtonDropdownMenuItemType,
   ExtensionConfig,
 } from "@pkg/models/extension";
 import * as fs from "@pkg/utils/fs";
@@ -7,8 +7,8 @@ import * as fs from "@pkg/utils/fs";
 async function generateNpmRelativeItem(
   currentDir: string,
   pkg: string
-): Promise<ActionMenuItemType[]> {
-  const result: ActionMenuItemType[] = [
+): Promise<ToolbarButtonDropdownMenuItemType[]> {
+  const result: ToolbarButtonDropdownMenuItemType[] = [
     {
       key: "install",
       command: `${pkg} install`,
@@ -73,7 +73,7 @@ const npmExt: ExtensionConfig = {
         };
       }
     );
-    context.onActionTrigger(({ currentDir, data }) =>
+    context.onToolbarButtonTrigger(({ currentDir, data }) =>
       generateNpmRelativeItem(currentDir, data.title)
     );
   },

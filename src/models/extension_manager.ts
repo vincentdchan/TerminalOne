@@ -1,8 +1,7 @@
 import {
-  type ActionPayload,
+  type ToolbarButtonExtPayload,
   type ExtensionConfig,
   type GenerateActionsParams,
-  type ActionMenuItemType,
   ExtensionContext,
 } from "./extension";
 import type { AppState } from "./app_state";
@@ -31,8 +30,8 @@ class ExtensionManager {
 
   async regenerateFsChangedActions(
     currentDir: string,
-    existPayloads: ActionPayload[]
-  ): Promise<ActionPayload[]> {
+    existPayloads: ToolbarButtonExtPayload[]
+  ): Promise<ToolbarButtonExtPayload[]> {
     const params: GenerateActionsParams = {
       homeDir: this.appState.homeDir$.value!,
       currentDir,
@@ -42,22 +41,22 @@ class ExtensionManager {
         return actionPayload;
       }
 
-      const ext = this.extensionMap.get(actionPayload.extName);
-      if (!ext) {
+      const extCtx = this.extensionMap.get(actionPayload.extName);
+      if (!extCtx) {
         return actionPayload;
       }
 
       try {
-        const actionData = await ext.generateActions(params);
+        const actionData = await extCtx.generateActions(params);
 
         if (actionData) {
           return {
-            extName: ext.name,
+            extName: extCtx.name,
             data: actionData,
           };
         }
       } catch (err) {
-        console.error("generate action error for: ", ext.name, err);
+        console.error("generate action error for: ", extCtx.name, err);
         return undefined;
       }
     });
@@ -65,12 +64,12 @@ class ExtensionManager {
     const nextPayloadsOptions = await Promise.all(nextPromises);
     const nextPayloads = nextPayloadsOptions.filter(
       (p) => p !== undefined
-    ) as ActionPayload[];
+    ) as ToolbarButtonExtPayload[];
     return nextPayloads;
   }
 
-  async generateActions(currentDir: string): Promise<ActionPayload[]> {
-    const resultMap: Map<string, ActionPayload> = new Map();
+  async generateActions(currentDir: string): Promise<ToolbarButtonExtPayload[]> {
+    const resultMap: Map<string, ToolbarButtonExtPayload> = new Map();
 
     const testFilesExts: ExtensionContext[] = [];
     const matchAllExts: ExtensionContext[] = [];
@@ -99,37 +98,37 @@ class ExtensionManager {
         index++;
         continue;
       }
-      const ext = testFilesExts[index];
+      const extCtx = testFilesExts[index];
       try {
-        const actionData = await ext.generateActions(params);
+        const actionData = await extCtx.generateActions(params);
 
         if (actionData) {
-          resultMap.set(ext.name, {
-            extName: ext.name,
+          resultMap.set(extCtx.name, {
+            extName: extCtx.name,
             data: actionData,
           });
         }
       } catch (err) {
-        console.error("generate action error for: ", ext.name, err);
+        console.error("generate action error for: ", extCtx.name, err);
       }
       index++;
     }
 
-    for (const ext of matchAllExts) {
+    for (const extCtx of matchAllExts) {
       try {
-        const actionData = await ext.generateActions(params);
+        const actionData = await extCtx.generateActions(params);
         if (actionData) {
-          resultMap.set(ext.name, {
-            extName: ext.name,
+          resultMap.set(extCtx.name, {
+            extName: extCtx.name,
             data: actionData,
           });
         }
       } catch (err) {
-        console.error("generate action error for: ", ext.name, "(all)", err);
+        console.error("generate action error for: ", extCtx.name, "(all)", err);
       }
     }
 
-    const result: ActionPayload[] = [];
+    const result: ToolbarButtonExtPayload[] = [];
 
     for (const ext of this.extensions) {
       const testResult = resultMap.get(ext.name);

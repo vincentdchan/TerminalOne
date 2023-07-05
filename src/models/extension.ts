@@ -1,28 +1,33 @@
+import { Subject } from "rxjs";
 import type { AppState } from "./app_state";
 
-export interface ActionPayload {
+export interface ToolbarButtonExtPayload {
   extName: string;
-  data: ActionData;
+  data: ToolbarButtonData;
 }
 
-export interface ActionMenuItem {
+export interface ToolbarButtonDropdownMenuItem {
   key: string;
   command?: string;
   title?: string;
   onClick?: () => void;
 }
 
-export interface ActionMenuDivider {
+export interface ToolbarButtonDropdownMenuDivider {
   type: "divider";
 }
 
-export function isDivider(item: any): item is ActionMenuDivider {
+export function isToolbarButtonDropdownMenuDivider(
+  item: any
+): item is ToolbarButtonDropdownMenuDivider {
   return item.type === "divider";
 }
 
-export type ActionMenuItemType = ActionMenuItem | ActionMenuDivider;
+export type ToolbarButtonDropdownMenuItemType =
+  | ToolbarButtonDropdownMenuItem
+  | ToolbarButtonDropdownMenuDivider;
 
-export interface ActionData {
+export interface ToolbarButtonData {
   title: string;
   color?: string;
   /**
@@ -38,10 +43,10 @@ export interface GenerateActionsParams {
 }
 
 export type HandleResolveResult =
-  | ActionData
+  | ToolbarButtonData
   | void
   | undefined
-  | Promise<ActionData | void | undefined>;
+  | Promise<ToolbarButtonData | void | undefined>;
 
 export interface ExtensionResolveConfig {
   testFile?: string;
@@ -57,10 +62,12 @@ export interface ExtensionContextIntf {
     config: ExtensionResolveConfig,
     handler: (params: GenerateActionsParams) => HandleResolveResult
   ): void;
-  onActionTrigger(
-    handler: (params: ActionTriggerHandlerParams) =>
-      | Promise<ActionMenuItemType[] | void | undefined>
-      | ActionMenuItemType[]
+  onToolbarButtonTrigger(
+    handler: (
+      params: ToolbarButtonTriggerHandlerParams
+    ) =>
+      | Promise<ToolbarButtonDropdownMenuItemType[] | void | undefined>
+      | ToolbarButtonDropdownMenuItemType[]
       | undefined
       | void
   ): void;
@@ -68,18 +75,18 @@ export interface ExtensionContextIntf {
   addOrRemoveFavoriteDirByPath(path: string): void;
 }
 
-export interface ActionTriggerHandlerParams extends GenerateActionsParams {
-  data: ActionData;
+export interface ToolbarButtonTriggerHandlerParams extends GenerateActionsParams {
+  data: ToolbarButtonData;
 }
 
 export class ExtensionContext implements ExtensionContextIntf {
   resolveConfig?: ExtensionResolveConfig;
   resolveHandler?: (params: GenerateActionsParams) => HandleResolveResult;
   actionTriggerHandler?: (
-    params: ActionTriggerHandlerParams
+    params: ToolbarButtonTriggerHandlerParams
   ) =>
-    | Promise<ActionMenuItemType[] | void | undefined>
-    | ActionMenuItemType[]
+    | Promise<ToolbarButtonDropdownMenuItemType[] | void | undefined>
+    | ToolbarButtonDropdownMenuItemType[]
     | undefined
     | void;
 
@@ -97,10 +104,12 @@ export class ExtensionContext implements ExtensionContextIntf {
     this.resolveHandler = handler;
   }
 
-  onActionTrigger(
-    handler: (params: ActionTriggerHandlerParams) =>
-      | Promise<ActionMenuItemType[] | void | undefined>
-      | ActionMenuItemType[]
+  onToolbarButtonTrigger(
+    handler: (
+      params: ToolbarButtonTriggerHandlerParams
+    ) =>
+      | Promise<ToolbarButtonDropdownMenuItemType[] | void | undefined>
+      | ToolbarButtonDropdownMenuItemType[]
       | undefined
       | void
   ) {
@@ -110,6 +119,7 @@ export class ExtensionContext implements ExtensionContextIntf {
   #cachedParams?: GenerateActionsParams | void | undefined;
 
   getFavoriteDirsPath(): string[] {
+    this.#appState.fetchFavoriteDirs();
     return this.#appState.favoriteDirsPath$.value?.toArray() ?? [];
   }
 
@@ -122,9 +132,12 @@ export class ExtensionContext implements ExtensionContextIntf {
     return this.resolveHandler?.(params);
   }
 
-  generateActionMenuItems(homeDir: string, data: ActionData):
-    | Promise<ActionMenuItemType[] | void | undefined>
-    | ActionMenuItemType[]
+  generateActionMenuItems(
+    homeDir: string,
+    data: ToolbarButtonData
+  ):
+    | Promise<ToolbarButtonDropdownMenuItemType[] | void | undefined>
+    | ToolbarButtonDropdownMenuItemType[]
     | undefined
     | void {
     return this.actionTriggerHandler?.({

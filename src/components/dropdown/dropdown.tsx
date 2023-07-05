@@ -15,7 +15,7 @@ export enum DropdownDirection {
 
 export interface ChildRenderOptions {
   ref: RefObject<any>;
-  show: () => void;
+  show: (data?: any) => void;
 }
 
 const defaultWidth = 240;
@@ -25,6 +25,7 @@ const minHeight = 120;
 export interface DropdownOverlayOptions {
   style: React.CSSProperties;
   ref: Ref<HTMLElement>;
+  data?: any;
   close: () => void;
 }
 
@@ -32,6 +33,7 @@ export interface DropdownProps {
   offsetY?: number;
   direction?: DropdownDirection;
   width?: number;
+  controller?: React.MutableRefObject<DropdownController | null | undefined>;
   overlay?: (overlayOptions: DropdownOverlayOptions) => ReactNode;
   children: (options: ChildRenderOptions) => ReactNode;
 }
@@ -41,6 +43,7 @@ interface DropdownState {
   x: number;
   y: number;
   maxHeight: number;
+  data?: any;
 }
 
 export interface DropdownInput {
@@ -95,6 +98,23 @@ export function computeDropdown(input: DropdownInput): DropdownOutput {
   return { x, y, maxHeight };
 }
 
+export class DropdownController {
+  #component: Dropdown
+
+  constructor(component: Dropdown) {
+    this.#component = component;
+  }
+
+  open(data?: any) {
+    this.#component.showDropdown(data);
+  }
+
+  close() {
+    this.#component.closeDropdown();
+  }
+
+}
+
 class Dropdown extends Component<DropdownProps, DropdownState> {
   #overlayRef: RefObject<HTMLElement> = createRef();
   #childRef: RefObject<HTMLElement> = createRef();
@@ -102,6 +122,11 @@ class Dropdown extends Component<DropdownProps, DropdownState> {
 
   constructor(props: DropdownProps) {
     super(props);
+
+    if (props.controller) {
+      props.controller.current = new DropdownController(this);
+    }
+
     this.state = {
       show: false,
       x: 0,
@@ -132,7 +157,17 @@ class Dropdown extends Component<DropdownProps, DropdownState> {
     this.#subscriptions.forEach((s) => s.unsubscribe());
   }
 
-  #show = () => {
+  showDropdown(data?: any) {
+    this.#show(data);
+  }
+
+  closeDropdown() {
+    this.setState({
+      show: false,
+    });
+  }
+
+  #show = (data?: any) => {
     const rect = this.#childRef.current!.getBoundingClientRect();
     const offsetY = this.props.offsetY ?? 8;
     const dropdownWidth = this.props.width ?? defaultWidth;
@@ -150,12 +185,13 @@ class Dropdown extends Component<DropdownProps, DropdownState> {
       x: output.x,
       y: output.y,
       maxHeight: output.maxHeight,
+      data,
     });
   };
 
   override render() {
     const { children, overlay, width } = this.props;
-    const { show, x, y, maxHeight } = this.state;
+    const { show, x, y, maxHeight, data } = this.state;
     return (
       <>
         {children({ ref: this.#childRef, show: this.#show })}
@@ -170,6 +206,7 @@ class Dropdown extends Component<DropdownProps, DropdownState> {
                 maxHeight: maxHeight,
               },
               ref: this.#overlayRef,
+              data,
               close: () => this.setState({ show: false }),
             }),
             document.getElementById("t1-dropdown")!
