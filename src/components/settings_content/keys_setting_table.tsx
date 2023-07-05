@@ -7,11 +7,11 @@ export interface KeysSettingsTableProps {
 
 function KeysSettingsTable(props: KeysSettingsTableProps) {
   const { settings } = props;
-  const { bindings = {} } = settings;
+  const { bindings } = settings;
   return (
     <div>
       <div className={classes.bindingItemTitle}>Bindings</div>
-      {Object.entries(bindings).map((([key, value], index) => (
+      {!!bindings && Object.entries(bindings).map((([key, value], index) => (
         <div className={classes.bindingItem} key={`${index}`}>
           <div className={classes.key}>{key}</div>
           <div className={classes.value}>{value}</div>
