@@ -17,6 +17,10 @@
   &:hover {
     background-color: rgb(95, 95, 95);
   }
+
+  &:global(.selected) {
+    background-color: rgb(95, 95, 95);
+  }
 }
 
 .menuDivider {

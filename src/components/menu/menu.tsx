@@ -1,4 +1,5 @@
 import React, { type CSSProperties, forwardRef } from "react";
+import classNames from "classnames";
 import classes from "./menu.module.css";
 
 export interface MenuProps {
@@ -19,21 +20,24 @@ export const Menu = forwardRef(
 );
 
 export interface MenuItemProps {
+  selected?: boolean;
   style?: CSSProperties;
   onClick?: React.MouseEventHandler<HTMLDivElement>;
+  onMouseEnter?: React.MouseEventHandler<HTMLDivElement>;
+  onMouseLeave?: React.MouseEventHandler<HTMLDivElement>;
   children?: React.ReactNode;
 }
 
 export function MenuItem(props: MenuItemProps) {
-  const { style, onClick, children } = props;
+  const { style, selected, ...restProps } = props;
   return (
     <div
       style={style}
-      className={`${classes.menuItem} t1-noselect t1-ellipsis`}
-      onClick={onClick}
-    >
-      {children}
-    </div>
+      className={classNames(`${classes.menuItem} t1-noselect t1-ellipsis`, {
+        selected,
+      })}
+      {...restProps}
+    />
   );
 }
 
