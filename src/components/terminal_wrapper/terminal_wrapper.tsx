@@ -283,6 +283,7 @@ export class TerminalWrapper
   };
 
   override render() {
+    const { active, session } = this.props;
     return (
       <div
         onDrop={this.#handleFileDropEvent}
@@ -291,7 +292,7 @@ export class TerminalWrapper
           unactive: !this.props.active,
         })}
       >
-        <Toolbar session={this.props.session} />
+        <Toolbar session={session} active={active} />
         <div ref={this.containerRef} className="t1-term-main-content"></div>
       </div>
     );

@@ -12,13 +12,14 @@ const SearchBox = lazy(() => import("@pkg/components/searchbox"));
 
 export interface ToolbarProps {
   session: Session;
+  active?: boolean;
 }
 
 const NUM_1_KEYCODE = 49;
 const NUM_9_KEYCODE = 57;
 
 const Toolbar = memo((props: ToolbarProps) => {
-  const { session } = props;
+  const { session, active } = props;
   const toolbarButtons = useBehaviorSubject(session.toolbarButtons$);
   const showSearchBox = useBehaviorSubject(session.showSearchBox$);
   const statistics = useBehaviorSubject(session.statistics$);
@@ -28,19 +29,38 @@ const Toolbar = memo((props: ToolbarProps) => {
   }, [session]);
 
   useEffect(() => {
+    if (!active) {
+      return;
+    }
     const keydown = fromEvent<KeyboardEvent>(window, "keydown", {
       capture: true,
     });
     const s = keydown.subscribe((e: KeyboardEvent) => {
-      if (e.metaKey && e.key === "f") {
-        e.preventDefault();
-        session.showSearchBox();
-      } else if (e.key === "Escape") {
-        e.preventDefault();
-        e.stopPropagation();
-        session.closeSearchBox();
-        session.resetActiveToolbarButtonIndex();
-        return;
+      switch (e.key) {
+        case "f": {
+          if (e.metaKey) {
+            e.preventDefault();
+            session.showSearchBox();
+          }
+          break;
+        }
+
+        case "Escape": {
+          if (session.showSearchBox$.value) {
+            e.preventDefault();
+            e.stopPropagation();
+            session.closeSearchBox();
+            return;
+          } else if (session.activeToolbarButtonIndex$.value >= 0) {
+            e.preventDefault();
+            e.stopPropagation();
+            session.resetActiveToolbarButtonIndex();
+            return;
+          }
+          break;
+        }
+
+        default: {}
       }
 
       if (
@@ -58,8 +78,11 @@ const Toolbar = memo((props: ToolbarProps) => {
       }
     });
 
-    return () => s.unsubscribe();
-  }, [toolbarButtons, session]);
+    return () => {
+      s.unsubscribe();
+      session.activeToolbarButtonIndex$.next(-1);
+    };
+  }, [toolbarButtons, session, active]);
 
   return (
     <div className="t1-terminal-toolbar t1-noselect">
