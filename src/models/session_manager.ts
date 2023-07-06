@@ -17,15 +17,14 @@ export class SessionManager {
 
   constructor(public appState: AppState) {
     this.#listenPtyOutput();
-    this.#listenFsChanged()
+    this.#listenFsChanged();
   }
 
   async #listenPtyOutput() {
     await listen(PushMessages.PTY_OUTPUT, (event) => {
       const resp = event.payload as PtyResponse;
       const session = this.sessionsMap.get(resp.id);
-      const { data64 } = resp;
-      const data = Uint8Array.from(atob(data64), (c) => c.charCodeAt(0));
+      const { data } = resp;
       session?.ptyOutput$.next(data);
     });
   }
@@ -35,7 +34,7 @@ export class SessionManager {
       const resp = event.payload as FsChangedEvent;
       const session = this.sessionsMap.get(resp.id);
       session?.fsChanged$.next(resp.paths);
-    })
+    });
   }
 
   newTab(initPath?: string): Session {

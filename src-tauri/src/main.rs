@@ -8,22 +8,21 @@ extern crate objc;
 mod app_path;
 mod app_state;
 mod context_menu;
+mod database;
 pub mod errors;
 mod install_script;
+mod logs;
 mod mac_ext;
 mod menu;
 mod messages;
+mod process_statistics;
+pub mod settings;
 mod terminal_delegate;
 mod theme_context;
 mod updater;
-mod process_statistics;
-mod database;
-mod logs;
-pub mod settings;
 
 use crate::mac_ext::WindowExt;
 use app_state::AppState;
-use base64::{engine::general_purpose, Engine as _};
 pub use errors::Error;
 use install_script::install_script;
 use log::{debug, error, info};
@@ -39,7 +38,7 @@ use std::{
     vec,
 };
 use sysinfo::{System, SystemExt};
-use tauri::{async_runtime, Manager, State, AppHandle};
+use tauri::{async_runtime, AppHandle, Manager, State};
 use terminal_delegate::TerminalDelegateEventHandler;
 // use portable_pty
 
@@ -60,13 +59,11 @@ impl TerminalDelegateEventHandler for MainTerminalEventHandler {
         data: &[u8],
     ) -> Result<()> {
         let id_str = terminal_delegate.id();
-        let data64 = general_purpose::STANDARD_NO_PAD.encode(data);
+        // data to string unchecked utf8
+        let data = unsafe { String::from_utf8_unchecked(data.to_vec()) };
         self.window.emit(
             messages::push_event::PTY_OUTPUT,
-            PtyResponse {
-                id: id_str,
-                data64: data64,
-            },
+            PtyResponse { id: id_str, data },
         )?;
         Ok(())
     }
@@ -132,9 +129,7 @@ fn new_terminal(
         Box::new(MainTerminalEventHandler {
             window: window.clone(),
         });
-    let _delegate = state
-        .inner()
-        .new_terminal(id, path, events_handler)?;
+    let _delegate = state.inner().new_terminal(id, path, events_handler)?;
     Ok(())
 }
 

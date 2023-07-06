@@ -8,7 +8,7 @@ export enum PushMessages {
 
 export interface PtyResponse {
   id: string;
-  data64: string;
+  data: string;
 }
 
 export enum StoreKeys {
@@ -26,6 +26,6 @@ export interface FsChangedEvent {
 
 export interface UpdateAvailableEvent {
   version: string;
-  date: string,
+  date: string;
   body?: string;
 }

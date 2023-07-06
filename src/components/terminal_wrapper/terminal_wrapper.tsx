@@ -79,6 +79,7 @@ export class TerminalWrapper
     return {
       fontSize: terminalSettings["font-size"],
       scrollback: terminalSettings.scrollback,
+      scrollOnUserInput: true,
       theme: {
         foreground: theme.colors.foreground,
         background: theme.colors.background,
@@ -157,7 +158,7 @@ export class TerminalWrapper
     );
 
     this.#subscriptions.push(
-      session.ptyOutput$.subscribe((data: Uint8Array) => {
+      session.ptyOutput$.subscribe((data: string) => {
         terminal.write(data);
       })
     );

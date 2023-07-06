@@ -17,11 +17,12 @@ export class Session {
   toolbarButtons$ = new BehaviorSubject<ToolbarButtonExtPayload[]>([]);
   showSearchBox$ = new BehaviorSubject<boolean>(false);
   uiReady$ = new BehaviorSubject<boolean>(false);
-  statistics$: BehaviorSubject<ImmutableList<TerminalStatistic>> = new BehaviorSubject(ImmutableList());
+  statistics$: BehaviorSubject<ImmutableList<TerminalStatistic>> =
+    new BehaviorSubject(ImmutableList());
   activeToolbarButtonIndex$ = new BehaviorSubject<number>(-1);
 
   shellInput$ = new Subject<string>();
-  ptyOutput$ = new Subject<Uint8Array>();
+  ptyOutput$ = new Subject<string>();
   fsChanged$ = new Subject<string[]>();
   termFocus$ = new Subject<void>();
   searchBoxFocus$ = new Subject<void>();
