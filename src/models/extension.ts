@@ -71,7 +71,7 @@ export interface ExtensionContextIntf {
       | undefined
       | void
   ): void;
-  getFavoriteDirsPath(): string[];
+  getFavoriteDirsPath(): Promise<string[]>;
   addOrRemoveFavoriteDirByPath(path: string): void;
 }
 
@@ -118,8 +118,8 @@ export class ExtensionContext implements ExtensionContextIntf {
 
   #cachedParams?: GenerateActionsParams | void | undefined;
 
-  getFavoriteDirsPath(): string[] {
-    this.#appState.fetchFavoriteDirs();
+  async getFavoriteDirsPath(): Promise<string[]> {
+    await this.#appState.fetchFavoriteDirs();
     return this.#appState.favoriteDirsPath$.value?.toArray() ?? [];
   }
 

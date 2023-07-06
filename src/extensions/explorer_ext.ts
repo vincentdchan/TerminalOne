@@ -27,8 +27,8 @@ const explorerExt: ExtensionConfig = {
         color: "rgb(138, 206, 247)",
       };
     });
-    context.onToolbarButtonTrigger(({ currentDir }) => {
-      const favoriteDirs = context.getFavoriteDirsPath();
+    context.onToolbarButtonTrigger(async ({ currentDir }) => {
+      const favoriteDirs = await context.getFavoriteDirsPath();
       const result: ToolbarButtonDropdownMenuItemType[] = [];
 
       if (favoriteDirs.includes(currentDir)) {
