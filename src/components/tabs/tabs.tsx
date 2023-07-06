@@ -236,6 +236,7 @@ export function Tabs(props: TabsProps) {
               <Tab
                 key={session.id}
                 session={session}
+                showHintText={sessionsMoreThanOne}
                 showCloseBtn={sessionsMoreThanOne}
                 showNeonBar={sessionsMoreThanOne}
                 draggable={sessionsMoreThanOne}

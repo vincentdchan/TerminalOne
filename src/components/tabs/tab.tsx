@@ -15,6 +15,7 @@ export interface TabProps {
   session: Session;
   last?: boolean;
   active?: boolean;
+  showHintText?: boolean;
   showCloseBtn?: boolean;
   showNeonBar?: boolean;
   index: number;
@@ -32,6 +33,7 @@ export interface TabProps {
 export function Tab(props: TabProps) {
   const {
     session,
+    showHintText,
     showCloseBtn,
     showNeonBar,
     last,
@@ -131,14 +133,7 @@ export function Tab(props: TabProps) {
       onContextMenu={handleContextMenu}
       {...restProps}
     >
-      {/* <div className="left">
-        {showCloseBtn && (
-          <IconButton onClick={handleClose}>
-            <MdClose />
-          </IconButton>
-        )}
-      </div> */}
-      <div className="left">{hintText}</div>
+      {!!showHintText && <div className="left">{hintText}</div>}
       <div className="main">
         <div className="inner t1-ellipsis">
           {prettyCwd ? (
@@ -153,7 +148,7 @@ export function Tab(props: TabProps) {
           )}
         </div>
       </div>
-      {showCloseBtn && (
+      {!!showCloseBtn && (
         <div className="right">
           <IconButton onClick={handleClose}>
             <MdClose />
