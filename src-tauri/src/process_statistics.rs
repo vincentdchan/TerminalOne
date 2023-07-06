@@ -2,7 +2,7 @@ use log::{debug, warn};
 use serde::{Deserialize, Serialize};
 use std::process::Command;
 
-const MAX_LEVEL: u32 = 4;
+const MAX_LEVEL: u32 = 10;
 
 #[derive(Default)]
 pub struct StatResultBuilder {
@@ -75,7 +75,8 @@ impl StatResultBuilder {
             let process_name = columns[1].trim();
 
             if level == 1 {
-                self.first_level_children_names.push(process_name.to_string());
+                self.first_level_children_names
+                    .push(process_name.to_string());
             }
 
             let pid = test_pid.unwrap();
@@ -152,7 +153,6 @@ fn fetch_cpu_mem_by_pid(pid: u32) -> CpuMemResult {
         mem_usage,
     }
 }
-
 
 pub(crate) fn fetch_process_statistics_by_pid(pid: u32) -> StatResult {
     let mut builder = StatResultBuilder::new();
