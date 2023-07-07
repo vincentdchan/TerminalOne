@@ -10,7 +10,7 @@ import { AppTheme } from "@pkg/models/app_theme";
 import { debounce } from "lodash-es";
 import { interval, type Subscription } from "rxjs";
 import classNames from "classnames";
-import Toolbar from "./toolbar";
+import Toolbar from "@pkg/components/toolbar";
 import { UnlistenFn, listen } from "@tauri-apps/api/event";
 import type { AppState } from "@pkg/models/app_state";
 import type { TerminalStatistic } from "@pkg/messages";
