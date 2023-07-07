@@ -10,7 +10,6 @@ import { AppTheme } from "@pkg/models/app_theme";
 import { debounce } from "lodash-es";
 import { interval, type Subscription } from "rxjs";
 import classNames from "classnames";
-import Toolbar from "@pkg/components/toolbar";
 import { UnlistenFn, listen } from "@tauri-apps/api/event";
 import type { AppState } from "@pkg/models/app_state";
 import type { TerminalStatistic } from "@pkg/messages";
@@ -22,6 +21,8 @@ export interface TerminalWrapperProps {
   appState: AppState;
   session: Session;
   theme: AppTheme;
+  width: number;
+  height: number;
   active?: boolean;
 }
 
@@ -36,7 +37,6 @@ export class TerminalWrapper
   private containerRef = createRef<HTMLDivElement>();
   private terminal?: Terminal;
   private fitAddon?: FitAddon;
-  private resizeObserver?: ResizeObserver;
   #hotKeysHandler: HotKeysHandler;
   #subscriptions: Subscription[] = [];
   #unlistens: UnlistenFn[] = [];
@@ -68,6 +68,10 @@ export class TerminalWrapper
   override componentDidUpdate(prevProps: Readonly<TerminalWrapperProps>): void {
     if (!prevProps.active && this.props.active) {
       this.terminal?.focus();
+      this.fitAddon?.fit();
+    }
+
+    if (prevProps.width !== this.props.width || prevProps.height !== this.props.height) {
       this.fitAddon?.fit();
     }
   }
@@ -185,13 +189,6 @@ export class TerminalWrapper
 
     this.#initMonitor();
 
-    this.resizeObserver = new ResizeObserver(() => {
-      if (!this.props.active) {
-        return;
-      }
-      this.fitSize();
-    });
-    this.resizeObserver.observe(this.containerRef.current!);
     this.delayFocus();
     session.uiReady$.next(true);
   }
@@ -241,8 +238,6 @@ export class TerminalWrapper
 
   override componentWillUnmount(): void {
     this.#unlistens.forEach((u) => u());
-    this.resizeObserver?.disconnect();
-    this.resizeObserver = undefined;
     this.removeTerminal();
     this.#subscriptions.forEach((s) => s.unsubscribe());
   }
@@ -284,17 +279,20 @@ export class TerminalWrapper
   };
 
   override render() {
-    const { active, session } = this.props;
+    const { width, height } = this.props;
     return (
       <div
         onDrop={this.#handleFileDropEvent}
         onDragOver={this.#handleDragOver}
-        className={classNames("t1-term-instance-container", {
+        className={classNames("t1-term-main-content", {
           unactive: !this.props.active,
         })}
+        style={{
+          width,
+          height,
+        }}
+        ref={this.containerRef}
       >
-        <Toolbar session={session} active={active} />
-        <div ref={this.containerRef} className="t1-term-main-content"></div>
       </div>
     );
   }

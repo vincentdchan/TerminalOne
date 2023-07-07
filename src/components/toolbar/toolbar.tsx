@@ -12,14 +12,13 @@ const SearchBox = lazy(() => import("@pkg/components/searchbox"));
 
 export interface ToolbarProps {
   session: Session;
-  active?: boolean;
 }
 
 const NUM_1_KEYCODE = 49;
 const NUM_9_KEYCODE = 57;
 
 const Toolbar = memo((props: ToolbarProps) => {
-  const { session, active } = props;
+  const { session } = props;
   const toolbarButtons = useBehaviorSubject(session.toolbarButtons$);
   const showSearchBox = useBehaviorSubject(session.showSearchBox$);
   const statistics = useBehaviorSubject(session.statistics$);
@@ -29,9 +28,6 @@ const Toolbar = memo((props: ToolbarProps) => {
   }, [session]);
 
   useEffect(() => {
-    if (!active) {
-      return;
-    }
     const keydown = fromEvent<KeyboardEvent>(window, "keydown", {
       capture: true,
     });
@@ -82,7 +78,7 @@ const Toolbar = memo((props: ToolbarProps) => {
       s.unsubscribe();
       session.activeToolbarButtonIndex$.next(-1);
     };
-  }, [toolbarButtons, session, active]);
+  }, [toolbarButtons, session]);
 
   return (
     <div className="t1-terminal-toolbar t1-noselect">

@@ -1,25 +1,14 @@
-.t1-term-instance-container {
-  display: flex;
-  flex-direction: column;
-  flex-grow: 1;
-  margin-left: 8px;
-  margin-right: 4px;
-
-  &.unactive {
-    position: fixed;
-    top: -1000px;
-    left: -1000px;
-  }
-
-  .t1-terminal-toolbar {
-    width: 100%;
-  }
-}
 
 .t1-term-main-content {
   flex-grow: 1;
-  position: relative;
+  position: absolute;
   --dark: transparent;
+
+  &.unactive {
+    top: -1000px;
+    left: -1000px;
+    pointer-events: none;
+  }
 
   .xterm {
     position: absolute;
