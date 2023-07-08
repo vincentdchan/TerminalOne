@@ -68,6 +68,21 @@
   --tooltip-text-color: rgb(207, 207, 207);
 }
 
+.t1-std-scrollbar {
+  scrollbar-color: var(--t1-scrollbar-thumb-color) var(--dark);
+  scrollbar-width: thin;
+
+  &::-webkit-scrollbar {
+    background-color: var(--dark);
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: var(--t1-scrollbar-thumb-color);
+    border-radius: 3px;
+  }
+}
+
 /* https://stackoverflow.com/questions/826782/how-to-disable-text-selection-highlighting */
 .t1-noselect {
   -webkit-touch-callout: none; /* iOS Safari */

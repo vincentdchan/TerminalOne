@@ -115,7 +115,7 @@ export const FileExplorer = memo(() => {
             <div className="main t1-noselect">Favorites</div>
           </div>
           <div
-            className={classes.favoriteContents}
+            className={`${classes.favoriteContents} t1-std-scrollbar`}
             style={{
               maxHeight: ITEM_HEIGHT * 4.5,
             }}
@@ -152,6 +152,7 @@ export const FileExplorer = memo(() => {
           <AutoSizer>
             {({ width, height }: Size) => (
               <List
+                className="t1-std-scrollbar"
                 width={width}
                 height={height}
                 itemCount={files.length}

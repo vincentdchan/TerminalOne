@@ -53,13 +53,16 @@
   flex: 1;
 
   display: flex;
+
+  padding-right: 4px;
 }
 
 .favoriteContents {
   flex-grow: 0;
   flex-shrink: 0;
 
-  overflow: scroll;
+  overflow-y: scroll;
+  overflow-x: hidden;
 }
 
 .fileExplorerEmpty {
