@@ -330,6 +330,22 @@ fn open_context_menu(window: tauri::Window, req: OpenContextMenuReq) {
     context_menu::open(window, req)
 }
 
+#[tauri::command]
+fn console_log(level: &str, data: Vec<serde_json::Value>) {
+    if data.len() == 1 {
+        let data = &data[0];
+        match data {
+            serde_json::Value::String(str) => {
+                error!("Web: {}", str);
+                return;
+            }
+            _ => ()
+        }
+    }
+
+    error!("console log: {:?}", data);
+}
+
 #[cfg(debug_assertions)]
 fn set_debug_icon(win: tauri::Window, app_handle: tauri::AppHandle) {
     let debug_icon_path = app_handle
@@ -429,6 +445,7 @@ fn main() {
             batch_test_files,
             install_update,
             open_context_menu,
+            console_log,
         ])
         .on_menu_event(|event| match event.menu_item_id() {
             "settings" => {
