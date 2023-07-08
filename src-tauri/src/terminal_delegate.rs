@@ -190,6 +190,7 @@ impl std::io::Write for TerminalDelegate {
 
 struct TerminalDelegateInner {
     id: String,
+    #[allow(dead_code)]
     shell_path: PathBuf,
     process_id: Option<u32>,
     is_closed: bool,

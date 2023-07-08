@@ -1,4 +1,4 @@
-import { Component, ReactNode, createRef } from "react";
+import { Component, ErrorInfo, ReactNode, createRef } from "react";
 import * as PIXI from "pixi.js";
 import classes from "./fancy_background.module.css";
 
@@ -77,6 +77,10 @@ export class FancyBackground extends Component {
 
   private containerRef = createRef<HTMLDivElement>();
   private app: PIXI.Application | undefined = undefined;
+
+  componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
+    console.error(error, errorInfo);
+  }
 
   componentDidMount(): void {
     const app = new PIXI.Application({

@@ -51,6 +51,7 @@
 
   .header {
     display: flex;
+    margin-bottom: 24px;
 
     h1 {
       cursor: default;
@@ -87,8 +88,10 @@
 }
 
 .checkboxContainer {
-  margin-bottom: 34px;
+  margin-bottom: 38px;
   max-width: 540px;
+
+  transform: translateX(16px);
 }
 
 .prettyCheckBox {

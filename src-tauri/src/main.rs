@@ -24,7 +24,6 @@ mod updater;
 use crate::mac_ext::WindowExt;
 use app_state::AppState;
 pub use errors::Error;
-use shell_integration::install_script;
 use log::{debug, error, info};
 use messages::*;
 use portable_pty::ExitStatus;
@@ -429,7 +428,6 @@ fn main() {
             get_all_favorite_folders,
             batch_test_files,
             install_update,
-            install_script,
             open_context_menu,
         ])
         .on_menu_event(|event| match event.menu_item_id() {
