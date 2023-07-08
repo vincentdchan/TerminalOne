@@ -5,9 +5,12 @@ use log::{debug, error, info, warn};
 use notify_debouncer_mini::{new_debouncer, notify::*, DebounceEventResult, Debouncer};
 use portable_pty::{native_pty_system, Child, CommandBuilder, ExitStatus, MasterPty, PtySize};
 use std::collections::BTreeMap;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::sync::{Arc, Mutex};
 use std::time::Duration;
+
+const ZDOTDIR: &str = "ZDOTDIR";
+const USER_ZDOTDIR: &str = "USER_ZDOTDIR";
 
 pub(crate) trait TerminalDelegateEventHandler {
     fn handle_data(&self, terminal: &TerminalDelegate, data: &[u8]) -> Result<()>;
@@ -25,10 +28,16 @@ impl TerminalDelegate {
     pub(crate) fn new(
         id: String,
         path: Option<String>,
+        shell_path: PathBuf,
         envs: BTreeMap<String, Option<String>>,
         event_handler: Box<dyn TerminalDelegateEventHandler + Send>,
     ) -> Result<TerminalDelegate> {
-        let (inner, mut child) = TerminalDelegateInner::new(id.clone(), path, envs)?;
+        let (inner, mut child) = TerminalDelegateInner::new(
+            id.clone(),
+            path,
+            shell_path,
+            envs,
+        )?;
 
         let event_handler = Arc::new(Mutex::new(event_handler));
         let delegate = TerminalDelegate {
@@ -181,6 +190,7 @@ impl std::io::Write for TerminalDelegate {
 
 struct TerminalDelegateInner {
     id: String,
+    shell_path: PathBuf,
     process_id: Option<u32>,
     is_closed: bool,
     master: Option<Box<dyn MasterPty + Send>>,
@@ -189,10 +199,25 @@ struct TerminalDelegateInner {
     fs_watcher: Option<Debouncer<FsEventWatcher>>,
 }
 
+fn get_user_zdot_dir() -> String {
+    let test_env = std::env::var("ZDOTDIR");
+    if test_env.is_ok() {
+        return test_env.unwrap();
+    }
+
+    let home_dir_test = dirs::home_dir();
+    if home_dir_test.is_some() {
+        return home_dir_test.unwrap().to_str().unwrap().to_string();
+    }
+
+    return "~".to_string();
+}
+
 impl TerminalDelegateInner {
     fn new(
         id: String,
         path: Option<String>,
+        shell_path: PathBuf,
         envs: BTreeMap<String, Option<String>>,
     ) -> Result<(TerminalDelegateInner, Box<dyn Child + Send + Sync>)> {
         // Use the native pty implementation for the system
@@ -211,6 +236,9 @@ impl TerminalDelegateInner {
             pixel_height: 0,
         })?;
 
+        let dot_dir_str = shell_path.to_str().unwrap();
+        let user_dot_dir_str = get_user_zdot_dir();
+
         // Spawn a shell into the pty
         // add params to cmd
         let mut cmd = CommandBuilder::new("/bin/zsh");
@@ -220,7 +248,8 @@ impl TerminalDelegateInner {
         cmd.env("TERM_PROGRAM_VERSION", version);
         cmd.env("TERM", "xterm-256color");
         cmd.env("LANG", "en_US.UTF-8");
-        cmd.env_remove("PATH");
+        cmd.env(ZDOTDIR, dot_dir_str);
+        cmd.env(USER_ZDOTDIR, user_dot_dir_str);
 
         for (key, value) in envs {
             if let Some(value) = value {
@@ -246,6 +275,7 @@ impl TerminalDelegateInner {
 
         let inner = TerminalDelegateInner {
             id: id.clone(),
+            shell_path,
             process_id,
             is_closed: false,
             master: Some(pair.master),

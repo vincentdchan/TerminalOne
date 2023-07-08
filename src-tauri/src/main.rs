@@ -10,7 +10,7 @@ mod app_state;
 mod context_menu;
 mod database;
 pub mod errors;
-mod install_script;
+mod shell_integration;
 mod logs;
 mod mac_ext;
 mod menu;
@@ -24,7 +24,7 @@ mod updater;
 use crate::mac_ext::WindowExt;
 use app_state::AppState;
 pub use errors::Error;
-use install_script::install_script;
+use shell_integration::install_script;
 use log::{debug, error, info};
 use messages::*;
 use portable_pty::ExitStatus;
@@ -349,6 +349,7 @@ fn set_debug_icon(_win: tauri::Window, _app_handle: tauri::AppHandle) {
 fn main() {
     let app_log_dir = app_path::app_log_dir(APP_NAME).expect("no log dirs");
     let app_data_dir = app_path::app_data_dir(APP_NAME).expect("no data dirs");
+    let local_shell_path = shell_integration::get_shell_path(&app_data_dir).expect("no local shell path");
 
     logs::init_logs(app_log_dir.as_path());
 
@@ -368,7 +369,7 @@ fn main() {
 
     tauri::Builder::default()
         .menu(menu)
-        .manage(AppState::new(settings))
+        .manage(AppState::new(local_shell_path.clone(), settings))
         .setup(move |app| {
             let win = app.get_window("main").unwrap();
             win.set_transparent_titlebar(true);
@@ -401,6 +402,9 @@ fn main() {
             state.inner().load_themes(&theme_path)?;
 
             let app_handle = app.handle();
+
+            shell_integration::init_shell_integration(&app_handle, &local_shell_path).unwrap();
+
             updater::spawn_thread_to_check_update(app_handle);
 
             return Ok(());

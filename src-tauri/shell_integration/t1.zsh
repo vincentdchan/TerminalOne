@@ -1,3 +1,29 @@
+builtin autoload -Uz add-zsh-hook
+
+# Prevent the script recursing when setting up
+if [ -n "$T1_SHELL_INTEGRATION" ]; then
+	ZDOTDIR=$USER_ZDOTDIR
+	builtin return
+fi
+
+# This variable allows the shell to both detect that VS Code's shell integration is enabled as well
+# as disable it by unsetting the variable.
+T1_SHELL_INTEGRATION=1
+
+HISTFILE=$USER_ZDOTDIR/.zsh_history
+
+if [[ $options[norcs] = off  && -f $USER_ZDOTDIR/.zshrc ]]; then
+	T1_ZDOTDIR=$ZDOTDIR
+	ZDOTDIR=$USER_ZDOTDIR
+	# A user's custom HISTFILE location might be set when their .zshrc file is sourced below
+	. $USER_ZDOTDIR/.zshrc
+fi
+
+# Shell integration was disabled by the shell, exit without warning assuming either the shell has
+# explicitly disabled shell integration as it's incompatible or it implements the protocol.
+if [ -z "$T1_SHELL_INTEGRATION" ]; then
+	builtin return
+fi
 
 prompt_t1_state_setup() {
   typeset -gA prompt_t1_state
@@ -93,8 +119,6 @@ prompt_t1_setup() {
   zmodload zsh/zle
 	zmodload zsh/parameter
 
-  autoload -Uz add-zsh-hook
-
   # Set the colors.
 	typeset -gA prompt_t1_colors_default prompt_t1_colors
 	prompt_t1_colors_default=(
@@ -133,3 +157,7 @@ prompt_t1_setup() {
 }
 
 prompt_t1_setup "$@"
+
+if [[ $options[login] = off && $USER_ZDOTDIR != $T1_ZDOTDIR ]]; then
+	ZDOTDIR=$USER_ZDOTDIR
+fi

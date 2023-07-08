@@ -8,7 +8,7 @@ use tauri::Wry;
 use tauri::updater::UpdateResponse;
 use std::collections::{HashMap, BTreeMap};
 use crate::mac_ext::system_proxy_settings;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::sync::{Arc, Mutex};
 use crate::settings::Settings;
 
@@ -18,10 +18,11 @@ pub(crate) struct AppState {
 }
 
 impl AppState {
-    pub(crate) fn new(settings: Settings) -> AppState {
+    pub(crate) fn new(shell_path: PathBuf, settings: Settings) -> AppState {
         let settings_arc = Arc::new(settings);
+        let inner = AppStateInner::new(shell_path, settings_arc);
         AppState {
-            inner: Arc::new(Mutex::new(AppStateInner::new(settings_arc))),
+            inner: Arc::new(Mutex::new(inner)),
         }
     }
 
@@ -35,9 +36,16 @@ impl AppState {
             let inner = self.inner.lock().unwrap();
             inner.preserved_envs.clone()
         };
+        let shell_path = {
+            let inner = self.inner.lock().unwrap();
+            inner.shell_path.clone()
+        };
+        // The new operation is slow.
+        // So we don't want to obtain the lock when creating a new terminal.
         let delegate: TerminalDelegate = TerminalDelegate::new(
             id,
             path,
+            shell_path,
             envs,
             event_handler,
         )?;
@@ -209,6 +217,7 @@ impl AppState {
 }
 
 struct AppStateInner {
+    shell_path: PathBuf,
     settings: Arc<Settings>,
     terminals: HashMap<String, TerminalDelegate>,
     preserved_envs: BTreeMap<String, Option<String>>,
@@ -273,11 +282,12 @@ fn try_set_https_proxy(system_proxy: &serde_json::Map<String, serde_json::Value>
 }
 
 impl AppStateInner {
-    fn new(settings: Arc<Settings>) -> AppStateInner {
+    fn new(shell_path: PathBuf, settings: Arc<Settings>) -> AppStateInner {
         let preserved_envs = get_preserved_envs();
         debug!("preserved_envs: {:?}", preserved_envs);
 
         let result = AppStateInner {
+            shell_path,
             settings,
             terminals: HashMap::new(),
             preserved_envs,
