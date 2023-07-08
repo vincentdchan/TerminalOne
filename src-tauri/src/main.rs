@@ -343,7 +343,7 @@ fn console_log(level: &str, data: Vec<serde_json::Value>) {
         }
     }
 
-    error!("console log: {:?}", data);
+    error!("console log: level={} {:?}", level, data);
 }
 
 #[cfg(debug_assertions)]
