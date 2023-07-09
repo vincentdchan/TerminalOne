@@ -51,7 +51,6 @@
 
   .header {
     display: flex;
-    margin-bottom: 24px;
 
     h1 {
       cursor: default;

@@ -9,7 +9,9 @@ use std::path::{Path, PathBuf};
 use std::sync::{Arc, Mutex};
 use std::time::Duration;
 
+#[allow(dead_code)]
 const ZDOTDIR: &str = "ZDOTDIR";
+#[allow(dead_code)]
 const USER_ZDOTDIR: &str = "USER_ZDOTDIR";
 
 pub(crate) trait TerminalDelegateEventHandler {
@@ -200,6 +202,7 @@ struct TerminalDelegateInner {
     fs_watcher: Option<Debouncer<FsEventWatcher>>,
 }
 
+#[allow(dead_code)]
 fn get_user_zdot_dir() -> String {
     let test_env = std::env::var("ZDOTDIR");
     if test_env.is_ok() {
@@ -237,8 +240,8 @@ impl TerminalDelegateInner {
             pixel_height: 0,
         })?;
 
-        let dot_dir_str = shell_path.to_str().unwrap();
-        let user_dot_dir_str = get_user_zdot_dir();
+        // let dot_dir_str = shell_path.to_str().unwrap();
+        // let user_dot_dir_str = get_user_zdot_dir();
 
         // Spawn a shell into the pty
         // add params to cmd
@@ -249,8 +252,8 @@ impl TerminalDelegateInner {
         cmd.env("TERM_PROGRAM_VERSION", version);
         cmd.env("TERM", "xterm-256color");
         cmd.env("LANG", "en_US.UTF-8");
-        cmd.env(ZDOTDIR, dot_dir_str);
-        cmd.env(USER_ZDOTDIR, user_dot_dir_str);
+        // cmd.env(ZDOTDIR, dot_dir_str);
+        // cmd.env(USER_ZDOTDIR, user_dot_dir_str);
 
         for (key, value) in envs {
             if let Some(value) = value {

@@ -166,7 +166,7 @@ export class AppState {
       this.showGiftBox$.next(uiStores[StoreKeys.showGiftBox]);
     }
 
-    if (isNumber(uiStores[StoreKeys.onboarding]) && !initData.forceOnboarding) {
+    if (uiStores[StoreKeys.onboarding] === 2 && !initData.forceOnboarding) {
       this.appStatus$.next(AppStatus.Ready);
     } else {
       this.showOnboarding$.next(true);

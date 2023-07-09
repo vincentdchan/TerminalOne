@@ -39,6 +39,7 @@ use std::{
 use sysinfo::{System, SystemExt};
 use tauri::{async_runtime, AppHandle, Manager, State};
 use terminal_delegate::TerminalDelegateEventHandler;
+use shell_integration::install_script;
 // use portable_pty
 
 pub type Result<T> = std::result::Result<T, errors::Error>;
@@ -446,6 +447,7 @@ fn main() {
             install_update,
             open_context_menu,
             console_log,
+            install_script,
         ])
         .on_menu_event(|event| match event.menu_item_id() {
             "settings" => {

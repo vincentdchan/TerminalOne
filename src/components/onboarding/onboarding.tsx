@@ -57,7 +57,8 @@ export const Onboarding = memo(() => {
         StoreKeys.collectDiagnosticData,
         diagnosticDataChecked
       );
-      await uiStore.store(StoreKeys.onboarding, 1);
+      await invoke("install_script");
+      await uiStore.store(StoreKeys.onboarding, 2);
     } catch (err) {
       console.error(err);
     } finally {
@@ -91,13 +92,12 @@ export const Onboarding = memo(() => {
           <img src={Face} />
           <h1 className="t1-noselect">Welcome</h1>
         </div>
-        {/* <p>
+        <p>
           Terminal One needs to install a script to your <i>.zshrc</i> file to
           work properly.
           <br />
           Press the button below to install the script.
-        </p> */}
-        {/* <p>Terminal One is ready to start.</p> */}
+        </p>
         <div className={classes.checkboxContainer}>
           <PrettyCheckBox
             content="Allow Terminal One to collect anonymous usage data."
@@ -123,7 +123,7 @@ export const Onboarding = memo(() => {
           />
         </div>
         <PrimaryButton onClick={handleStart}>
-          Continue
+          Install and Get started
         </PrimaryButton>
         <Suspense>
           <FancyBackground />

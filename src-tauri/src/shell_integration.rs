@@ -1,4 +1,4 @@
-use std::path::{Path, PathBuf};
+use std::{path::{Path, PathBuf}, io::Write, str::FromStr};
 
 use crate::Result;
 use log::info;
@@ -32,9 +32,9 @@ lazy_static! {
 
 }
 
-// fn escape_shell_path(path: &str) -> String {
-//     path.replace(" ", "\\ ")
-// }
+fn escape_shell_path(path: &str) -> String {
+    path.replace(" ", "\\ ")
+}
 
 #[cfg(debug_assertions)]
 pub fn get_shell_path(app_data_dir: &Path) -> Result<PathBuf> {
@@ -85,4 +85,62 @@ pub fn init_shell_integration(app_handle: &tauri::AppHandle, shell_path: &Path) 
     }
 
     Ok(())
+}
+
+#[tauri::command]
+pub fn install_script(app_handle: tauri::AppHandle) -> Result<()> {
+  let shell_path = app_handle
+        .path_resolver()
+        .resolve_resource("shell_integration")
+        .expect("no shell integration found");
+  info!("begin install script");
+
+  let post_commit_str = {
+      let mut result = "\n# Terminal One\nsource ".to_string();
+      let precommit_dir = {
+          let mut tmp = shell_path.clone();
+          tmp.push("t1-rc.zsh");
+          tmp
+      };
+      let escaped_path = escape_shell_path(precommit_dir.to_str().unwrap());
+      result += escaped_path.as_str();
+      result += "\n";
+      result
+  };
+
+  let home_dir = dirs::home_dir().unwrap().to_str().unwrap().to_string();
+
+  let mut path = PathBuf::from_str(&home_dir)?;
+  path.push(".zshrc");
+
+  let exist = path.exists();
+
+  // read the content of path as string, if the file does not exist, return ""
+  let content = std::fs::read_to_string(&path).unwrap_or("".to_string());
+
+  // check if the precommit_str is already in the content
+  let already_exist = content.contains(post_commit_str.as_str());
+  if already_exist {
+    info!("precommit already exist");
+    return Ok(());
+  }
+
+  let new_content = content + post_commit_str.as_str();
+  if exist {
+    let backup_path = path.to_str().unwrap().to_string() + ".bak";
+    // move path to backup_path
+    std::fs::rename(&path, &backup_path)?;
+    info!("backup .zshrc to {}", backup_path);
+  }
+
+  // open the file and write the new content with file options
+  let mut file = std::fs::OpenOptions::new()
+      .write(true)
+      .create(true)
+      .open(&path)?;
+  file.write_all(new_content.as_bytes())?;
+
+  info!("write new content to .zshrc");
+
+  Ok(())
 }
