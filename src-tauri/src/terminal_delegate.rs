@@ -246,6 +246,7 @@ impl TerminalDelegateInner {
         // Spawn a shell into the pty
         // add params to cmd
         let mut cmd = CommandBuilder::new("/bin/zsh");
+        cmd.arg("-i");
         cmd.arg("--login");
         let version = env!("CARGO_PKG_VERSION");
         cmd.env("TERM_PROGRAM", "Terminal_One.app");
