@@ -6,6 +6,7 @@ import { isUndefined, isString } from "lodash-es";
 import { ToolbarButtonExtPayload } from "./extension";
 import { TerminalStatistic } from "@pkg/messages";
 import { List as ImmutableList } from "immutable";
+import { dynamicDebounce } from "@pkg/utils/dynamic_debounce";
 
 const FILE_PATTERN = /file:\/\/([^\/]+)(.+)/;
 const MAX_STATISTICS = 100;
@@ -28,13 +29,13 @@ export class Session {
   searchBoxFocus$ = new Subject<void>();
   searchNext$ = new Subject<string>();
 
+  generateActionsDuration = 0;
+
   constructor(public appState: AppState, public initPath?: string) {
     this.id = mkTabId();
 
-    this.cwd$.pipe(skip(1)).subscribe(() => this.generateActions());
-    this.toolbarButtons$.pipe(skip(1)).subscribe((actions) => {
-      const shouldWatch = actions.some((action) => action.data.watchDir);
-      const path = this.cwd$.value;
+    this.cwd$.pipe(skip(1)).subscribe((path) => {
+      this.generateActions();
       if (isUndefined(path)) {
         return;
       }
@@ -42,25 +43,29 @@ export class Session {
         id: this.id,
         options: {
           path,
-          watchDirs: shouldWatch,
+          watchDirs: true,
         },
       });
     });
 
-    this.fsChanged$.subscribe(async () => {
-      const { extensionManager } = this.appState;
-      const currentDir = this.cwd$.value;
-      if (isUndefined(currentDir)) {
-        return;
-      }
-      const actions = this.toolbarButtons$.value;
-      const next = await extensionManager.regenerateFsChangedActions(
-        currentDir,
-        [...actions]
-      );
-      this.toolbarButtons$.next(next);
+    this.fsChanged$.subscribe(() => {
+      this.regenerateToolbarButtons(this.generateActionsDuration);
     });
   }
+
+  private regenerateToolbarButtons = dynamicDebounce(async () => {
+    const { extensionManager } = this.appState;
+    const currentDir = this.cwd$.value;
+    if (isUndefined(currentDir)) {
+      return;
+    }
+    const actions = this.toolbarButtons$.value;
+    const next = await extensionManager.regenerateFsChangedActions(
+      currentDir,
+      [...actions]
+    );
+    this.toolbarButtons$.next(next);
+  });
 
   resetActiveToolbarButtonIndex() {
     if (this.activeToolbarButtonIndex$.value < 0) {
@@ -88,10 +93,13 @@ export class Session {
     if (isUndefined(cwd)) {
       return;
     }
+    const startMark = performance.now();
 
     const { extensionManager } = this.appState;
     const actions = await extensionManager.generateActions(cwd);
     this.toolbarButtons$.next(actions);
+
+    this.generateActionsDuration = performance.now() - startMark;
   }
 
   showSearchBox() {
