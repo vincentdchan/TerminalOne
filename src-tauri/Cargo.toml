@@ -36,6 +36,7 @@ base64 = "0.21.2"
 notify-debouncer-mini = { version = "0.3.0", features = ["serde"] }
 lazy_static = "1.4.0"
 rusqlite = { version = "0.29.0", features = ["bundled"] }
+mac_proxy = "0.1.0"
 
 [target.'cfg(target_os = "macos")'.dependencies]
 core-foundation = "*"

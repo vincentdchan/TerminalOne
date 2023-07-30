@@ -3,11 +3,11 @@ use crate::terminal_delegate::{TerminalDelegate, TerminalDelegateEventHandler};
 use crate::theme_context::{ThemeContext, ThemeItem};
 use crate::{Error, Result};
 use log::{info, debug, warn};
+use polodb_core::mac_proxy_settings;
 use serde_json::Value;
 use tauri::Wry;
 use tauri::updater::UpdateResponse;
 use std::collections::{HashMap, BTreeMap};
-use crate::mac_ext::system_proxy_settings;
 use std::path::{Path, PathBuf};
 use std::sync::{Arc, Mutex};
 use crate::settings::Settings;
@@ -302,7 +302,7 @@ impl AppStateInner {
     }
 
     fn init_proxy(&self) {
-        let system_proxy = system_proxy_settings();
+        let system_proxy = mac_proxy_settings();
         debug!("system: proxy setting: {:?}", system_proxy);
         if system_proxy.is_none() {
             return;

@@ -1841,6 +1841,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c41e0c4fef86961ac6d6f8a82609f55f31b05e4fce149ac5710e439df7619ba4"
 
 [[package]]
+name = "mac_proxy"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0a5cac0e016a8fd46fb48e822d2835751c3552b3666071277298332d21f5c1ed"
+dependencies = [
+ "core-foundation",
+ "serde_json",
+]
+
+[[package]]
 name = "machine-uid"
 version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3379,6 +3389,7 @@ dependencies = [
  "lazy_static",
  "log",
  "log4rs",
+ "mac_proxy",
  "machine-uid",
  "notify-debouncer-mini",
  "objc",
