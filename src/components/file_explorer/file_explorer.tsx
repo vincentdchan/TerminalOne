@@ -24,6 +24,7 @@ export const FileExplorer = memo(() => {
   const appState = useContext(AppContext)!;
   const currentDir = useObservable(appState.currentDir$, undefined);
   const favoriteDirs = useObservable(appState.favoriteDirs$, []);
+  const activeSession = useObservable(appState.sessionManager.activeSession$, undefined);
 
   const [scrollOffset, setScrollOffset] = useState(0);
   const [files, setFiles] = useState<FileItemModel[]>([]);
@@ -34,6 +35,9 @@ export const FileExplorer = memo(() => {
   }, [appState]);
 
   useEffect(() => {
+    if (!activeSession || !currentDir) {
+      return;
+    }
     const fetchDir = async () => {
       if (!isString(currentDir)) {
         setFiles([]);
@@ -67,9 +71,28 @@ export const FileExplorer = memo(() => {
 
       setFiles(newFiles);
     };
-
     fetchDir();
-  }, [currentDir]);
+
+    const sub = activeSession.fsChanged$.subscribe((path: string[]) => {
+      let isCurrentDir = false;
+
+      for (const p of path) {
+        let slices = p.split("/");
+        slices.pop();
+        const folderName = slices.join("/");
+        if (folderName === currentDir) {
+          isCurrentDir = true;
+          break;
+        }
+      }
+      
+      if (isCurrentDir) {
+        fetchDir();
+      }
+    });
+
+    return () => sub.unsubscribe();
+  }, [activeSession, currentDir]);
 
   const handleDblClick = (item: FileItemModel) => () => {
     const { sessionManager } = appState;

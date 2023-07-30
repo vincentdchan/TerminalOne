@@ -5,7 +5,7 @@ import { FileItem as FileItemModel, InitMessage } from "@pkg/messages";
 import type { Settings } from "@pkg/settings";
 import { List as ImmutableList } from "immutable";
 import { invoke } from "@tauri-apps/api";
-import { isBoolean, isNumber, isString, once } from "lodash-es";
+import { isBoolean, isString, once } from "lodash-es";
 import { objectToCamlCaseDeep } from "@pkg/utils/objects";
 import * as uiStore from "@pkg/utils/ui_store";
 import type { ThemeResponse } from "@pkg/messages";
