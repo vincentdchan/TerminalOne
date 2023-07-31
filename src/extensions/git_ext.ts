@@ -62,11 +62,13 @@ const gitExt: ExtensionConfig = {
               upDown = ` ↓${downCount} ↑${upCount} `;
             }
           } catch (err) {
-            console.error("git error:", err);
+            // ignore, don't care
+            // console.error("git error:", err);
           }
         }
       } else {
-        console.error("git error:", result.output);
+        // ignore, don't care
+        // console.error("git error:", result.output);
       }
 
       return {
